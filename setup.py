@@ -10,7 +10,7 @@ setup(
 	url='https://github.com/meteostat/routines',
 	packages=[],
 	python_requires='>=3.3',
-    install_requires=[
-        "mysql-connector-python>=8.0",
-    ],
+	install_requires=[
+		"mysql-connector-python>=8.0",
+	],
 )
