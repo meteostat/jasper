@@ -1,1 +1,9 @@
-mysql-connector-python>=8.0
+pandas>=1.1.0
+pytz
+numpy
+matplotlib
+pylint
+autopep8
+configparser
+sqlalchemy
+mysql-connector-python
