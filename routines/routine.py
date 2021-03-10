@@ -7,6 +7,7 @@ The code is licensed under the MIT license.
 import os
 from sqlalchemy import create_engine, text
 from configparser import ConfigParser
+import pandas as pd
 
 
 class Routine():
@@ -50,6 +51,17 @@ class Routine():
 
             return con.execute(text(query))
 
+    def __init__(
+        self,
+        name: str
+    ) -> None:
+
+        # Meta data
+        self.name = name
+
+        # Database connections
+        self._connect()
+
     def set_var(self, name: str, value: str) -> None:
 
         payload = {
@@ -71,10 +83,10 @@ class Routine():
         with self.sysdb.connect() as con:
             result = con.execute(text("""SELECT `value` FROM `variables` WHERE `ctx` = :ctx AND `name` = :name LIMIT 1"""), payload)
 
-            if result.rowcount == 1:
-                return result.first()[0]
-            else:
-                return None
+        if result.rowcount == 1:
+            return result.first()[0]
+        else:
+            return None
 
     def get_stations(self, query: str, limit: int) -> list:
 
@@ -91,13 +103,10 @@ class Routine():
 
             return result.fetchall()
 
-    def __init__(
-        self,
-        name: str
-    ) -> None:
+    def write(self, data: pd.DataFrame, schema: dict) -> None:
 
-        # Meta data
-        self.name = name
+        data = data.where(pd.notnull(data), None)
 
-        # Database connections
-        self._connect()
+        with self.db.begin() as con:
+            for record in data.reset_index().to_dict(orient='records'):
+                con.execute(text(schema['import_query']), {**schema['template'], **record})

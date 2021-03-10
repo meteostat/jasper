@@ -11,4 +11,3 @@ __appname__ = 'routines'
 __version__ = '0.0.1'
 
 from .routine import Routine
-from .importer import Importer
