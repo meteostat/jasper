@@ -71,7 +71,9 @@ class Routine():
         }
 
         with self.sysdb.connect() as con:
-            con.execute(text("""INSERT INTO `variables`(`ctx`, `name`, `value`) VALUES (:ctx, :name, :value) ON DUPLICATE KEY UPDATE `value` = :value"""), payload)
+            con.execute(
+                text("""INSERT INTO `variables`(`ctx`, `name`, `value`) VALUES (:ctx, :name, :value) ON DUPLICATE KEY UPDATE `value` = :value"""),
+                payload)
 
     def get_var(self, name: str) -> str:
 
@@ -81,7 +83,9 @@ class Routine():
         }
 
         with self.sysdb.connect() as con:
-            result = con.execute(text("""SELECT `value` FROM `variables` WHERE `ctx` = :ctx AND `name` = :name LIMIT 1"""), payload)
+            result = con.execute(
+                text("""SELECT `value` FROM `variables` WHERE `ctx` = :ctx AND `name` = :name LIMIT 1"""),
+                payload)
 
         if result.rowcount == 1:
             return result.first()[0]
@@ -109,4 +113,5 @@ class Routine():
 
         with self.db.begin() as con:
             for record in data.reset_index().to_dict(orient='records'):
-                con.execute(text(schema['import_query']), {**schema['template'], **record})
+                con.execute(text(schema['import_query']), {
+                            **schema['template'], **record})
