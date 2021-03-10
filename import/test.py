@@ -1,8 +1,7 @@
 import pandas as pd
-from routines import Importer
+from routines import Routine
 
-routine = Importer('DWD.HOURLY', 'hourly_national')
+importer = Routine('import.dwd.hourly')
 
-df = pd.read_sql('SELECT `id`, `country` FROM `stations` LIMIT 10', routine.db)
-
-print(df)
+result = importer.get_stations('SELECT `id`, `country` FROM `stations`', 10)
+print(result)

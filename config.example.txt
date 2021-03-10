@@ -1,4 +1,10 @@
-[database]
+[sysdb]
+name = system
+host = localhost
+user = system
+password = mypassword
+
+[msdb]
 name = meteostat
 host = localhost
 user = meteostat
