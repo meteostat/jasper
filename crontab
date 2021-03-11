@@ -1,1 +1,1 @@
-* * * * * python3 ~/routines/import/metno/hourly/model.py
+* * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/metno/hourly/model.py'
