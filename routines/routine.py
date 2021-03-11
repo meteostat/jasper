@@ -115,3 +115,7 @@ class Routine():
             for record in data.reset_index().to_dict(orient='records'):
                 con.execute(text(schema['import_query']), {
                             **schema['template'], **record})
+
+    def read(self, query: str) -> None:
+
+        return pd.read_sql(query, self.db)
