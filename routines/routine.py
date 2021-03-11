@@ -45,12 +45,6 @@ class Routine():
             f"""mysql+mysqlconnector://{config.get('msdb', 'user')}:{config.get('msdb', 'password')}@{config.get('msdb', 'host')}/{config.get('msdb', 'name')}""")
         self.db = msdb
 
-    def query(self, query: str) -> None:
-
-        with self.msdb.connect() as con:
-
-            return con.execute(text(query))
-
     def __init__(
         self,
         name: str
@@ -84,7 +78,8 @@ class Routine():
 
         with self.sysdb.connect() as con:
             result = con.execute(
-                text("""SELECT `value` FROM `variables` WHERE `ctx` = :ctx AND `name` = :name LIMIT 1"""),
+                text(
+                    """SELECT `value` FROM `variables` WHERE `ctx` = :ctx AND `name` = :name LIMIT 1"""),
                 payload)
 
         if result.rowcount == 1:
@@ -98,14 +93,17 @@ class Routine():
         counter = self.get_var('station_counter')
         skip = 0 if counter is None else int(counter)
 
-        # Update counter
-        self.set_var('station_counter', skip + limit)
-
         # Get weather stations
         with self.db.connect() as con:
             result = con.execute(text(query + f" LIMIT {skip}, {limit}"))
 
-            return result.fetchall()
+        # Update counter
+        if result.rowcount < limit:
+            self.set_var('station_counter', 0)
+        else:
+            self.set_var('station_counter', skip + limit)
+
+        return result.fetchall()
 
     def write(self, data: pd.DataFrame, schema: dict) -> None:
 
