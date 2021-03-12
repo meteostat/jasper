@@ -2,7 +2,7 @@ from numpy import isnan
 
 def temp(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     elif value >= -100 and value <= 65:
         return value
@@ -11,7 +11,7 @@ def temp(value):
 
 def rhum(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     if value >= 0 and value <= 100:
         return value
@@ -20,7 +20,7 @@ def rhum(value):
 
 def prcp_hourly(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     elif value >= 0 and value <= 350:
         return value
@@ -29,7 +29,7 @@ def prcp_hourly(value):
 
 def wspd(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     elif value >= 0 and value <= 250:
         return value
@@ -38,7 +38,7 @@ def wspd(value):
 
 def wpgt(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     elif value >= 0 and value <= 500:
         return value
@@ -47,7 +47,7 @@ def wpgt(value):
 
 def wdir(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     elif value >= 0 and value <= 360:
         return value
@@ -56,7 +56,7 @@ def wdir(value):
 
 def pres(value):
 
-    if isnan(value) or value == None:
+    if value == None or isnan(value):
         return None
     elif value >= 850 and value <= 1090:
         return value
