@@ -115,6 +115,9 @@ class Routine():
         # NaN to None
         data = data.where(pd.notnull(data), None)
 
+        # Convert time data to String
+        data.index = data.index.set_levels(data.index.levels[1].astype(str), level=1)
+
         with self.db.begin() as con:
             for record in data.reset_index().to_dict(orient='records'):
                 con.execute(text(schema['import_query']), {

@@ -1,2 +1,3 @@
 * * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/metno/hourly/model.py'
+25 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/zamg/hourly/synop.py'
 0 1 * * * /bin/sh /var/www/vhosts/api.meteostat.net/cron/ms/bulk/stations.sh
