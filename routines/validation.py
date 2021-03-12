@@ -1,20 +1,64 @@
+from numpy import isnan
+
 def temp(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    elif value >= -100 and value <= 65:
+        return value
+    else:
+        return None
 
 def rhum(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    if value >= 0 and value <= 100:
+        return value
+    else:
+        return None
 
 def prcp_hourly(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    elif value >= 0 and value <= 350:
+        return value
+    else:
+        return None
 
 def wspd(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    elif value >= 0 and value <= 250:
+        return value
+    else:
+        return None
 
 def wpgt(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    elif value >= 0 and value <= 500:
+        return value
+    else:
+        return None
 
 def wdir(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    elif value >= 0 and value <= 360:
+        return value
+    else:
+        return None
 
 def pres(value):
-    return True
+
+    if isnan(value) or value == None:
+        return None
+    elif value >= 850 and value <= 1090:
+        return value
+    else:
+        return None

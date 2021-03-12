@@ -9,9 +9,9 @@ from routines import Routine
 # Configuration
 STATIONS_PER_CYCLE = 1
 
-exporter = Routine('export.bulk.hourly')
+task = Routine('export.bulk.hourly')
 
-stations = exporter.get_stations("""
+stations = task.get_stations("""
     SELECT
         `stations`.`id` AS `id`
     FROM `stations`
@@ -27,7 +27,7 @@ stations = exporter.get_stations("""
 # Export data for each weather station
 for station in stations:
 
-    df = exporter.read(f"""
+    df = task.read(f"""
 		SET STATEMENT
 			max_statement_time=90
 		FOR

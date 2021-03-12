@@ -15,9 +15,9 @@ from routines.schema import hourly_model
 # Configuration
 STATIONS_PER_CYCLE = 20
 
-importer = Routine('import.metno.hourly.model')
+task = Routine('import.metno.hourly.model')
 
-stations = importer.get_stations("""
+stations = task.get_stations("""
     SELECT
         `stations`.`id` AS `id`,
         `stations`.`latitude` AS `latitude`,
@@ -41,50 +41,52 @@ stations = importer.get_stations("""
 # DataFrame which holds all data
 df_full = None
 
-# Import data for each weather station
-for station in stations:
+if len(stations) > 0:
 
-    # Create request for JSON file
-    url = f"https://api.met.no/weatherapi/locationforecast/2.0/complete.json?altitude={station[3]}&lat={station[1]}&lon={station[2]}"
-    req = request.Request(
-        url,
-        headers={
-            'User-Agent': 'meteostat.net info@meteostat.net'
-        }
-    )
+    # Import data for each weather station
+    for station in stations:
 
-    # Get JSON data
-    with request.urlopen(req) as raw:
-        data = json.loads(raw.read().decode())
+        # Create request for JSON file
+        url = f"https://api.met.no/weatherapi/locationforecast/2.0/complete.json?altitude={station[3]}&lat={station[1]}&lon={station[2]}"
+        req = request.Request(
+            url,
+            headers={
+                'User-Agent': 'meteostat.net info@meteostat.net'
+            }
+        )
 
-    # Map JSON data
-    def map_data(record):
-        return {
-            'time': record['time'],
-            'temp': record['data']['instant']['details']['air_temperature'] if 'air_temperature' in record['data']['instant']['details'] else None,
-            'rhum': record['data']['instant']['details']['relative_humidity'] if 'relative_humidity' in record['data']['instant']['details'] else None,
-            'prcp': record['data']['next_1_hours']['details']['precipitation_amount'] if 'next_1_hours' in record['data'] and 'precipitation_amount' in record['data']['next_1_hours']['details'] else None,
-            'wspd': record['data']['instant']['details']['wind_speed'] * 3.6 if 'wind_speed' in record['data']['instant']['details'] else None,
-            'wpgt': record['data']['instant']['details']['wind_speed_of_gust'] * 3.6 if 'wind_speed_of_gust' in record['data']['instant']['details'] else None,
-            'wdir': int(round(record['data']['instant']['details']['wind_from_direction'])) if 'wind_from_direction' in record['data']['instant']['details'] else None,
-            'pres': record['data']['instant']['details']['air_pressure_at_sea_level'] if 'air_pressure_at_sea_level' in record['data']['instant']['details'] else None
-        }
+        # Get JSON data
+        with request.urlopen(req) as raw:
+            data = json.loads(raw.read().decode())
 
-    # Create DataFrame
-    df = pd.DataFrame(map(map_data, data['properties']['timeseries']))
+        # Map JSON data
+        def map_data(record):
+            return {
+                'time': record['time'],
+                'temp': record['data']['instant']['details']['air_temperature'] if 'air_temperature' in record['data']['instant']['details'] else None,
+                'rhum': record['data']['instant']['details']['relative_humidity'] if 'relative_humidity' in record['data']['instant']['details'] else None,
+                'prcp': record['data']['next_1_hours']['details']['precipitation_amount'] if 'next_1_hours' in record['data'] and 'precipitation_amount' in record['data']['next_1_hours']['details'] else None,
+                'wspd': record['data']['instant']['details']['wind_speed'] * 3.6 if 'wind_speed' in record['data']['instant']['details'] else None,
+                'wpgt': record['data']['instant']['details']['wind_speed_of_gust'] * 3.6 if 'wind_speed_of_gust' in record['data']['instant']['details'] else None,
+                'wdir': int(round(record['data']['instant']['details']['wind_from_direction'])) if 'wind_from_direction' in record['data']['instant']['details'] else None,
+                'pres': record['data']['instant']['details']['air_pressure_at_sea_level'] if 'air_pressure_at_sea_level' in record['data']['instant']['details'] else None
+            }
 
-    # Set index
-    df['station'] = station[0]
-    df = df.set_index(['station', 'time'])
+        # Create DataFrame
+        df = pd.DataFrame(map(map_data, data['properties']['timeseries']))
 
-    # Shift prcp column by 1 (as it refers to the next hour)
-    df['prcp'] = df['prcp'].shift(1)
+        # Set index
+        df['station'] = station[0]
+        df = df.set_index(['station', 'time'])
 
-    # Append data to full DataFrame
-    if df_full is None:
-        df_full = df
-    else:
-        df_full = df_full.append(df)
+        # Shift prcp column by 1 (as it refers to the next hour)
+        df['prcp'] = df['prcp'].shift(1)
 
-# Write DataFrame into Meteostat database
-importer.write(df_full, hourly_model)
+        # Append data to full DataFrame
+        if df_full is None:
+            df_full = df
+        else:
+            df_full = df_full.append(df)
+
+    # Write DataFrame into Meteostat database
+    task.write(df_full, hourly_model)

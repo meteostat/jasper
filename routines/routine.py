@@ -107,6 +107,12 @@ class Routine():
 
     def write(self, data: pd.DataFrame, schema: dict) -> None:
 
+        # Validations
+        for parameter, validation in schema['validation'].items():
+            if parameter in data.columns:
+                data[parameter] = data[parameter].apply(validation)
+
+        # NaN to None
         data = data.where(pd.notnull(data), None)
 
         with self.db.begin() as con:
