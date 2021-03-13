@@ -44,5 +44,8 @@ df = df.set_index(['station', 'time'])
 df = df.tz_localize('Europe/Vienna', level='time')
 df = df.tz_convert(None, level='time')
 
+# Convert sunshine from percent to minutes
+df['tsun'] = round(60 * (df['tsun'] / 100))
+
 # Write DataFrame into Meteostat database
 task.write(df, hourly_synop)
