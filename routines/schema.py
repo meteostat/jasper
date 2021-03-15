@@ -53,7 +53,9 @@ hourly_synop = {
         'wpgt': None,
         'wdir': None,
         'pres': None,
-        'tsun': None
+        'snow': None,
+        'tsun': None,
+        'coco': None
     },
     'validation': {
         'temp': validation.temp,
@@ -63,7 +65,9 @@ hourly_synop = {
         'wpgt': validation.wpgt,
         'wdir': validation.wdir,
         'pres': validation.pres,
-        'tsun': validation.tsun_hourly
+        'snow': validation.snow,
+        'tsun': validation.tsun_hourly,
+        'coco': validation.coco
     },
     'import_query': """
         INSERT INTO `hourly_synop`
@@ -77,7 +81,9 @@ hourly_synop = {
             `wpgt` = :wpgt,
             `wdir` = :wdir,
             `pres` = :pres,
-            `tsun` = :tsun
+            `snow` = :snow,
+            `tsun` = :tsun,
+            `coco` = :coco
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
             `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
@@ -86,6 +92,8 @@ hourly_synop = {
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
-            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+            `snow` = COALESCE(VALUES(`snow`),`snow`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `coco` = COALESCE(VALUES(`coco`),`coco`)
     """
 }

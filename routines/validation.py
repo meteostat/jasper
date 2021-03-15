@@ -49,9 +49,23 @@ def pres(value):
     else:
         return value
 
+def snow(value):
+
+    if value == None or isnan(value) or value < 0 or value > 11000:
+        return None
+    else:
+        return value
+
 def tsun_hourly(value):
 
     if value == None or isnan(value) or value < 0 or value > 60:
+        return None
+    else:
+        return value
+
+def coco(value):
+
+    if value == None or isnan(value) or value < 0 or value > 27:
         return None
     else:
         return value
