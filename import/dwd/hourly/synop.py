@@ -12,7 +12,7 @@ from routines import Routine
 from routines.schema import hourly_synop
 
 # Configuration
-STATIONS_PER_CYCLE = 130
+STATIONS_PER_CYCLE = 10
 POI_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/poi.csv'
 
 # Column which should be imported
