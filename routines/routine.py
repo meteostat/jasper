@@ -115,6 +115,9 @@ class Routine():
         # NaN to None
         data = data.where(pd.notnull(data), None)
 
+        # Remove rows with NaN only
+        data = data.dropna(axis = 0, how = 'all')
+
         # Convert time data to String
         data.index = data.index.set_levels(data.index.levels[1].astype(str), level=1)
 
