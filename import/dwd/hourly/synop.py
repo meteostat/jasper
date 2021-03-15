@@ -106,7 +106,7 @@ for station in stations.to_dict(orient='records'):
     try:
 
         # Read CSV data from DWD server
-        url = f"https://opendata.dwd.de/weather/weather_reports/poi/{station['id']}-BEOB.csv"
+        url = f"http://opendata.dwd.de/weather/weather_reports/poi/{station['id']}-BEOB.csv"
         df = pd.read_csv(url, ';', skiprows=2, na_values='---', usecols=usecols, decimal=',', parse_dates=parse_dates)
 
         # Rename columns
