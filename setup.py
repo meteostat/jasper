@@ -25,7 +25,7 @@ setup(
     python_requires='>=3.6.0',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['pandas>=1.1', 'pytz', 'numpy', 'configparser', 'sqlalchemy', 'mysql-connector-python'],
+    install_requires=['pandas>=1.1', 'pytz', 'numpy', 'configparser', 'sqlalchemy', 'mysql-connector-python', 'lxml', 'metar>=1.8'],
     license='MIT',
     classifiers=[
          'Programming Language :: Python :: 3',

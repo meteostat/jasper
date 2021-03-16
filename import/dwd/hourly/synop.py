@@ -42,6 +42,7 @@ task = Routine('import.dwd.hourly.synop')
 
 # Map DWD codes to Meteostat condicodes
 def get_condicode(code: str):
+    """ Check docs/dwd_poi_codes.pdf for more information """
 
     condicodes = {
         '1': 1,

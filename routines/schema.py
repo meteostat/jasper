@@ -9,7 +9,8 @@ hourly_model = {
         'wspd': None,
         'wpgt': None,
         'wdir': None,
-        'pres': None
+        'pres': None,
+        'coco': None
     },
     'validation': {
         'temp': validation.temp,
@@ -18,7 +19,8 @@ hourly_model = {
         'wspd': validation.wspd,
         'wpgt': validation.wpgt,
         'wdir': validation.wdir,
-        'pres': validation.pres
+        'pres': validation.pres,
+        'coco': validation.coco
     },
     'import_query': """
         INSERT INTO `hourly_model`
@@ -31,7 +33,8 @@ hourly_model = {
             `wspd` = :wspd,
             `wpgt` = :wpgt,
             `wdir` = :wdir,
-            `pres` = :pres
+            `pres` = :pres,
+            `coco` = :coco
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
             `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
@@ -39,7 +42,8 @@ hourly_model = {
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
-            `pres` = COALESCE(VALUES(`pres`),`pres`)
+            `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `coco` = COALESCE(VALUES(`coco`),`coco`)
     """
 }
 
