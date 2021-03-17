@@ -8,30 +8,18 @@ The code is licensed under the MIT license.
 
 import os
 import re
-import math
 from datetime import datetime
 from urllib import request
 from zipfile import ZipFile
 from lxml import etree
 import pandas as pd
 from routines import Routine
+from routines.convert import kelvin_to_celsius, ms_to_kmh, temp_dwpt_to_rhum
 from routines.schema import hourly_model
 
 # Configuration
 STATIONS_PER_CYCLE = 6
 MOSMIX_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/mosmix.csv'
-
-# Convert Kelvin to Celsius
-def kelvin_to_celsius(value):
-    return value - 273.15
-
-# Convert m/s to km/h
-def ms_to_kmh(value):
-    return value * 3.6
-
-# Get relative humidity from temperature and dew point
-def get_humidity(row: dict):
-    return 100 * (math.exp((17.625 * row['dwpt']) / (243.04 + row['dwpt'])) / math.exp((17.625 * row['temp']) / (243.04 + row['temp'])))
 
 # Map DWD codes to Meteostat condicodes
 def get_condicode(code: str):
@@ -177,7 +165,7 @@ for station in stations.to_dict(orient='records'):
         df['time'] = pd.to_datetime(df['time'])
 
         # Calculate humidity data
-        df['rhum'] = df.apply(lambda row: get_humidity(row), axis=1)
+        df['rhum'] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
 
         # Drop dew point column
         df = df.drop('dwpt', axis=1)

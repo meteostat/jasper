@@ -101,3 +101,42 @@ hourly_synop = {
             `coco` = COALESCE(VALUES(`coco`),`coco`)
     """
 }
+
+hourly_metar = {
+    'index': ['station', 'time'],
+    'template': {
+        'temp': None,
+        'rhum': None,
+        'wspd': None,
+        'wdir': None,
+        'pres': None,
+        'coco': None
+    },
+    'validation': {
+        'temp': validation.temp,
+        'rhum': validation.rhum,
+        'wspd': validation.wspd,
+        'wdir': validation.wdir,
+        'pres': validation.pres,
+        'coco': validation.coco
+    },
+    'import_query': """
+        INSERT INTO `hourly_metar`
+        SET
+            `station` = :station,
+            `time` = :time,
+            `temp` = :temp,
+            `rhum` = :rhum,
+            `wspd` = :wspd,
+            `wdir` = :wdir,
+            `pres` = :pres,
+            `coco` = :coco
+        ON DUPLICATE KEY UPDATE
+            `temp` = COALESCE(VALUES(`temp`),`temp`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
+            `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `coco` = COALESCE(VALUES(`coco`),`coco`)
+    """
+}
