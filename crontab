@@ -3,5 +3,15 @@
 * * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/synop.py'
 * * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/model.py'
 10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/noaa/hourly/metar_cycle.py'
+1/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py PRCP recent precipitation/recent 4'
+2/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py PRCP historical precipitation/historical 4'
+3/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py TEMP recent air_temperature/recent 2'
+4/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py TEMP historical air_temperature/historical 2'
+5/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py WIND recent wind/recent 1'
+6/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py WIND historical wind/historical 1'
+7/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py PRES recent pressure/recent 1'
+8/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py PRES historical pressure/historical 1'
+9/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py TSUN recent sun/recent 1'
+10/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py TSUN historical sun/historical 1'
 # * * * * * /bin/sh /var/www/vhosts/api.meteostat.net/deploy/routines.sh
 0 1 * * * /bin/sh /var/www/vhosts/api.meteostat.net/cron/ms/bulk/stations.sh
