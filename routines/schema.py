@@ -179,3 +179,57 @@ hourly_metar = {
             `coco` = COALESCE(VALUES(`coco`),`coco`)
     """
 }
+
+daily_national = {
+    'template': {
+        'tavg': None,
+        'tmin': None,
+        'tmax': None,
+        'rhum': None,
+        'prcp': None,
+        'wspd': None,
+        'wpgt': None,
+        'pres': None,
+        'snow': None,
+        'tsun': None
+    },
+    'validation': {
+        'tavg': validation.temp,
+        'tmin': validation.temp,
+        'tmax': validation.temp,
+        'prcp': validation.prcp_daily,
+        'rhum': validation.rhum,
+        'wspd': validation.wspd,
+        'wpgt': validation.wpgt,
+        'pres': validation.pres,
+        'snow': validation.snow,
+        'tsun': validation.tsun_daily
+    },
+    'import_query': """
+        INSERT INTO `daily_national`
+        SET
+            `station` = :station,
+            `date` = :time,
+            `tavg` = :tavg,
+            `tmin` = :tmin,
+            `tmax` = :tmax,
+            `rhum` = :rhum,
+            `prcp` = :prcp,
+            `wspd` = :wspd,
+            `wpgt` = :wpgt,
+            `pres` = :pres,
+            `snow` = :snow,
+            `tsun` = :tsun
+        ON DUPLICATE KEY UPDATE
+            `tavg` = COALESCE(VALUES(`tavg`),`tavg`),
+            `tmin` = COALESCE(VALUES(`tmin`),`tmin`),
+            `tmax` = COALESCE(VALUES(`tmax`),`tmax`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
+            `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `snow` = COALESCE(VALUES(`snow`),`snow`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+    """
+}

@@ -21,6 +21,13 @@ def prcp_hourly(value):
     else:
         return value
 
+def prcp_daily(value):
+
+    if value == None or isnan(value) or value < 0 or value > 2000:
+        return None
+    else:
+        return value
+
 def wspd(value):
 
     if value == None or isnan(value) or value < 0 or value > 250:
@@ -59,6 +66,13 @@ def snow(value):
 def tsun_hourly(value):
 
     if value == None or isnan(value) or value < 0 or value > 60:
+        return None
+    else:
+        return value
+
+def tsun_daily(value):
+
+    if value == None or isnan(value) or value < 0 or value > 1440:
         return None
     else:
         return value
