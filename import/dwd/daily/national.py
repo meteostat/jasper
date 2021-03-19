@@ -133,4 +133,4 @@ for remote_file in files:
         pass
 
 # Write DataFrame into Meteostat database
-task.write(df_full.head(10), daily_national)
+task.write(df_full, daily_national)
