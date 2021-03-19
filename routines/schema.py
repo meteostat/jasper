@@ -120,7 +120,7 @@ hourly_national = {
         'tsun': validation.tsun_hourly
     },
     'import_query': """
-        INSERT INTO `hourly_synop`
+        INSERT INTO `hourly_national`
         SET
             `station` = :station,
             `time` = :time,
