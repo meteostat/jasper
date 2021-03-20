@@ -7,5 +7,6 @@
 4 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py historical 1'
 6-59/20 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/daily/national.py recent 5'
 8 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/daily/national.py historical 1'
+* * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/noaa/daily/global.py'
 # * * * * * /bin/sh /var/www/vhosts/api.meteostat.net/deploy/routines.sh
 0 1 * * * /bin/sh /var/www/vhosts/api.meteostat.net/cron/ms/bulk/stations.sh
