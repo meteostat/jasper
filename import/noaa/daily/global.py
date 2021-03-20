@@ -89,7 +89,7 @@ for station in stations.to_dict(orient='records'):
         df_full = df_full.append(df)
 
 # Write DataFrame into Meteostat database
-task.write(df_full.head(10), daily_global)
+task.write(df_full, daily_global)
 
 # Quit FTP connection
 ftp.quit()
