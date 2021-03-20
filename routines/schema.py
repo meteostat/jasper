@@ -233,3 +233,53 @@ daily_national = {
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
     """
 }
+
+daily_global = {
+    'template': {
+        'tavg': None,
+        'tmin': None,
+        'tmax': None,
+        'prcp': None,
+        'wspd': None,
+        'wpgt': None,
+        'wdir': None,
+        'snow': None,
+        'tsun': None
+    },
+    'validation': {
+        'tavg': validation.temp,
+        'tmin': validation.temp,
+        'tmax': validation.temp,
+        'prcp': validation.prcp_daily,
+        'wspd': validation.wspd,
+        'wpgt': validation.wpgt,
+        'wdir': validation.wdir,
+        'snow': validation.snow,
+        'tsun': validation.tsun_daily
+    },
+    'import_query': """
+        INSERT INTO `daily_ghcn`
+        SET
+            `station` = :station,
+            `date` = :time,
+            `tavg` = :tavg,
+            `tmin` = :tmin,
+            `tmax` = :tmax,
+            `prcp` = :prcp,
+            `wspd` = :wspd,
+            `wpgt` = :wpgt,
+            `wdir` = :wdir,
+            `snow` = :snow,
+            `tsun` = :tsun
+        ON DUPLICATE KEY UPDATE
+            `tavg` = COALESCE(VALUES(`tavg`),`tavg`),
+            `tmin` = COALESCE(VALUES(`tmin`),`tmin`),
+            `tmax` = COALESCE(VALUES(`tmax`),`tmax`),
+            `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
+            `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
+            `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
+            `snow` = COALESCE(VALUES(`snow`),`snow`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+    """
+}
