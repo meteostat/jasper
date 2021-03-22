@@ -18,9 +18,10 @@ from routines.convert import ms_to_kmh, temp_dwpt_to_rhum
 from routines.schema import hourly_global
 
 # Configuration
-STATIONS_PER_CYCLE = 1
 MODE = argv[1]
+STATIONS_PER_CYCLE = 1 if MODE == 'recent' else 4
 USAF_WBAN_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/usaf_wban.csv'
+CURRENT_YEAR = datetime.now().year
 
 # Required columns
 usecols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
@@ -35,6 +36,11 @@ task = Routine('import.noaa.hourly.global')
 counter = task.get_var('station_counter_' + MODE)
 skip = 0 if counter is None else int(counter)
 
+# Get year
+if MODE == 'historical':
+    year = task.get_var('year')
+    year = 1901 if year is None else int(year)
+
 # Get ISD Lite stations
 try:
     stations = pd.read_csv(USAF_WBAN_PATH, dtype='str', skiprows=skip, nrows=STATIONS_PER_CYCLE, names=['id', 'usaf', 'wban'])
@@ -44,7 +50,14 @@ except pd.errors.EmptyDataError:
 
 # Update counter
 if stations is None or len(stations.index) < STATIONS_PER_CYCLE:
+    # Reset counter
     task.set_var('station_counter_' + MODE, 0)
+    # Reset year
+    if MODE == 'historical':
+        if year >= CURRENT_YEAR - 2:
+            task.set_var('year', 1901)
+        else:
+            task.set_var('year', year + 1)
     exit()
 else:
     task.set_var('station_counter_' + MODE, skip + STATIONS_PER_CYCLE)
@@ -54,11 +67,10 @@ ftp = FTP('ftp.ncdc.noaa.gov')
 ftp.login()
 
 # Get list of years
-current_year = datetime.now().year
 if MODE == 'recent':
-    years = range(current_year - 1, current_year)
+    years = range(current_year - 1, current_year + 1)
 else:
-    years = range(1901, current_year)
+    years = range(year, year + 1)
 
 # Import data for each weather station
 for station in stations.to_dict(orient='records'):
