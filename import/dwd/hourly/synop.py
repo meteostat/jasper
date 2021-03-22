@@ -13,7 +13,11 @@ from routines.schema import hourly_synop
 
 # Configuration
 STATIONS_PER_CYCLE = 10
-POI_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/poi.csv'
+POI_PATH = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        '../../..',
+        'resources')) + '/poi.csv'
 
 # Column which should be imported
 usecols = [0, 1, 9, 21, 22, 23, 33, 35, 36, 37, 40, 41]
@@ -41,6 +45,8 @@ names = {
 task = Routine('import.dwd.hourly.synop')
 
 # Map DWD codes to Meteostat condicodes
+
+
 def get_condicode(code: str):
     """ Check docs/dwd_poi_codes.pdf for more information """
 
@@ -80,13 +86,19 @@ def get_condicode(code: str):
 
     return condicodes.get(str(code), None)
 
+
 # Get counter value
 counter = task.get_var('station_counter')
 skip = 0 if counter is None else int(counter)
 
 # Get POI stations
 try:
-    stations = pd.read_csv(POI_PATH, dtype='str', skiprows=skip, nrows=STATIONS_PER_CYCLE, names=['id'])
+    stations = pd.read_csv(
+        POI_PATH,
+        dtype='str',
+        skiprows=skip,
+        nrows=STATIONS_PER_CYCLE,
+        names=['id'])
 except pd.errors.EmptyDataError:
     stations = None
     pass
@@ -108,7 +120,14 @@ for station in stations.to_dict(orient='records'):
 
         # Read CSV data from DWD server
         url = f"http://opendata.dwd.de/weather/weather_reports/poi/{station['id']}-BEOB.csv"
-        df = pd.read_csv(url, ';', skiprows=2, na_values='---', usecols=usecols, decimal=',', parse_dates=parse_dates)
+        df = pd.read_csv(
+            url,
+            ';',
+            skiprows=2,
+            na_values='---',
+            usecols=usecols,
+            decimal=',',
+            parse_dates=parse_dates)
 
         # Rename columns
         df = df.rename(columns=names)
@@ -131,7 +150,7 @@ for station in stations.to_dict(orient='records'):
         else:
             df_full = df_full.append(df)
 
-    except:
+    except BaseException:
 
         pass
 

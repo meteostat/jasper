@@ -116,10 +116,11 @@ class Routine():
         data = data.where(pd.notnull(data), None)
 
         # Remove rows with NaN only
-        data = data.dropna(axis = 0, how = 'all')
+        data = data.dropna(axis=0, how='all')
 
         # Convert time data to String
-        data.index = data.index.set_levels(data.index.levels[1].astype(str), level=1)
+        data.index = data.index.set_levels(
+            data.index.levels[1].astype(str), level=1)
 
         with self.db.begin() as con:
             for record in data.reset_index().to_dict(orient='records'):

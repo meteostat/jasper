@@ -20,7 +20,11 @@ from routines.schema import hourly_global
 # Configuration
 MODE = argv[1]
 STATIONS_PER_CYCLE = 1 if MODE == 'recent' else 4
-USAF_WBAN_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/usaf_wban.csv'
+USAF_WBAN_PATH = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        '../../..',
+        'resources')) + '/usaf_wban.csv'
 CURRENT_YEAR = datetime.now().year
 
 # Required columns
@@ -43,7 +47,15 @@ if MODE == 'historical':
 
 # Get ISD Lite stations
 try:
-    stations = pd.read_csv(USAF_WBAN_PATH, dtype='str', skiprows=skip, nrows=STATIONS_PER_CYCLE, names=['id', 'usaf', 'wban'])
+    stations = pd.read_csv(
+        USAF_WBAN_PATH,
+        dtype='str',
+        skiprows=skip,
+        nrows=STATIONS_PER_CYCLE,
+        names=[
+            'id',
+            'usaf',
+            'wban'])
 except pd.errors.EmptyDataError:
     stations = None
     pass
@@ -81,13 +93,18 @@ for station in stations.to_dict(orient='records'):
 
             ftp.cwd('/pub/data/noaa/isd-lite/' + str(year))
 
-            filename = station["usaf"] + '-' + station["wban"] + '-'  + str(year) + '.gz'
+            filename = station["usaf"] + '-' + \
+                station["wban"] + '-' + str(year) + '.gz'
 
             if filename in ftp.nlst():
 
                 # Download file
-                local_file = os.path.dirname( __file__ ) + os.sep + filename
-                ftp.retrbinary("RETR " + filename, open(local_file, 'wb').write)
+                local_file = os.path.dirname(__file__) + os.sep + filename
+                ftp.retrbinary(
+                    "RETR " + filename,
+                    open(
+                        local_file,
+                        'wb').write)
 
                 # Unzip file
                 file = gzip.open(local_file, 'rb')
@@ -97,7 +114,18 @@ for station in stations.to_dict(orient='records'):
                 # Remove .gz file
                 os.remove(local_file)
 
-                df = pd.read_fwf(BytesIO(raw), parse_dates={ 'time': [0, 1, 2, 3] }, na_values=-9999, header=None, usecols=usecols)
+                df = pd.read_fwf(
+                    BytesIO(raw),
+                    parse_dates={
+                        'time': [
+                            0,
+                            1,
+                            2,
+                            3]},
+                    na_values=-
+                    9999,
+                    header=None,
+                    usecols=usecols)
 
                 # Rename columns
                 df.columns = NAMES
@@ -110,7 +138,8 @@ for station in stations.to_dict(orient='records'):
                 df['prcp'] = df['prcp'].div(10)
 
                 # Calculate humidity data
-                df['rhum'] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
+                df['rhum'] = df.apply(
+                    lambda row: temp_dwpt_to_rhum(row), axis=1)
 
                 # Drop dew point column
                 df = df.drop('dwpt', axis=1)
@@ -127,7 +156,7 @@ for station in stations.to_dict(orient='records'):
                 # Write data into Meteostat database
                 task.write(df, hourly_global)
 
-        except:
+        except BaseException:
 
             pass
 

@@ -3,6 +3,7 @@ from ftplib import FTP
 from io import StringIO
 import os
 
+
 def connect_to_ftp():
     """
     Get FTP server and file details
@@ -11,6 +12,7 @@ def connect_to_ftp():
     ftp = FTP('ftp.ncdc.noaa.gov')
     message = ftp.login()  # No credentials needed
     return ftp
+
 
 def get_flags(s):
     """
@@ -24,6 +26,7 @@ def get_flags(s):
     s_flag = s_flag if s_flag.strip() else '_'
     return [m_flag + q_flag + s_flag]
 
+
 def create_dataframe(element, dict_element):
     """
     Make dataframes out of the dicts, make the indices date strings (YYYY-MM-DD)
@@ -31,14 +34,17 @@ def create_dataframe(element, dict_element):
     element = element.upper()
     df_element = pd.DataFrame(dict_element)
     # Add dates (YYYY-MM-DD) as index on df. Pad days with zeros to two places
-    df_element.index = df_element['YEAR'] + '-' + df_element['MONTH'] + '-' + df_element['DAY'].str.zfill(2)
+    df_element.index = df_element['YEAR'] + '-' + \
+        df_element['MONTH'] + '-' + df_element['DAY'].str.zfill(2)
     df_element.index.name = 'DATE'
-    # Arrange columns so ID, YEAR, MONTH, DAY are at front. Leaving them in for plotting later - https://stackoverflow.com/a/31396042
+    # Arrange columns so ID, YEAR, MONTH, DAY are at front. Leaving them in
+    # for plotting later - https://stackoverflow.com/a/31396042
     for col in ['DAY', 'MONTH', 'YEAR', 'ID']:
         df_element = move_col_to_front(col, df_element)
     # Convert numerical values to float
-    df_element.loc[:,element] = df_element.loc[:,element].astype(float)
+    df_element.loc[:, element] = df_element.loc[:, element].astype(float)
     return df_element
+
 
 def move_col_to_front(element, df):
     element = element.upper()
@@ -47,12 +53,17 @@ def move_col_to_front(element, df):
     df = df.reindex(columns=cols)
     return df
 
+
 def dly_to_df(ftp, station_id):
     ftp_filename = station_id + '.dly'
 
     # Write .dly file to stream using StringIO using FTP command 'RETR'
     s = StringIO()
-    ftp.retrlines('RETR ' + '/pub/data/ghcn/daily/all/' + ftp_filename, s.write)
+    ftp.retrlines(
+        'RETR ' +
+        '/pub/data/ghcn/daily/all/' +
+        ftp_filename,
+        s.write)
     s.seek(0)
 
     # Move to first char in file
@@ -62,7 +73,16 @@ def dly_to_df(ftp, station_id):
     num_chars_line = 269
     num_chars_metadata = 21
 
-    element_list = ['TMAX','TMIN','TAVG','PRCP','SNWD','AWDR','AWND','TSUN','WSFG']
+    element_list = [
+        'TMAX',
+        'TMIN',
+        'TAVG',
+        'PRCP',
+        'SNWD',
+        'AWDR',
+        'AWND',
+        'TSUN',
+        'WSFG']
 
     '''
     Read through entire StringIO stream (the .dly file) and collect the data
@@ -92,11 +112,12 @@ def dly_to_df(ftp, station_id):
         '''
         while s.tell() % num_chars_line != 0:
             day += 1
-            # Fill in contents of each dict depending on element type in current row
+            # Fill in contents of each dict depending on element type in
+            # current row
             if day == 1:
                 try:
                     first_hit = element_flag[element]
-                except:
+                except BaseException:
                     element_flag[element] = 1
                     all_dicts[element] = {}
                     all_dicts[element]['ID'] = []
@@ -127,7 +148,8 @@ def dly_to_df(ftp, station_id):
     '''
     Combine all element dataframes into one dataframe, indexed on date.
     '''
-    # pd.concat automagically aligns values to matching indices, therefore the data is date aligned!
+    # pd.concat automagically aligns values to matching indices, therefore the
+    # data is date aligned!
     list_dfs = []
     for df in list(all_dfs.keys()):
         list_dfs += [all_dfs[df]]
@@ -138,7 +160,7 @@ def dly_to_df(ftp, station_id):
     Remove duplicated/broken columns and rows
     '''
     # https://stackoverflow.com/a/40435354
-    df_all = df_all.loc[:,~df_all.columns.duplicated()]
+    df_all = df_all.loc[:, ~df_all.columns.duplicated()]
     df_all = df_all.loc[df_all['ID'].notnull(), :]
 
     return df_all

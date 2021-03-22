@@ -23,7 +23,8 @@ DWD_FTP_SERVER = 'opendata.dwd.de'
 MODE = argv[1]
 BASE_DIR = 'precipitation/' + MODE
 STATIONS_PER_CYCLE = int(argv[2])
-DATEPARSER = lambda x: datetime.strptime(x, '%Y%m%d%H')
+def DATEPARSER(x): return datetime.strptime(x, '%Y%m%d%H')
+
 
 # DataFrame config
 PARAMETERS = [
@@ -89,22 +90,27 @@ PARAMETERS = [
 ]
 
 # Find file in directory
+
+
 def find_file(ftp: object, path: str, needle: str):
 
     file = None
 
     try:
 
-        ftp.cwd('/climate_environment/CDC/observations_germany/climate/hourly/' + path)
+        ftp.cwd(
+            '/climate_environment/CDC/observations_germany/climate/hourly/' +
+            path)
         files = ftp.nlst()
         matching = [f for f in files if needle in f]
         file = matching[0]
 
-    except:
+    except BaseException:
 
         pass
 
     return file
+
 
 # Create task
 task = Routine('import.dwd.hourly.national')
@@ -123,7 +129,7 @@ skip = 3 if counter is None else 3 + counter
 try:
     endpos = STATIONS_PER_CYCLE + skip
     stations = ftp.nlst()[skip:endpos]
-except:
+except BaseException:
     stations = None
     pass
 
@@ -142,8 +148,10 @@ for station_file in stations:
     try:
 
         # Get national weather station ID
-        national_id = str(station_file[-13:-8]) if MODE == 'recent' else str(station_file[-32:-27])
-        station = task.read(f"SELECT `id` FROM `stations` WHERE `national_id` LIKE '{national_id}'").iloc[0][0]
+        national_id = str(
+            station_file[-13:-8]) if MODE == 'recent' else str(station_file[-32:-27])
+        station = task.read(
+            f"SELECT `id` FROM `stations` WHERE `national_id` LIKE '{national_id}'").iloc[0][0]
 
         # DataFrame which holds data for one weather station
         df_station = None
@@ -158,8 +166,12 @@ for station_file in stations:
                 if remote_file is not None:
 
                     hash = hashlib.md5(remote_file.encode('utf-8')).hexdigest()
-                    local_file = os.path.dirname( __file__ ) + os.sep + hash
-                    ftp.retrbinary("RETR " + remote_file, open(local_file, 'wb').write)
+                    local_file = os.path.dirname(__file__) + os.sep + hash
+                    ftp.retrbinary(
+                        "RETR " + remote_file,
+                        open(
+                            local_file,
+                            'wb').write)
 
                     # Unzip file
                     zipped = ZipFile(local_file, 'r')
@@ -173,7 +185,13 @@ for station_file in stations:
                     os.remove(local_file)
 
                     # Convert raw data to DataFrame
-                    df = pd.read_csv(raw, ';', date_parser=DATEPARSER, na_values='-999', usecols=parameter['usecols'], parse_dates=parameter['parse_dates'])
+                    df = pd.read_csv(
+                        raw,
+                        ';',
+                        date_parser=DATEPARSER,
+                        na_values='-999',
+                        usecols=parameter['usecols'],
+                        parse_dates=parameter['parse_dates'])
 
                     # Rename columns
                     df = df.rename(columns=lambda x: x.strip())
@@ -198,7 +216,7 @@ for station_file in stations:
                     else:
                         df_station = df_station.join(df)
 
-            except:
+            except BaseException:
 
                 pass
 
@@ -208,7 +226,7 @@ for station_file in stations:
         else:
             df_full = df_full.append(df_station)
 
-    except:
+    except BaseException:
 
         pass
 

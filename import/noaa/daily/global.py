@@ -16,7 +16,11 @@ from routines.schema import daily_global
 
 # Configuration
 STATIONS_PER_CYCLE = 1
-GHCN_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/ghcn.csv'
+GHCN_PATH = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        '../../..',
+        'resources')) + '/ghcn.csv'
 
 # Column names
 names = {
@@ -41,7 +45,14 @@ skip = 0 if counter is None else int(counter)
 
 # Get GHCN stations
 try:
-    stations = pd.read_csv(GHCN_PATH, dtype='str', skiprows=skip, nrows=STATIONS_PER_CYCLE, names=['id', 'ghcn'])
+    stations = pd.read_csv(
+        GHCN_PATH,
+        dtype='str',
+        skiprows=skip,
+        nrows=STATIONS_PER_CYCLE,
+        names=[
+            'id',
+            'ghcn'])
 except pd.errors.EmptyDataError:
     stations = None
     pass
@@ -67,8 +78,19 @@ for station in stations.to_dict(orient='records'):
         df = ghcnd.dly_to_df(ftp, station['ghcn'])
 
         # Filter relevant columns
-        required_columns = ['TMAX', 'TMIN', 'TAVG', 'PRCP', 'SNWD', 'AWDR', 'AWND', 'TSUN', 'WSFG']
-        df = df.drop(columns=[col for col in df if col not in required_columns])
+        required_columns = [
+            'TMAX',
+            'TMIN',
+            'TAVG',
+            'PRCP',
+            'SNWD',
+            'AWDR',
+            'AWND',
+            'TSUN',
+            'WSFG']
+        df = df.drop(
+            columns=[
+                col for col in df if col not in required_columns])
 
         # Add missing columns
         for col in required_columns:
@@ -98,7 +120,7 @@ for station in stations.to_dict(orient='records'):
         else:
             df_full = df_full.append(df)
 
-    except:
+    except BaseException:
 
         pass
 

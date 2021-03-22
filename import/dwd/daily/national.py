@@ -22,7 +22,8 @@ from routines.schema import daily_national
 DWD_FTP_SERVER = 'opendata.dwd.de'
 MODE = argv[1]
 STATIONS_PER_CYCLE = int(argv[2])
-DATEPARSER = lambda x: datetime.strptime(x, '%Y%m%d')
+def DATEPARSER(x): return datetime.strptime(x, '%Y%m%d')
+
 
 USECOLS = [1, 3, 4, 6, 8, 9, 12, 13, 14, 15, 16]
 
@@ -60,7 +61,7 @@ skip = 3 if counter is None else 3 + counter
 try:
     endpos = STATIONS_PER_CYCLE + skip
     files = ftp.nlst()[skip:endpos]
-except:
+except BaseException:
     files = None
     pass
 
@@ -79,13 +80,15 @@ for remote_file in files:
     try:
 
         # Get national weather station ID
-        national_id = str(remote_file[-13:-8]) if MODE == 'recent' else str(remote_file[-32:-27])
-        station_df = task.read(f"SELECT `id`, `altitude` FROM `stations` WHERE `national_id` LIKE '{national_id}'")
+        national_id = str(
+            remote_file[-13:-8]) if MODE == 'recent' else str(remote_file[-32:-27])
+        station_df = task.read(
+            f"SELECT `id`, `altitude` FROM `stations` WHERE `national_id` LIKE '{national_id}'")
         station = station_df.iloc[0][0]
         altitude = station_df.iloc[0][1]
 
         hash = hashlib.md5(remote_file.encode('utf-8')).hexdigest()
-        local_file = os.path.dirname( __file__ ) + os.sep + hash
+        local_file = os.path.dirname(__file__) + os.sep + hash
         ftp.retrbinary("RETR " + remote_file, open(local_file, 'wb').write)
 
         # Unzip file
@@ -100,7 +103,8 @@ for remote_file in files:
         os.remove(local_file)
 
         # Convert raw data to DataFrame
-        df = pd.read_csv(raw, ';', date_parser=DATEPARSER, na_values=['-999', -999], usecols=USECOLS, parse_dates=PARSE_DATES)
+        df = pd.read_csv(raw, ';', date_parser=DATEPARSER, na_values=[
+                         '-999', -999], usecols=USECOLS, parse_dates=PARSE_DATES)
 
         # Rename columns
         df = df.rename(columns=lambda x: x.strip())
@@ -128,7 +132,7 @@ for remote_file in files:
         else:
             df_full = df_full.append(df)
 
-    except:
+    except BaseException:
 
         pass
 

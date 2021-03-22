@@ -19,9 +19,15 @@ from routines.schema import hourly_model
 
 # Configuration
 STATIONS_PER_CYCLE = 6
-MOSMIX_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../..', 'resources')) + '/mosmix.csv'
+MOSMIX_PATH = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        '../../..',
+        'resources')) + '/mosmix.csv'
 
 # Map DWD codes to Meteostat condicodes
+
+
 def get_condicode(code: str):
 
     condicodes = {
@@ -58,6 +64,7 @@ def get_condicode(code: str):
 
     return condicodes.get(str(code), None)
 
+
 # Create new task
 task = Routine('import.dwd.hourly.model')
 
@@ -67,7 +74,14 @@ skip = 0 if counter is None else int(counter)
 
 # Get MOSMIX stations
 try:
-    stations = pd.read_csv(MOSMIX_PATH, dtype='str', skiprows=skip, nrows=STATIONS_PER_CYCLE, names=['id', 'mosmix'])
+    stations = pd.read_csv(
+        MOSMIX_PATH,
+        dtype='str',
+        skiprows=skip,
+        nrows=STATIONS_PER_CYCLE,
+        names=[
+            'id',
+            'mosmix'])
 except pd.errors.EmptyDataError:
     stations = None
     pass
@@ -89,7 +103,7 @@ for station in stations.to_dict(orient='records'):
 
         # Load KMZ data from DWD server
         url = f"https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/{station['mosmix']}/kml/MOSMIX_L_LATEST_{station['mosmix']}.kmz"
-        filename = os.path.dirname( __file__ ) + os.sep + station['id'] + '.kmz'
+        filename = os.path.dirname(__file__) + os.sep + station['id'] + '.kmz'
         request.urlretrieve(url, filename)
 
         # KMZ -> KML
@@ -103,13 +117,18 @@ for station in stations.to_dict(orient='records'):
         tree = etree.fromstring(kml)
 
         # Skip stale forecasts
-        issue_time = datetime.strptime(tree.xpath('//kml:kml/kml:Document/kml:ExtendedData/dwd:ProductDefinition/dwd:IssueTime', namespaces=tree.nsmap)[0].text, '%Y-%m-%dT%H:%M:%S.%fZ')
+        issue_time = datetime.strptime(
+            tree.xpath(
+                '//kml:kml/kml:Document/kml:ExtendedData/dwd:ProductDefinition/dwd:IssueTime',
+                namespaces=tree.nsmap)[0].text,
+            '%Y-%m-%dT%H:%M:%S.%fZ')
         if (datetime.now() - issue_time).total_seconds() > 25200:
             continue
 
         # Collect all time steps
         timesteps = []
-        for step in tree.xpath('//kml:kml/kml:Document/kml:ExtendedData/dwd:ProductDefinition/dwd:ForecastTimeSteps/dwd:TimeStep', namespaces=tree.nsmap):
+        for step in tree.xpath(
+                '//kml:kml/kml:Document/kml:ExtendedData/dwd:ProductDefinition/dwd:ForecastTimeSteps/dwd:TimeStep', namespaces=tree.nsmap):
             timesteps.append(step.text)
 
         """ Collect weather data """
@@ -124,39 +143,57 @@ for station in stations.to_dict(orient='records'):
             'coco': [],
             'prcp': []
         }
-        placemark = tree.xpath('//kml:kml/kml:Document/kml:Placemark', namespaces=tree.nsmap)[0]
+        placemark = tree.xpath(
+            '//kml:kml/kml:Document/kml:Placemark',
+            namespaces=tree.nsmap)[0]
 
         # Pressure
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="PPPP"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['pres'].append(float(value) / 100 if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="PPPP"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['pres'].append(
+                float(value) / 100 if value.lstrip('-').replace('.', '', 1).isdigit() else None)
 
         # Air temperature
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="TTT"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['temp'].append(kelvin_to_celsius(float(value)) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="TTT"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['temp'].append(kelvin_to_celsius(float(value)) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Dew point
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="Td"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['dwpt'].append(kelvin_to_celsius(float(value)) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="Td"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['dwpt'].append(kelvin_to_celsius(float(value)) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Wind direction
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="DD"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['wdir'].append(int(float(value)) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="DD"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['wdir'].append(int(float(value)) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Wind speed
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="FF"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['wspd'].append(ms_to_kmh(float(value)) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="FF"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['wspd'].append(ms_to_kmh(float(value)) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Peak wind gust
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="FX1"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['wpgt'].append(ms_to_kmh(float(value)) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="FX1"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['wpgt'].append(ms_to_kmh(float(value)) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Weather condition
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="ww"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['coco'].append(get_condicode(int(float(value))) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="ww"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['coco'].append(get_condicode(int(float(value))) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Precipitation
-        for value in re.sub(r'/\s+/', ' ', placemark.xpath('kml:ExtendedData/dwd:Forecast[@dwd:elementName="RR1c"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
-            data['prcp'].append(float(value) if value.lstrip('-').replace('.','',1).isdigit() else None)
+        for value in re.sub(r'/\s+/', ' ', placemark.xpath(
+                'kml:ExtendedData/dwd:Forecast[@dwd:elementName="RR1c"]/dwd:value', namespaces=tree.nsmap)[0].text).strip().split():
+            data['prcp'].append(float(value) if value.lstrip(
+                '-').replace('.', '', 1).isdigit() else None)
 
         # Convert data dict to DataFrame
         df = pd.DataFrame.from_dict(data)
@@ -188,7 +225,7 @@ for station in stations.to_dict(orient='records'):
         else:
             df_full = df_full.append(df)
 
-    except:
+    except BaseException:
 
         pass
 

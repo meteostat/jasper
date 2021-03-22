@@ -25,6 +25,8 @@ from routines.schema import hourly_metar
 task = Routine('import.noaa.hourly.metar')
 
 # Map METAR codes to Meteostat condicodes
+
+
 def get_condicode(weather: list):
 
     try:
@@ -62,16 +64,18 @@ def get_condicode(weather: list):
 
         return condicodes.get(str(code), None)
 
-    except:
+    except BaseException:
 
         return None
 
+
 # Get ICAO stations
-stations = task.read("""SELECT `id`, `icao` FROM `stations` WHERE `icao` IS NOT NULL""")
+stations = task.read(
+    """SELECT `id`, `icao` FROM `stations` WHERE `icao` IS NOT NULL""")
 stations = stations.set_index('icao')
 
 # Get cycle
-cycle = (datetime.now() - timedelta(hours = 2)).strftime('%H')
+cycle = (datetime.now() - timedelta(hours=2)).strftime('%H')
 
 # Create request for JSON file
 url = f"https://tgftp.nws.noaa.gov/data/observations/metar/cycles/{cycle}Z.TXT"
@@ -107,7 +111,7 @@ for line in file:
                 'coco': get_condicode(obs.weather) if obs.weather is not None else None
             })
 
-    except:
+    except BaseException:
 
         pass
 

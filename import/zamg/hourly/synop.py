@@ -32,7 +32,12 @@ names = {
 }
 
 # Read CSV data
-df = pd.read_csv('http://www.zamg.ac.at/ogd/', ';', parse_dates=parse_dates, usecols=usecols, decimal=',')
+df = pd.read_csv(
+    'http://www.zamg.ac.at/ogd/',
+    ';',
+    parse_dates=parse_dates,
+    usecols=usecols,
+    decimal=',')
 
 # Rename columns
 df = df.rename(columns=names)
