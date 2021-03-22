@@ -142,6 +142,44 @@ hourly_national = {
     """
 }
 
+hourly_global = {
+    'template': {
+        'temp': None,
+        'rhum': None,
+        'prcp': None,
+        'wspd': None,
+        'wdir': None,
+        'pres': None
+    },
+    'validation': {
+        'temp': validation.temp,
+        'rhum': validation.rhum,
+        'prcp': validation.prcp_hourly,
+        'wspd': validation.wspd,
+        'wdir': validation.wdir,
+        'pres': validation.pres
+    },
+    'import_query': """
+        INSERT INTO `hourly_isd`
+        SET
+            `station` = :station,
+            `time` = :time,
+            `temp` = :temp,
+            `rhum` = :rhum,
+            `prcp` = :prcp,
+            `wspd` = :wspd,
+            `wdir` = :wdir,
+            `pres` = :pres
+        ON DUPLICATE KEY UPDATE
+            `temp` = COALESCE(VALUES(`temp`),`temp`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
+            `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`)
+    """
+}
+
 hourly_metar = {
     'template': {
         'temp': None,

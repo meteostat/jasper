@@ -1,3 +1,11 @@
+"""
+NOAA GHCND import routine
+
+Get daily weather data for weather stations worldwide.
+
+The code is licensed under the MIT license.
+"""
+
 import os
 import pandas as pd
 from numpy import nan
@@ -54,39 +62,45 @@ ftp = ghcnd.connect_to_ftp()
 # Import data for each weather station
 for station in stations.to_dict(orient='records'):
 
-    df = ghcnd.dly_to_df(ftp, station['ghcn'])
+    try:
 
-    # Filter relevant columns
-    required_columns = ['TMAX', 'TMIN', 'TAVG', 'PRCP', 'SNWD', 'AWDR', 'AWND', 'TSUN', 'WSFG']
-    df = df.drop(columns=[col for col in df if col not in required_columns])
+        df = ghcnd.dly_to_df(ftp, station['ghcn'])
 
-    # Add missing columns
-    for col in required_columns:
-        if col not in df.columns:
-            df[col] = nan
+        # Filter relevant columns
+        required_columns = ['TMAX', 'TMIN', 'TAVG', 'PRCP', 'SNWD', 'AWDR', 'AWND', 'TSUN', 'WSFG']
+        df = df.drop(columns=[col for col in df if col not in required_columns])
 
-    # Rename columns
-    df = df.reset_index().rename(columns=names)
+        # Add missing columns
+        for col in required_columns:
+            if col not in df.columns:
+                df[col] = nan
 
-    # Adapt columns
-    df['tavg'] = df['tavg'].div(10)
-    df['tmin'] = df['tmin'].div(10)
-    df['tmax'] = df['tmax'].div(10)
-    df['prcp'] = df['prcp'].div(10)
-    df['wspd'] = df['wspd'].div(10).apply(ms_to_kmh)
-    df['wpgt'] = df['wpgt'].div(10).apply(ms_to_kmh)
+        # Rename columns
+        df = df.reset_index().rename(columns=names)
 
-    # Add station column
-    df['station'] = station['id']
+        # Adapt columns
+        df['tavg'] = df['tavg'].div(10)
+        df['tmin'] = df['tmin'].div(10)
+        df['tmax'] = df['tmax'].div(10)
+        df['prcp'] = df['prcp'].div(10)
+        df['wspd'] = df['wspd'].div(10).apply(ms_to_kmh)
+        df['wpgt'] = df['wpgt'].div(10).apply(ms_to_kmh)
 
-    # Set index
-    df = df.set_index(['station', 'time'])
+        # Add station column
+        df['station'] = station['id']
 
-    # Append data to full DataFrame
-    if df_full is None:
-        df_full = df
-    else:
-        df_full = df_full.append(df)
+        # Set index
+        df = df.set_index(['station', 'time'])
+
+        # Append data to full DataFrame
+        if df_full is None:
+            df_full = df
+        else:
+            df_full = df_full.append(df)
+
+    except:
+
+        pass
 
 # Write DataFrame into Meteostat database
 task.write(df_full, daily_global)
