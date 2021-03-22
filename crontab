@@ -1,14 +1,19 @@
-* * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/metno/hourly/model.py'
-25 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/zamg/hourly/synop.py'
-* * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/synop.py'
-* * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/model.py'
-10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/noaa/hourly/metar_cycle.py'
-2-59/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py recent 6'
-4 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/hourly/national.py historical 1'
-6-59/20 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/daily/national.py recent 5'
-8 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/dwd/daily/national.py historical 1'
-* * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/noaa/daily/global.py'
-7-59/10 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/noaa/hourly/global.py recent'
-3-59/3 * * * * sudo -H -u meteostat bash -c 'python3 ~/routines/import/noaa/hourly/global.py historical'
-# * * * * * /bin/sh /var/www/vhosts/api.meteostat.net/deploy/routines.sh
-0 1 * * * /bin/sh /var/www/vhosts/api.meteostat.net/cron/ms/bulk/stations.sh
+* * * * * python3 ~/routines/import/metno/hourly/model.py
+25 * * * * python3 ~/routines/import/zamg/hourly/synop.py
+* * * * * python3 ~/routines/import/dwd/hourly/synop.py
+* * * * * python3 ~/routines/import/dwd/hourly/model.py
+10 * * * * python3 ~/routines/import/noaa/hourly/metar_cycle.py
+2-59/10 * * * * python3 ~/routines/import/dwd/hourly/national.py recent 6
+4 * * * * python3 ~/routines/import/dwd/hourly/national.py historical 1
+6-59/20 * * * * python3 ~/routines/import/dwd/daily/national.py recent 5
+8 * * * * python3 ~/routines/import/dwd/daily/national.py historical 1
+* * * * * python3 ~/routines/import/noaa/daily/global.py
+7-59/10 * * * * python3 ~/routines/import/noaa/hourly/global.py recent
+3-59/3 * * * * python3 ~/routines/import/noaa/hourly/global.py historical
+15 4 * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/inventory/update.php'
+* * * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/bulk/data/update.php'
+47 4 * * sun /opt/plesk/php/7.3/bin/php -f 'cron/ms/bulk/stations.php'
+* * * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/tz.php'
+0 0 * * * /usr/bin/php -f 'cron/ms/stations-git.php'
+10 3 * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/inventory/daily.php'
+15 3 * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/inventory/hourly.php
