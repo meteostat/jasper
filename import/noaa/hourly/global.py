@@ -68,7 +68,7 @@ ftp.login()
 
 # Get list of years
 if MODE == 'recent':
-    years = range(current_year - 1, current_year + 1)
+    years = range(CURRENT_YEAR - 1, CURRENT_YEAR + 1)
 else:
     years = range(year, year + 1)
 
