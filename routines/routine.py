@@ -5,6 +5,7 @@ The code is licensed under the MIT license.
 """
 
 import os
+from ftplib import FTP
 from sqlalchemy import create_engine, text
 from configparser import ConfigParser
 import pandas as pd
@@ -24,10 +25,13 @@ class Routine():
         '~') + os.sep + '.routines' + os.sep + 'config.txt'
 
     # System database connection
-    sysdb = None
+    sys_db = None
 
     # Meteostat database connection
     db = None
+
+    # Bulk FTP connection
+    bulk_ftp = None
 
     def _connect(self) -> None:
 
@@ -36,18 +40,29 @@ class Routine():
         config.read(self.config_path)
 
         # System database connection
-        sysdb = create_engine(
-            f"""mysql+mysqlconnector://{config.get('sysdb', 'user')}:{config.get('sysdb', 'password')}@{config.get('sysdb', 'host')}/{config.get('sysdb', 'name')}""")
-        self.sysdb = sysdb
+        sys_db = create_engine(
+            f"""mysql+mysqlconnector://{config.get('sys_db', 'user')}:{config.get('sys_db', 'password')}@{config.get('sys_db', 'host')}/{config.get('sys_db', 'name')}?charset=utf8""")
+        self.sys_db = sys_db
 
         # Meteostat database connection
-        msdb = create_engine(
-            f"""mysql+mysqlconnector://{config.get('msdb', 'user')}:{config.get('msdb', 'password')}@{config.get('msdb', 'host')}/{config.get('msdb', 'name')}""")
-        self.db = msdb
+        db = create_engine(
+            f"""mysql+mysqlconnector://{config.get('database', 'user')}:{config.get('database', 'password')}@{config.get('database', 'host')}/{config.get('database', 'name')}?charset=utf8""")
+        self.db = db
+
+    def _connect_bulk(self) -> None:
+
+        # Configuration file
+        config = ConfigParser()
+        config.read(self.config_path)
+
+        # FTP connection
+        self.bulk_ftp = FTP(config.get('bulk_ftp', 'host'))
+        self.bulk_ftp.login(config.get('bulk_ftp', 'user'), config.get('bulk_ftp', 'password'))
 
     def __init__(
         self,
-        name: str
+        name: str,
+        connect_bulk: bool = False
     ) -> None:
 
         # Meta data
@@ -55,6 +70,10 @@ class Routine():
 
         # Database connections
         self._connect()
+
+        # Bulk FTP connection
+        if connect_bulk:
+            self._connect_bulk()
 
     def set_var(self, name: str, value: str) -> None:
 
@@ -64,7 +83,7 @@ class Routine():
             'value': str(value)
         }
 
-        with self.sysdb.connect() as con:
+        with self.sys_db.connect() as con:
             con.execute(
                 text("""INSERT INTO `variables`(`ctx`, `name`, `value`) VALUES (:ctx, :name, :value) ON DUPLICATE KEY UPDATE `value` = :value"""),
                 payload)
@@ -76,7 +95,7 @@ class Routine():
             'name': name
         }
 
-        with self.sysdb.connect() as con:
+        with self.sys_db.connect() as con:
             result = con.execute(
                 text(
                     """SELECT `value` FROM `variables` WHERE `ctx` = :ctx AND `name` = :name LIMIT 1"""),
@@ -127,6 +146,7 @@ class Routine():
                 con.execute(text(schema['import_query']), {
                             **schema['template'], **record})
 
-    def read(self, query: str) -> None:
+    def read(self, query: str, payload: dict):
 
-        return pd.read_sql(query, self.db)
+        with self.db.connect() as con:
+            return con.execute(text(query).execution_options(autocommit=True), payload)

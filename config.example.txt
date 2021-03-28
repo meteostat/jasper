@@ -1,11 +1,16 @@
-[sysdb]
+[sys_db]
 name = system
 host = localhost
 user = system
 password = mypassword
 
-[msdb]
+[database]
 name = meteostat
+host = localhost
+user = meteostat
+password = mypassword
+
+[bulk_ftp]
 host = localhost
 user = meteostat
 password = mypassword
