@@ -42,7 +42,7 @@ def write_dump(data, station: str, year: int = None) -> None:
 
         try:
             task.bulk_ftp.cwd(str(year))
-        except IOError:
+        except:
             task.bulk_ftp.mkd(str(year))
             task.bulk_ftp.cwd(str(year))
 
