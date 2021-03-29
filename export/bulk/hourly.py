@@ -35,17 +35,8 @@ def write_dump(data, station: str, year: int = None) -> None:
 
     file = BytesIO()
 
-    task.bulk_ftp.cwd(f'''/station/hourly/{MODE}''')
-
     # Filter rows by year if set
     if year is not None:
-
-        try:
-            task.bulk_ftp.cwd(str(year))
-        except:
-            task.bulk_ftp.mkd(str(year))
-            task.bulk_ftp.cwd(str(year))
-
         data = list(filter(lambda row: row[0].strftime('%Y') == year, data))
 
     if len(data) > 0:
@@ -57,6 +48,16 @@ def write_dump(data, station: str, year: int = None) -> None:
             gz.write(output.getvalue().encode())
             gz.close()
             file.seek(0)
+
+        task.bulk_ftp.cwd(f'''/station/hourly/{MODE}''')
+
+        if year is not None:
+
+            try:
+                task.bulk_ftp.cwd(str(year))
+            except:
+                task.bulk_ftp.mkd(str(year))
+                task.bulk_ftp.cwd(str(year))
 
         task.bulk_ftp.storbinary(f'''STOR {station}.csv.gz''', file)
 
