@@ -1,15 +1,20 @@
 """
-Export hourly bulk data
+Export daily bulk data
 
 The code is licensed under the MIT license.
 """
 
+from sys import argv
+from io import BytesIO, StringIO
+from gzip import GzipFile
+import csv
 from routines import Routine
 
 # Configuration
-STATIONS_PER_CYCLE = 1
+MODE = argv[1]
+STATIONS_PER_CYCLE = 10
 
-task = Routine('export.bulk.hourly')
+task = Routine('export.bulk.hourly.' + MODE.lower(), True)
 
 stations = task.get_stations("""
     SELECT
@@ -24,10 +29,33 @@ stations = task.get_stations("""
         )
 """, STATIONS_PER_CYCLE)
 
+def write_dump(data, station: str, year: int = None) -> None:
+
+    global MODE, task
+
+    file = BytesIO()
+
+    task.bulk_ftp.cwd(f'''/station/hourly/{MODE}''')
+
+    # Filter rows by year if set
+    if year is not None:
+        task.bulk_ftp.cwd(str(year))
+        data = list(filter(lambda row: row[0][:4] == year, data))
+
+    with GzipFile(fileobj=file, mode='w') as gz:
+        output = StringIO()
+        writer = csv.writer(output, delimiter=',')
+        writer.writerows(data)
+        gz.write(output.getvalue().encode())
+        gz.close()
+        file.seek(0)
+
+    task.bulk_ftp.storbinary(f'''STOR {station}.csv.gz''', file)
+
 # Export data for each weather station
 for station in stations:
 
-    df = task.read(f"""
+    result = task.read(f'''
 		SET STATEMENT
 			max_statement_time=90
 		FOR
@@ -62,7 +90,7 @@ for station in stations:
 				'A' AS `priority`
 			FROM `hourly_national`
 			WHERE
-				`station` = '{station[0]}'
+				`station` = :station
 			)
 		UNION ALL
 			(SELECT
@@ -81,7 +109,7 @@ for station in stations:
 				'A' AS `priority`
 			FROM `hourly_isd`
 			WHERE
-				`station` = '{station[0]}'
+				`station` = :station
 			)
 		UNION ALL
 			(SELECT
@@ -100,7 +128,7 @@ for station in stations:
 				'B' AS `priority`
 			FROM `hourly_synop`
 			WHERE
-				`station` = '{station[0]}'
+				`station` = :station
 			)
 		UNION ALL
 			(SELECT
@@ -119,8 +147,9 @@ for station in stations:
 				'C' AS `priority`
 			FROM `hourly_metar`
 			WHERE
-				`station` = '{station[0]}'
+				`station` = :station
 			)
+    {f"""
 		UNION ALL
 			(SELECT
 				`time`,
@@ -138,14 +167,29 @@ for station in stations:
 				'D' AS `priority`
 			FROM `hourly_model`
 			WHERE
-				`station` = '{station[0]}'
+				`station` = :station
 			)
+    """ if MODE == 'full' else ''}
 		) AS `hourly_derived`
 			GROUP BY
 				DATE_FORMAT(`time`, '%Y %m %d %H')
 			ORDER BY
 				`time`
-    """)
+    ''', {
+        'station': station[0]
+    })
 
-    print(df)
-    exit()
+    if result.rowcount > 0:
+
+        # Fetch data
+        data = result.fetchall()
+
+        # Write all data
+        write_dump(data, station[0])
+
+        # Write annually
+        first_year = int(data[0][0][:4])
+        last_year = int(data[-1][0][:4])
+
+        for year in range(first_year, last_year + 1):
+            write_dump(data, station[0], year)
