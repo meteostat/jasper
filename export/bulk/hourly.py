@@ -37,7 +37,7 @@ def write_dump(data, station: str, year: int = None) -> None:
 
     # Filter rows by year if set
     if year is not None:
-        data = list(filter(lambda row: row[0].strftime('%Y') == year, data))
+        data = list(filter(lambda row: int(row[0].year) == year, data))
 
     if len(data) > 0:
 
@@ -197,8 +197,8 @@ for station in stations:
         write_dump(data, station[0])
 
         # Write annually
-        first_year = int(data[0][0].strftime('%Y'))
-        last_year = int(data[-1][0].strftime('%Y'))
+        first_year = int(data[0][0].year)
+        last_year = int(data[-1][0].year)
 
         for year in range(first_year, last_year + 1):
             write_dump(data, station[0], year)
