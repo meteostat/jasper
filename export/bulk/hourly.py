@@ -39,7 +39,13 @@ def write_dump(data, station: str, year: int = None) -> None:
 
     # Filter rows by year if set
     if year is not None:
-        task.bulk_ftp.cwd(str(year))
+
+        try:
+            task.bulk_ftp.cwd(str(year))
+        except IOError:
+            task.bulk_ftp.mkd(str(year))
+            task.bulk_ftp.cwd(str(year))
+
         data = list(filter(lambda row: row[0].strftime("%Y") == year, data))
 
     with GzipFile(fileobj=file, mode='w') as gz:
