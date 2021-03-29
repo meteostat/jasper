@@ -12,7 +12,7 @@ from routines import Routine
 
 # Configuration
 MODE = argv[1]
-STATIONS_PER_CYCLE = 10
+STATIONS_PER_CYCLE = 8
 
 task = Routine('export.bulk.hourly.' + MODE.lower(), True)
 
