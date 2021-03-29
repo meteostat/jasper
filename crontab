@@ -10,6 +10,8 @@
 * * * * * python3 ~/routines/import/noaa/daily/global.py
 7-59/10 * * * * python3 ~/routines/import/noaa/hourly/global.py recent
 3-59/3 * * * * python3 ~/routines/import/noaa/hourly/global.py historical
+* * * * * python3 ~/routines/export/bulk/hourly.py observation
+* * * * * python3 ~/routines/export/bulk/hourly.py full
 * * * * * python3 ~/routines/export/bulk/daily.py observation
 * * * * * python3 ~/routines/export/bulk/daily.py full
 15 4 * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/inventory/update.php'
