@@ -8,13 +8,15 @@ from sys import argv
 from io import BytesIO, StringIO
 from gzip import GzipFile
 import csv
+from datetime import datetime
 from routines import Routine
 
 # Configuration
-MODE = argv[1]
-STATIONS_PER_CYCLE = 8
+SCOPE = argv[1]
+MODE = argv[2]
+STATIONS_PER_CYCLE = 8 if MODE == 'recent' else 1
 
-task = Routine('export.bulk.hourly.' + MODE.lower(), True)
+task = Routine(f'export.bulk.hourly.{SCOPE}.{MODE}', True)
 
 stations = task.get_stations("""
     SELECT
@@ -31,7 +33,7 @@ stations = task.get_stations("""
 
 def write_dump(data, station: str, year: int = None) -> None:
 
-    global MODE, task
+    global SCOPE, task
 
     file = BytesIO()
 
@@ -49,7 +51,7 @@ def write_dump(data, station: str, year: int = None) -> None:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.cwd(f'''/station/hourly/{MODE}''')
+        task.bulk_ftp.cwd(f'''/station/hourly/{SCOPE}''')
 
         if year is not None:
 
@@ -60,6 +62,11 @@ def write_dump(data, station: str, year: int = None) -> None:
                 task.bulk_ftp.cwd(str(year))
 
         task.bulk_ftp.storbinary(f'''STOR {station}.csv.gz''', file)
+
+# Start & end year
+now = datetime.now()
+start_year = now.year - 1
+end_year = now.year
 
 # Export data for each weather station
 for station in stations:
@@ -100,6 +107,7 @@ for station in stations:
 			FROM `hourly_national`
 			WHERE
 				`station` = :station
+                {f'AND `time` BETWEEN "{start_year}-01-01 00:00:00" AND "{end_year}-12-31 23:59:59"' if MODE == 'recent' else ''}
 			)
 		UNION ALL
 			(SELECT
@@ -119,6 +127,7 @@ for station in stations:
 			FROM `hourly_isd`
 			WHERE
 				`station` = :station
+                {f'AND `time` BETWEEN "{start_year}-01-01 00:00:00" AND "{end_year}-12-31 23:59:59"' if MODE == 'recent' else ''}
 			)
 		UNION ALL
 			(SELECT
@@ -138,6 +147,7 @@ for station in stations:
 			FROM `hourly_synop`
 			WHERE
 				`station` = :station
+                {f'AND `time` BETWEEN "{start_year}-01-01 00:00:00" AND "{end_year}-12-31 23:59:59"' if MODE == 'recent' else ''}
 			)
 		UNION ALL
 			(SELECT
@@ -157,6 +167,7 @@ for station in stations:
 			FROM `hourly_metar`
 			WHERE
 				`station` = :station
+                {f'AND `time` BETWEEN "{start_year}-01-01 00:00:00" AND "{end_year}-12-31 23:59:59"' if MODE == 'recent' else ''}
 			)
     {f"""
 		UNION ALL
@@ -177,6 +188,7 @@ for station in stations:
 			FROM `hourly_model`
 			WHERE
 				`station` = :station
+                {f'AND `time` BETWEEN "{start_year}-01-01 00:00:00" AND "{end_year}-12-31 23:59:59"' if MODE == 'recent' else ''}
 			)
     """ if MODE == 'full' else ''}
 		) AS `hourly_derived`
@@ -194,7 +206,8 @@ for station in stations:
         data = result.fetchall()
 
         # Write all data
-        write_dump(data, station[0])
+        if MODE == 'all':
+            write_dump(data, station[0])
 
         # Write annually
         first_year = int(data[0][0].year)
