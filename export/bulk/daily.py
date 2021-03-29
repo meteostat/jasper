@@ -14,7 +14,7 @@ from routines import Routine
 MODE = argv[1]
 STATIONS_PER_CYCLE = 10
 
-task = Routine('export.bulk.daily', True)
+task = Routine('export.bulk.daily.' + MODE.lower(), True)
 
 stations = task.get_stations("""
     SELECT
