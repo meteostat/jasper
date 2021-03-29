@@ -46,17 +46,19 @@ def write_dump(data, station: str, year: int = None) -> None:
             task.bulk_ftp.mkd(str(year))
             task.bulk_ftp.cwd(str(year))
 
-        data = list(filter(lambda row: row[0].strftime("%Y") == year, data))
+        data = list(filter(lambda row: row[0].strftime('%Y') == year, data))
 
-    with GzipFile(fileobj=file, mode='w') as gz:
-        output = StringIO()
-        writer = csv.writer(output, delimiter=',')
-        writer.writerows(data)
-        gz.write(output.getvalue().encode())
-        gz.close()
-        file.seek(0)
+    if len(data) > 0:
 
-    task.bulk_ftp.storbinary(f'''STOR {station}.csv.gz''', file)
+        with GzipFile(fileobj=file, mode='w') as gz:
+            output = StringIO()
+            writer = csv.writer(output, delimiter=',')
+            writer.writerows(data)
+            gz.write(output.getvalue().encode())
+            gz.close()
+            file.seek(0)
+
+        task.bulk_ftp.storbinary(f'''STOR {station}.csv.gz''', file)
 
 # Export data for each weather station
 for station in stations:
@@ -194,8 +196,8 @@ for station in stations:
         write_dump(data, station[0])
 
         # Write annually
-        first_year = int(data[0][0].strftime("%Y"))
-        last_year = int(data[-1][0].strftime("%Y"))
+        first_year = int(data[0][0].strftime('%Y'))
+        last_year = int(data[-1][0].strftime('%Y'))
 
         for year in range(first_year, last_year + 1):
             write_dump(data, station[0], year)
