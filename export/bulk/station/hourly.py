@@ -18,7 +18,7 @@ STATIONS_PER_CYCLE = 8 if MODE == 'recent' else 1
 
 task = Routine(f'export.bulk.hourly.{SCOPE}.{MODE}', True)
 
-stations = task.get_stations("""
+stations = task.get_stations(f'''
     SELECT
         `stations`.`id` AS `id`
     FROM `stations`
@@ -27,9 +27,9 @@ stations = task.get_stations("""
             SELECT DISTINCT `station`
             FROM `inventory`
             WHERE
-                `mode` = 'H'
+                `mode` IN {"('H', 'P')" if SCOPE == 'full' else "('H')"}
         )
-""", STATIONS_PER_CYCLE)
+''', STATIONS_PER_CYCLE)
 
 def write_dump(data, station: str, year: int = None) -> None:
 
@@ -190,7 +190,7 @@ for station in stations:
 				`station` = :station
                 {f'AND `time` BETWEEN "{start_year}-01-01 00:00:00" AND "{end_year}-12-31 23:59:59"' if MODE == 'recent' else ''}
 			)
-    """ if MODE == 'full' else ''}
+    """ if SCOPE == 'full' else ''}
 		) AS `hourly_derived`
 			GROUP BY
 				DATE_FORMAT(`time`, '%Y %m %d %H')

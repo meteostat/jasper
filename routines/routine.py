@@ -150,3 +150,8 @@ class Routine():
 
         with self.db.connect() as con:
             return con.execute(text(query).execution_options(autocommit=True), payload)
+
+    def query(self, query: str, payload: dict = {}):
+
+        with self.db.connect() as con:
+            con.execute(text(query).execution_options(autocommit=True), payload)

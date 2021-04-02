@@ -11,12 +11,12 @@ import csv
 from routines import Routine
 
 # Configuration
-MODE = argv[1]
+SCOPE = argv[1]
 STATIONS_PER_CYCLE = 10
 
-task = Routine('export.bulk.daily.' + MODE.lower(), True)
+task = Routine('export.bulk.daily.' + SCOPE.lower(), True)
 
-stations = task.get_stations("""
+stations = task.get_stations(f'''
     SELECT
         `stations`.`id` AS `id`,
         `stations`.`tz` AS `tz`
@@ -26,9 +26,9 @@ stations = task.get_stations("""
             SELECT DISTINCT `station`
             FROM `inventory`
             WHERE
-                `mode` IN ('H', 'D')
+                `mode` IN {"('D', 'H', 'P')" if SCOPE == 'full' else "('D', 'H')"}
         )
-""", STATIONS_PER_CYCLE)
+''', STATIONS_PER_CYCLE)
 
 # Export data for each weather station
 for station in stations:
@@ -191,7 +191,7 @@ for station in stations:
 				`station`,
 				`date`
 			)
-    """ if MODE == 'full' else ''}
+    """ if SCOPE == 'full' else ''}
 		) AS `daily_derived`
 			WHERE
 				`tavg` IS NOT NULL
@@ -219,5 +219,5 @@ for station in stations:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.cwd(f'''/station/daily/{MODE}''')
+        task.bulk_ftp.cwd(f'''/station/daily/{SCOPE}''')
         task.bulk_ftp.storbinary(f'''STOR {station[0]}.csv.gz''', file)
