@@ -10,8 +10,8 @@ FTP_PASS=`sed -nr "/^\[bulk_ftp\]/ { :l /^password[ ]*=/ { s/.*=[ ]*//; p; q;}; 
 mysqldump -u$DB_USER -p$DB_PASS $DB_NAME stations > stations.sql
 mysqldump -u$DB_USER -p$DB_PASS $DB_NAME stations_inventory > stations_inventory.sql
 
-ftp -in ftp://{$USER}:{$PASS}@{$HOST}/internal/stations.sql stations.sql
-ftp -in ftp://{$USER}:{$PASS}@{$HOST}/internal/stations.sql stations_inventory.sql
+ftp -in ftp://{$FTP_USER}:{$FTP_PASS}@{$FTP_HOST}/internal/stations.sql stations.sql
+ftp -in ftp://{$FTP_USER}:{$FTP_PASS}@{$FTP_HOST}/internal/stations.sql stations_inventory.sql
 
 rm stations.sql
 rm stations_inventory.sql
