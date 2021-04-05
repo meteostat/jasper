@@ -24,6 +24,9 @@ class Routine():
     config_path: str = os.path.expanduser(
         '~') + os.sep + '.routines' + os.sep + 'config.txt'
 
+    # The config
+    config = None
+
     # System database connection
     sys_db = None
 
@@ -35,18 +38,14 @@ class Routine():
 
     def _connect(self) -> None:
 
-        # Configuration file
-        config = ConfigParser()
-        config.read(self.config_path)
-
         # System database connection
         sys_db = create_engine(
-            f"""mysql+mysqlconnector://{config.get('sys_db', 'user')}:{config.get('sys_db', 'password')}@{config.get('sys_db', 'host')}/{config.get('sys_db', 'name')}?charset=utf8""")
+            f"""mysql+mysqlconnector://{self.config.get('sys_db', 'user')}:{self.config.get('sys_db', 'password')}@{self.config.get('sys_db', 'host')}/{self.config.get('sys_db', 'name')}?charset=utf8""")
         self.sys_db = sys_db
 
         # Meteostat database connection
         db = create_engine(
-            f"""mysql+mysqlconnector://{config.get('database', 'user')}:{config.get('database', 'password')}@{config.get('database', 'host')}/{config.get('database', 'name')}?charset=utf8""")
+            f"""mysql+mysqlconnector://{self.config.get('database', 'user')}:{self.config.get('database', 'password')}@{self.config.get('database', 'host')}/{self.config.get('database', 'name')}?charset=utf8""")
         self.db = db
 
     def _connect_bulk(self) -> None:
@@ -56,8 +55,8 @@ class Routine():
         config.read(self.config_path)
 
         # FTP connection
-        self.bulk_ftp = FTP(config.get('bulk_ftp', 'host'))
-        self.bulk_ftp.login(config.get('bulk_ftp', 'user'), config.get('bulk_ftp', 'password'))
+        self.bulk_ftp = FTP(self.config.get('bulk_ftp', 'host'))
+        self.bulk_ftp.login(self.config.get('bulk_ftp', 'user'), self.config.get('bulk_ftp', 'password'))
 
     def __init__(
         self,
@@ -67,6 +66,10 @@ class Routine():
 
         # Meta data
         self.name = name
+
+        # Configuration file
+        self.config = ConfigParser()
+        self.config.read(self.config_path)
 
         # Database connections
         self._connect()

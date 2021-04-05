@@ -8,6 +8,7 @@ from io import BytesIO, StringIO
 from gzip import GzipFile
 import csv
 import json
+import mysql.connector
 from routines import Routine
 
 task = Routine('export.bulk.stations.meta', True)
@@ -27,8 +28,17 @@ def write_json_dump(data: list, name: str) -> None:
 
         task.bulk_ftp.storbinary(f'STOR /stations/meta/{name}.json.gz', file)
 
+# Create plain db connection -> segmentation fault in sqlalchemy
+db = mysql.connector.connect(
+    host=task.config.get('database', 'host'),
+    user=task.config.get('database', 'user'),
+    password=task.config.get('database', 'password'),
+    database=task.config.get('database', 'name')
+)
+
 # Export data for all weather stations
-result = task.read(f'''
+cursor = db.cursor()
+cursor.execute(f'''
     SELECT
         `stations`.`id` AS `id`,
         `stations`.`name` AS `name`,
@@ -57,10 +67,10 @@ result = task.read(f'''
     GROUP BY `stations`.`id`
 ''')
 
-if result.rowcount > 0:
+if cursor.rowcount > 0:
 
     # Fetch data
-    data = result.fetchall()
+    data = cursor.fetchall()
 
     # Data lists
     full = []
