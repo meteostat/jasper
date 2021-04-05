@@ -4,11 +4,11 @@ Export meta data for weather stations
 The code is licensed under the MIT license.
 """
 
+import mysql.connector
 from io import BytesIO, StringIO
 from gzip import GzipFile
 import csv
 import json
-import mysql.connector
 from routines import Routine
 
 task = Routine('export.bulk.stations.meta', True)
