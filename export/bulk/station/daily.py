@@ -219,5 +219,5 @@ for station in stations:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.cwd(f'''/station/daily/{SCOPE}''')
-        task.bulk_ftp.storbinary(f'''STOR {station[0]}.csv.gz''', file)
+        task.bulk_ftp.cwd(f'/stations/daily/{SCOPE}')
+        task.bulk_ftp.storbinary(f'STOR {station[0]}.csv.gz', file)

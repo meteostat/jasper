@@ -51,7 +51,7 @@ def write_dump(data, station: str, year: int = None) -> None:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.cwd(f'''/station/hourly/{SCOPE}''')
+        task.bulk_ftp.cwd(f'/stations/hourly/{SCOPE}')
 
         if year is not None:
 
@@ -61,7 +61,7 @@ def write_dump(data, station: str, year: int = None) -> None:
                 task.bulk_ftp.mkd(str(year))
                 task.bulk_ftp.cwd(str(year))
 
-        task.bulk_ftp.storbinary(f'''STOR {station}.csv.gz''', file)
+        task.bulk_ftp.storbinary(f'STOR {station}.csv.gz', file)
 
 # Start & end year
 now = datetime.now()
