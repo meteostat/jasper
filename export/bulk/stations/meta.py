@@ -67,90 +67,88 @@ cursor.execute(f'''
     GROUP BY `stations`.`id`
 ''')
 
-if cursor.rowcount > 0:
+# Fetch data
+data = cursor.fetchall()
 
-    # Fetch data
-    data = cursor.fetchall()
+# Data lists
+full = []
+lite = []
+lib = []
 
-    # Data lists
-    full = []
-    lite = []
-    lib = []
+for record in data:
 
-    for record in data:
+    # Create dict of names
+    try:
+        names = json.loads(data[2])
+    except BaseException:
+        names = {}
+    names['en'] = record[1]
 
-        # Create dict of names
-        try:
-            names = json.loads(data[2])
-        except BaseException:
-            names = {}
-        names['en'] = record[1]
-
-        # Create object
-        object = {
-            'id': record[0],
-            'name': names,
-            'country': record[3],
-            'region': record[4],
-            'identifiers': {
-                'national': record[5],
-                'wmo': record[6],
-                'icao': record[7],
-                'iata': record[8]
+    # Create object
+    object = {
+        'id': record[0],
+        'name': names,
+        'country': record[3],
+        'region': record[4],
+        'identifiers': {
+            'national': record[5],
+            'wmo': record[6],
+            'icao': record[7],
+            'iata': record[8]
+        },
+        'location': {
+            'latitude': record[9],
+            'longitude': record[10],
+            'elevation': record[11]
+        },
+        'timezone': record[12],
+        'history': record[13],
+        'inventory': {
+            'hourly': {
+                'start': record[15],
+                'end': record[16]
             },
-            'location': {
-                'latitude': record[9],
-                'longitude': record[10],
-                'elevation': record[11]
+            'model': {
+                'start': record[17],
+                'end': record[18]
             },
-            'timezone': record[12],
-            'history': record[13],
-            'inventory': {
-                'hourly': {
-                    'start': record[15],
-                    'end': record[16]
-                },
-                'model': {
-                    'start': record[17],
-                    'end': record[18]
-                },
-                'daily': {
-                    'start': record[19],
-                    'end': record[20]
-                }
+            'daily': {
+                'start': record[19],
+                'end': record[20]
             }
         }
+    }
 
-        # Add to full dump
-        full.append(object)
+    # Add to full dump
+    full.append(object)
 
-        # Check if any data is available
-        if record[14] > 0:
-            lite.append(object)
-            # Add CSV row
-            record = record.values()
-            del record[2]
-            del record[5]
-            del record[8]
-            del record[13]
-            del record[14]
-            lib.append(record)
+    # Check if any data is available
+    if record[14] > 0:
+        lite.append(object)
+        # Add CSV row
+        record = list(record)
+        del record[2]
+        del record[5]
+        del record[8]
+        del record[13]
+        del record[14]
+        lib.append(record)
 
-    # Write JSON dumps
-    write_json_dump(full, 'full')
-    write_json_dump(lite, 'lite')
+# Write JSON dumps
+write_json_dump(full, 'full')
+write_json_dump(lite, 'lite')
 
-    # Write CSV dump
-    if len(lib) > 0:
+# Write CSV dump
+if len(lib) > 0:
 
-        file = BytesIO()
+    file = BytesIO()
 
-        with GzipFile(fileobj=file, mode='w') as gz:
-            output = StringIO()
-            writer = csv.writer(output, delimiter=',')
-            writer.writerows(lib)
-            gz.write(output.getvalue().encode())
-            gz.close()
-            file.seek(0)
+    with GzipFile(fileobj=file, mode='w') as gz:
+        output = StringIO()
+        writer = csv.writer(output, delimiter=',')
+        writer.writerows(lib)
+        gz.write(output.getvalue().encode())
+        gz.close()
+        file.seek(0)
 
-        task.bulk_ftp.storbinary(f'STOR /stations/meta/lib.csv.gz', file)
+    task.bulk_ftp.storbinary(f'STOR /stations/meta/lib.csv.gz', file)
