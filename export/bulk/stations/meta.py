@@ -4,14 +4,13 @@ Export meta data for weather stations
 The code is licensed under the MIT license.
 """
 
-from sys import argv
 from io import BytesIO, StringIO
 from gzip import GzipFile
+import csv
 import json
-from datetime import datetime
 from routines import Routine
 
-task = Routine('export.bulk.stations', True)
+task = Routine('export.bulk.stations.meta', True)
 
 def write_json_dump(data: list, name: str) -> None:
 
@@ -22,7 +21,7 @@ def write_json_dump(data: list, name: str) -> None:
     if len(data) > 0:
 
         with GzipFile(fileobj=file, mode='w') as gz:
-            gz.write(json.dumps(data, indent=4))
+            gz.write(json.dumps(data, indent=4, default=str).encode())
             gz.close()
             file.seek(0)
 
@@ -118,14 +117,14 @@ if result.rowcount > 0:
         # Check if any data is available
         if record[14] > 0:
             lite.append(object)
-
-        # Add CSV row
-        del record[2]
-        del record[5]
-        del record[8]
-        del record[13]
-        del record[14]
-        lib.append(record)
+            # Add CSV row
+            record = record.values()
+            del record[2]
+            del record[5]
+            del record[8]
+            del record[13]
+            del record[14]
+            lib.append(record)
 
     # Write JSON dumps
     write_json_dump(full, 'full')
