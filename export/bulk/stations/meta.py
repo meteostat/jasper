@@ -55,7 +55,7 @@ result = task.read(f'''
     LEFT JOIN `inventory`
     ON `stations`.`id` = `inventory`.`station`
     GROUP BY `stations`.`id`
-''', {})
+''')
 
 if result.rowcount > 0:
 
