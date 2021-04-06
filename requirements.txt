@@ -7,3 +7,5 @@ autopep8
 configparser
 sqlalchemy
 mysql-connector-python
+lxml
+metar>=1.8
