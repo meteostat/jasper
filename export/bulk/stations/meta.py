@@ -4,7 +4,6 @@ Export meta data for weather stations
 The code is licensed under the MIT license.
 """
 
-import mysql.connector
 from io import BytesIO, StringIO
 from gzip import GzipFile
 import csv
@@ -28,17 +27,8 @@ def write_json_dump(data: list, name: str) -> None:
 
         task.bulk_ftp.storbinary(f'STOR /stations/meta/{name}.json.gz', file)
 
-# Create plain db connection -> segmentation fault in sqlalchemy
-db = mysql.connector.connect(
-    host=task.config.get('database', 'host'),
-    user=task.config.get('database', 'user'),
-    password=task.config.get('database', 'password'),
-    database=task.config.get('database', 'name')
-)
-
 # Export data for all weather stations
-cursor = db.cursor()
-cursor.execute(f'''
+result = task.read(f'''
     SELECT
         `stations`.`id` AS `id`,
         `stations`.`name` AS `name`,
@@ -46,7 +36,7 @@ cursor.execute(f'''
         `stations`.`region` AS `region`,
         `stations`.`country` AS `country`,
         `stations`.`national_id` AS `national_id`,
-        `stations`.`wmo` AS `wmo`,
+        CAST(`stations`.`wmo` AS CHAR(5)) AS `wmo`,
         `stations`.`icao` AS `icao`,
         `stations`.`iata` AS `iata`,
         `stations`.`latitude` AS `latitude`,
@@ -54,101 +44,111 @@ cursor.execute(f'''
         `stations`.`altitude` AS `altitude`,
         `stations`.`tz` as `timezone`,
         `stations`.`history` as `history`,
-        COUNT(`inventory`.`mode`) AS `availability`,
-        MIN(CASE WHEN `inventory`.`mode` = "H" THEN `inventory`.`start` END) AS "hourly_start",
-        MAX(CASE WHEN `inventory`.`mode` = "H" THEN `inventory`.`end` END) AS "hourly_end",
-        MIN(CASE WHEN `inventory`.`mode` = "P" THEN `inventory`.`start` END) AS "model_start",
-        MAX(CASE WHEN `inventory`.`mode` = "P" THEN `inventory`.`end` END) AS "model_end",
-        MIN(CASE WHEN `inventory`.`mode` = "D" THEN `inventory`.`start` END) AS "daily_start",
-        MAX(CASE WHEN `inventory`.`mode` = "D" THEN `inventory`.`end` END) AS "daily_end"
+        MIN(`inventory_hourly`.`start`) AS "hourly_start",
+        MAX(`inventory_hourly`.`end`) AS "hourly_end",
+        MIN(`inventory_daily`.`start`) AS "daily_start",
+        MAX(`inventory_daily`.`end`) AS "daily_end"
     FROM `stations`
-    LEFT JOIN `inventory`
-    ON `stations`.`id` = `inventory`.`station`
+    LEFT JOIN (
+        SELECT
+            `station`,
+            `start`,
+            `end`
+        FROM `inventory`
+        WHERE
+            `mode` = "H"
+    ) AS `inventory_hourly`
+    ON `stations`.`id` = `inventory_hourly`.`station`
+    LEFT JOIN (
+        SELECT
+            `station`,
+            `start`,
+            `end`
+        FROM `inventory`
+        WHERE
+            `mode` = "D"
+    ) AS `inventory_daily`
+    ON `stations`.`id` = `inventory_daily`.`station`
     GROUP BY `stations`.`id`
 ''')
 
-# Fetch data
-data = cursor.fetchall()
+if result.rowcount > 0:
 
-# Data lists
-full = []
-lite = []
-lib = []
+    # Fetch data
+    data = result.fetchall()
 
-for record in data:
+    # Data lists
+    full = []
+    lite = []
+    lib = []
 
-    # Create dict of names
-    try:
-        names = json.loads(data[2])
-    except BaseException:
-        names = {}
-    names['en'] = record[1]
+    for record in data:
 
-    # Create object
-    object = {
-        'id': record[0],
-        'name': names,
-        'country': record[3],
-        'region': record[4],
-        'identifiers': {
-            'national': record[5],
-            'wmo': record[6],
-            'icao': record[7],
-            'iata': record[8]
-        },
-        'location': {
-            'latitude': record[9],
-            'longitude': record[10],
-            'elevation': record[11]
-        },
-        'timezone': record[12],
-        'history': record[13],
-        'inventory': {
-            'hourly': {
-                'start': record[15],
-                'end': record[16]
+        # Create dict of names
+        try:
+            names = json.loads(data[2])
+        except BaseException:
+            names = {}
+        names['en'] = record[1]
+
+        # Create object
+        object = {
+            'id': record[0],
+            'name': names,
+            'country': record[3],
+            'region': record[4],
+            'identifiers': {
+                'national': record[5],
+                'wmo': record[6],
+                'icao': record[7],
+                'iata': record[8]
             },
-            'model': {
-                'start': record[17],
-                'end': record[18]
+            'location': {
+                'latitude': record[9],
+                'longitude': record[10],
+                'elevation': record[11]
             },
-            'daily': {
-                'start': record[19],
-                'end': record[20]
+            'timezone': record[12],
+            'history': record[13],
+            'inventory': {
+                'hourly': {
+                    'start': record[14],
+                    'end': record[15]
+                },
+                'daily': {
+                    'start': record[16],
+                    'end': record[17]
+                }
             }
         }
-    }
 
-    # Add to full dump
-    full.append(object)
+        # Add to full dump
+        full.append(object)
 
-    # Check if any data is available
-    if record[14] > 0:
-        lite.append(object)
-        # Add CSV row
-        record = list(record)
-        del record[2]
-        del record[5]
-        del record[8]
-        del record[13]
-        del record[14]
-        lib.append(record)
+        # Check if any data is available
+        if record[15] is not None or record[17] is not None:
+            lite.append(object)
+            # Add CSV row
+            record = record.values()
+            for i in [2, 5, 8, 13]:
+                del record[i]
+            lib.append(record)
 
-# Write JSON dumps
-write_json_dump(full, 'full')
-write_json_dump(lite, 'lite')
+    # Write JSON dumps
+    write_json_dump(full, 'full')
+    write_json_dump(lite, 'lite')
 
-# Write CSV dump
-if len(lib) > 0:
+    # Write CSV dump
+    if len(lib) > 0:
 
-    file = BytesIO()
+        file = BytesIO()
 
-    with GzipFile(fileobj=file, mode='w') as gz:
-        output = StringIO()
-        writer = csv.writer(output, delimiter=',')
-        writer.writerows(lib)
-        gz.write(output.getvalue().encode())
-        gz.close()
-        file.seek(0)
+        with GzipFile(fileobj=file, mode='w') as gz:
+            output = StringIO()
+            writer = csv.writer(output, delimiter=',')
+            writer.writerows(lib)
+            gz.write(output.getvalue().encode())
+            gz.close()
+            file.seek(0)
 
-    task.bulk_ftp.storbinary(f'STOR /stations/meta/lib.csv.gz', file)
+        task.bulk_ftp.storbinary(f'STOR /stations/meta/lib.csv.gz', file)

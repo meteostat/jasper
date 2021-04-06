@@ -149,13 +149,10 @@ class Routine():
                 con.execute(text(schema['import_query']), {
                             **schema['template'], **record})
 
-    def read(self, query: str, payload: dict = None):
+    def read(self, query: str, payload: dict = {}):
 
         with self.db.connect() as con:
-            if payload is None:
-                return con.execute(text(query).execution_options(autocommit=True))
-            else:
-                return con.execute(text(query).execution_options(autocommit=True), payload)
+            return con.execute(text(query).execution_options(autocommit=True), payload)
 
     def query(self, query: str, payload: dict = {}):
 
