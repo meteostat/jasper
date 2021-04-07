@@ -130,9 +130,8 @@ if result.rowcount > 0:
             lite.append(object)
             # Add CSV row
             record = record.values()
-            for i in [2, 5, 8, 13]:
-                del record[i]
-            lib.append(record)
+            lib_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17]
+            lib.append([record[i] for i in lib_cols])
 
     # Write JSON dumps
     write_json_dump(full, 'full')
