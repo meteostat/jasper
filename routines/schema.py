@@ -171,12 +171,12 @@ hourly_global = {
             `wdir` = :wdir,
             `pres` = :pres
         ON DUPLICATE KEY UPDATE
-            `temp` = `temp`,
-            `rhum` = `rhum`,
-            `prcp` = `prcp`,
-            `wspd` = `wspd`,
-            `wdir` = `wdir`,
-            `pres` = `pres`
+            `temp` = COALESCE(VALUES(`temp`),`temp`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
+            `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`)
     """
 }
 

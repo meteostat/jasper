@@ -27,9 +27,6 @@ USAF_WBAN_PATH = os.path.abspath(
         'resources')) + '/usaf_wban.csv'
 CURRENT_YEAR = datetime.now().year
 
-# Required columns
-USECOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
-
 # Column ranges
 COLSPECS = [
     (0, 4),
@@ -135,7 +132,6 @@ for station in stations.to_dict(orient='records'):
                     },
                     na_values=['-9999', -9999],
                     header=None,
-                    usecols=USECOLS,
                     colspecs=COLSPECS)
 
                 # Rename columns
