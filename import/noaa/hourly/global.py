@@ -28,7 +28,21 @@ USAF_WBAN_PATH = os.path.abspath(
 CURRENT_YEAR = datetime.now().year
 
 # Required columns
-usecols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
+USECOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
+
+# Column ranges
+COLSPECS = [
+    (0, 4),
+    (5, 7),
+    (8, 10),
+    (11, 13),
+    (13, 19),
+    (19, 25),
+    (25, 31),
+    (31, 37),
+    (37, 43),
+    (49, 55)
+]
 
 # Column names
 NAMES = ['time', 'temp', 'dwpt', 'pres', 'wdir', 'wspd', 'prcp']
@@ -121,7 +135,8 @@ for station in stations.to_dict(orient='records'):
                     },
                     na_values=['-9999', -9999],
                     header=None,
-                    usecols=usecols)
+                    usecols=USECOLS,
+                    colspecs=COLSPECS)
 
                 # Rename columns
                 df.columns = NAMES
