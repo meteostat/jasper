@@ -25,8 +25,6 @@ from routines.schema import hourly_metar
 task = Routine('import.noaa.hourly.metar')
 
 # Map METAR codes to Meteostat condicodes
-
-
 def get_condicode(weather: list):
 
     try:
@@ -70,8 +68,7 @@ def get_condicode(weather: list):
 
 
 # Get ICAO stations
-stations = task.read(
-    """SELECT `id`, `icao` FROM `stations` WHERE `icao` IS NOT NULL""")
+stations = pd.read_sql('SELECT `id`, `icao` FROM `stations` WHERE `icao` IS NOT NULL', task.db)
 stations = stations.set_index('icao')
 
 # Get cycle
