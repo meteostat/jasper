@@ -117,13 +117,9 @@ for station in stations.to_dict(orient='records'):
                 df = pd.read_fwf(
                     BytesIO(raw),
                     parse_dates={
-                        'time': [
-                            0,
-                            1,
-                            2,
-                            3]},
-                    na_values=-
-                    9999,
+                        'time': [0, 1, 2, 3]
+                    },
+                    na_values=['-9999', -9999],
                     header=None,
                     usecols=usecols)
 
