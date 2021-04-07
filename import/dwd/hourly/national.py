@@ -90,8 +90,6 @@ PARAMETERS = [
 ]
 
 # Find file in directory
-
-
 def find_file(ftp: object, path: str, needle: str):
 
     file = None
@@ -150,7 +148,7 @@ for station_file in stations:
         # Get national weather station ID
         national_id = str(
             station_file[-13:-8]) if MODE == 'recent' else str(station_file[-32:-27])
-        station = pd.read_sql(f'SELECT `id` FROM `stations` WHERE `national_id` LIKE "{national_id}"').iloc[0][0]
+        station = pd.read_sql(f'SELECT `id` FROM `stations` WHERE `national_id` LIKE "{national_id}"', task.db).iloc[0][0]
 
         # DataFrame which holds data for one weather station
         df_station = None

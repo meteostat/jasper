@@ -82,7 +82,7 @@ for remote_file in files:
         # Get national weather station ID
         national_id = str(
             remote_file[-13:-8]) if MODE == 'recent' else str(remote_file[-32:-27])
-        station_df = pd.read_sql(f'SELECT `id`, `altitude` FROM `stations` WHERE `national_id` LIKE "{national_id}"')
+        station_df = pd.read_sql(f'SELECT `id`, `altitude` FROM `stations` WHERE `national_id` LIKE "{national_id}"', task.db)
         station = station_df.iloc[0][0]
         altitude = station_df.iloc[0][1]
 
