@@ -80,7 +80,7 @@ req = request.Request(url)
 
 # Get METAR strings
 with request.urlopen(req) as raw:
-    file = raw.read().decode().splitlines()
+    file = raw.read().decode(errors='ignore').splitlines()
 
 data = []
 
