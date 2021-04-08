@@ -32,6 +32,13 @@ def prcp_daily(value):
     else:
         return value
 
+def prcp_monthly(value):
+
+    if value is None or isnan(value) or value < 0 or value > 10000:
+        return None
+    else:
+        return value
+
 
 def wspd(value):
 
@@ -84,6 +91,13 @@ def tsun_hourly(value):
 def tsun_daily(value):
 
     if value is None or isnan(value) or value < 0 or value > 1440:
+        return None
+    else:
+        return value
+
+def tsun_monthly(value):
+
+    if value is None or isnan(value) or value < 0 or value > 44640:
         return None
     else:
         return value
