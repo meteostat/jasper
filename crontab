@@ -11,6 +11,7 @@
 7-59/10 * * * * python3 ~/routines/import/noaa/hourly/global.py recent
 3-59/3 * * * * python3 ~/routines/import/noaa/hourly/global.py historical
 28 * * * * python3 ~/routines/import/dwd/monthly/global.py recent 5
+42 * * * * python3 ~/routines/import/dwd/monthly/global.py historical 3
 0 0 * * * python3 ~/routines/import/internal/github/stations.py
 * * * * * python3 ~/routines/export/bulk/stations/hourly.py observation all
 * * * * * python3 ~/routines/export/bulk/stations/hourly.py full all
