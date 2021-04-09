@@ -157,12 +157,12 @@ if result.rowcount > 0:
         # Check if any data is available
         if record[15] is not None or record[17] is not None or record[19] is not None:
             lite.append(object)
-            # Add slim rows
+            # Convert to list
             record = record.values()
+            # Add slim rows
             slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20]
             slim.append([record[i] for i in slim_cols])
             # Add lib rows
-            record = record.values()
             lib_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17]
             lib.append([record[i] for i in lib_cols])
 
