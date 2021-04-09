@@ -47,7 +47,10 @@ result = task.read(f'''
         MIN(`inventory_hourly`.`start`) AS "hourly_start",
         MAX(`inventory_hourly`.`end`) AS "hourly_end",
         MIN(`inventory_daily`.`start`) AS "daily_start",
-        MAX(`inventory_daily`.`end`) AS "daily_end"
+        MAX(`inventory_daily`.`end`) AS "daily_end",
+        MIN(`inventory_monthly`.`start`) AS "monthly_start",
+        MAX(`inventory_monthly`.`end`) AS "monthly_end",
+        IF((SELECT `mode` FROM `inventory` WHERE `mode` = 'N' AND `inventory`.`station` = `stations`.`id`) IS NULL, NULL, 1) AS "normals_exist"
     FROM `stations`
     LEFT JOIN (
         SELECT
@@ -57,8 +60,11 @@ result = task.read(f'''
         FROM `inventory`
         WHERE
             `mode` = "H"
-    ) AS `inventory_hourly`
-    ON `stations`.`id` = `inventory_hourly`.`station`
+    )
+    AS
+        `inventory_hourly`
+    ON
+        `stations`.`id` = `inventory_hourly`.`station`
     LEFT JOIN (
         SELECT
             `station`,
@@ -67,9 +73,26 @@ result = task.read(f'''
         FROM `inventory`
         WHERE
             `mode` = "D"
-    ) AS `inventory_daily`
-    ON `stations`.`id` = `inventory_daily`.`station`
-    GROUP BY `stations`.`id`
+    )
+    AS
+        `inventory_daily`
+    ON
+        `stations`.`id` = `inventory_daily`.`station`
+    LEFT JOIN (
+        SELECT
+            `station`,
+            `start`,
+            `end`
+        FROM `inventory`
+        WHERE
+            `mode` = "M"
+    )
+    AS
+        `inventory_monthly`
+    ON
+        `stations`.`id` = `inventory_monthly`.`station`
+    GROUP BY
+        `stations`.`id`
 ''')
 
 if result.rowcount > 0:
@@ -80,6 +103,7 @@ if result.rowcount > 0:
     # Data lists
     full = []
     lite = []
+    slim = []
     lib = []
 
     for record in data:
@@ -118,7 +142,12 @@ if result.rowcount > 0:
                 'daily': {
                     'start': record[16],
                     'end': record[17]
-                }
+                },
+                'monthly': {
+                    'start': record[18],
+                    'end': record[19]
+                },
+                'normals': bool(record[20])
             }
         }
 
@@ -126,9 +155,13 @@ if result.rowcount > 0:
         full.append(object)
 
         # Check if any data is available
-        if record[15] is not None or record[17] is not None:
+        if record[15] is not None or record[17] is not None or record[19] is not None:
             lite.append(object)
-            # Add CSV row
+            # Add slim rows
+            record = record.values()
+            slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20]
+            slim.append([slim[i] for i in slim_cols])
+            # Add lib rows
             record = record.values()
             lib_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17]
             lib.append([record[i] for i in lib_cols])
@@ -137,7 +170,22 @@ if result.rowcount > 0:
     write_json_dump(full, 'full')
     write_json_dump(lite, 'lite')
 
-    # Write CSV dump
+    # Write slim dump
+    if len(slim) > 0:
+
+        file = BytesIO()
+
+        with GzipFile(fileobj=file, mode='w') as gz:
+            output = StringIO()
+            writer = csv.writer(output, delimiter=',')
+            writer.writerows(slim)
+            gz.write(output.getvalue().encode())
+            gz.close()
+            file.seek(0)
+
+        task.bulk_ftp.storbinary(f'STOR /stations/meta/slim.csv.gz', file)
+
+    # Write lib dump
     if len(lib) > 0:
 
         file = BytesIO()
