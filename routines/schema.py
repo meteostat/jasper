@@ -360,3 +360,43 @@ monthly_global = {
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
     """
 }
+
+normals_global = {
+    'template': {
+        'tavg': None,
+        'tmin': None,
+        'tmax': None,
+        'prcp': None,
+        'pres': None,
+        'tsun': None
+    },
+    'validation': {
+        'tavg': validation.temp,
+        'tmin': validation.temp,
+        'tmax': validation.temp,
+        'prcp': validation.prcp_monthly,
+        'pres': validation.pres,
+        'tsun': validation.tsun_monthly
+    },
+    'import_query': """
+        INSERT INTO `normals_global`
+        SET
+            `station` = (SELECT `id` FROM `stations` WHERE `wmo` = :station),
+            `start` = :start,
+            `end` = :end,
+            `month` = :month,
+            `tavg` = :tavg,
+            `tmin` = :tmin,
+            `tmax` = :tmax,
+            `prcp` = :prcp,
+            `pres` = :pres,
+            `tsun` = :tsun
+        ON DUPLICATE KEY UPDATE
+            `tavg` = COALESCE(VALUES(`tavg`),`tavg`),
+            `tmin` = COALESCE(VALUES(`tmin`),`tmin`),
+            `tmax` = COALESCE(VALUES(`tmax`),`tmax`),
+            `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+    """
+}

@@ -8,12 +8,9 @@ import os
 from io import BytesIO
 from sys import argv
 from ftplib import FTP
-from zipfile import ZipFile
-from datetime import datetime
 import hashlib
 import pandas as pd
 from routines import Routine
-from routines.convert import ms_to_kmh
 from routines.schema import monthly_global
 
 # Configuration

@@ -12,6 +12,7 @@
 3-59/3 * * * * python3 ~/routines/import/noaa/hourly/global.py historical
 28 * * * * python3 ~/routines/import/dwd/monthly/global.py recent 5
 42 * * * * python3 ~/routines/import/dwd/monthly/global.py historical 3
+50 * * * * python3 ~/routines/import/dwd/normals/global.py
 0 0 * * * python3 ~/routines/import/internal/github/stations.py
 * * * * * python3 ~/routines/export/bulk/stations/hourly.py observation all
 * * * * * python3 ~/routines/export/bulk/stations/hourly.py full all
@@ -20,10 +21,12 @@
 * * * * * python3 ~/routines/export/bulk/stations/daily.py observation
 * * * * * python3 ~/routines/export/bulk/stations/daily.py full
 36 * * * * python3 ~/routines/export/bulk/stations/monthly.py
+53 * * * * python3 ~/routines/export/bulk/stations/normals.py
 12 5 * * * python3 ~/routines/export/bulk/stations/meta.py
 15 3 * * * python3 ~/routines/tasks/inventory/hourly.py
 10 3 * * * python3 ~/routines/tasks/inventory/daily.py
 25 3 * * * python3 ~/routines/tasks/inventory/monthly.py
+0 0 1 * * python3 ~/routines/tasks/inventory/normals.py
 47 4 * * * /bin/sh ~/routines/export/internal/stations.sh
 17 4 * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/bulk/stations.php'
 * * * * * /opt/plesk/php/7.3/bin/php -f 'cron/ms/bulk/data/update.php'
