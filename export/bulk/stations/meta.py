@@ -27,6 +27,24 @@ def write_json_dump(data: list, name: str) -> None:
 
         task.bulk_ftp.storbinary(f'STOR /stations/meta/{name}.json.gz', file)
 
+def write_csv_dump(data: list, name: str) -> None:
+
+    global task
+
+    if len(data) > 0:
+
+        file = BytesIO()
+
+        with GzipFile(fileobj=file, mode='w') as gz:
+            output = StringIO()
+            writer = csv.writer(output, delimiter=',')
+            writer.writerows(data)
+            gz.write(output.getvalue().encode())
+            gz.close()
+            file.seek(0)
+
+        task.bulk_ftp.storbinary(f'STOR /stations/meta/{name}.csv.gz', file)
+
 # Export data for all weather stations
 result = task.read(f'''
     SELECT
@@ -104,7 +122,6 @@ if result.rowcount > 0:
     full = []
     lite = []
     slim = []
-    lib = []
 
     for record in data:
 
@@ -162,40 +179,11 @@ if result.rowcount > 0:
             # Add slim rows
             slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20]
             slim.append([record[i] for i in slim_cols])
-            # Add lib rows
-            lib_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17]
-            lib.append([record[i] for i in lib_cols])
 
     # Write JSON dumps
     write_json_dump(full, 'full')
     write_json_dump(lite, 'lite')
 
-    # Write slim dump
-    if len(slim) > 0:
-
-        file = BytesIO()
-
-        with GzipFile(fileobj=file, mode='w') as gz:
-            output = StringIO()
-            writer = csv.writer(output, delimiter=',')
-            writer.writerows(slim)
-            gz.write(output.getvalue().encode())
-            gz.close()
-            file.seek(0)
-
-        task.bulk_ftp.storbinary(f'STOR /stations/meta/slim.csv.gz', file)
-
-    # Write lib dump
-    if len(lib) > 0:
-
-        file = BytesIO()
-
-        with GzipFile(fileobj=file, mode='w') as gz:
-            output = StringIO()
-            writer = csv.writer(output, delimiter=',')
-            writer.writerows(lib)
-            gz.write(output.getvalue().encode())
-            gz.close()
-            file.seek(0)
-
-        task.bulk_ftp.storbinary(f'STOR /stations/meta/lib.csv.gz', file)
+    # Write CSV dumps
+    write_csv_dump(slim, 'slim')
+    write_csv_dump(list(map(lambda row : row[0:17], slim)), 'lib')
