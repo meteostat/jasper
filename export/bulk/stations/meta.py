@@ -160,7 +160,7 @@ if result.rowcount > 0:
             # Add slim rows
             record = record.values()
             slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20]
-            slim.append([slim[i] for i in slim_cols])
+            slim.append([record[i] for i in slim_cols])
             # Add lib rows
             record = record.values()
             lib_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17]
