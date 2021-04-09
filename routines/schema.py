@@ -379,7 +379,8 @@ normals_global = {
         'tsun': validation.tsun_monthly
     },
     'import_query': """
-        INSERT INTO `normals_global`
+        INSERT IGNORE INTO
+            `normals_global`
         SET
             `station` = (SELECT `id` FROM `stations` WHERE `wmo` = :station),
             `start` = :start,
