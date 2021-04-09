@@ -186,4 +186,4 @@ if result.rowcount > 0:
 
     # Write CSV dumps
     write_csv_dump(slim, 'slim')
-    write_csv_dump(list(map(lambda row : row[0:17], slim)), 'lib')
+    write_csv_dump([row[0:17] for row in slim], 'lib')
