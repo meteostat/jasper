@@ -25,7 +25,7 @@ def write_json_dump(data: list, name: str) -> None:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.storbinary(f'STOR /stations/meta/{name}.json.gz', file)
+        task.bulk_ftp.storbinary(f'STOR /stations/{name}.json.gz', file)
 
 def write_csv_dump(data: list, name: str) -> None:
 
@@ -43,7 +43,7 @@ def write_csv_dump(data: list, name: str) -> None:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.storbinary(f'STOR /stations/meta/{name}.csv.gz', file)
+        task.bulk_ftp.storbinary(f'STOR /stations/{name}.csv.gz', file)
 
 # Export data for all weather stations
 result = task.read(f'''

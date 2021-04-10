@@ -51,7 +51,7 @@ def write_dump(data, station: str, year: int = None) -> None:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.cwd(f'/stations/hourly/{SCOPE}')
+        task.bulk_ftp.cwd(f'/hourly/{SCOPE}')
 
         if year is not None:
 

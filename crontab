@@ -14,11 +14,11 @@
 42 * * * * python3 ~/routines/import/dwd/monthly/global.py historical 3
 # 50 * * * * python3 ~/routines/import/dwd/normals/global.py
 0 0 * * * python3 ~/routines/import/internal/github/stations.py
-* * * * * python3 ~/routines/export/bulk/stations/hourly.py observation all
+* * * * * python3 ~/routines/export/bulk/stations/hourly.py obs all
 * * * * * python3 ~/routines/export/bulk/stations/hourly.py full all
-* * * * * python3 ~/routines/export/bulk/stations/hourly.py observation recent
+* * * * * python3 ~/routines/export/bulk/stations/hourly.py obs recent
 * * * * * python3 ~/routines/export/bulk/stations/hourly.py full recent
-* * * * * python3 ~/routines/export/bulk/stations/daily.py observation
+* * * * * python3 ~/routines/export/bulk/stations/daily.py obs
 * * * * * python3 ~/routines/export/bulk/stations/daily.py full
 36 * * * * python3 ~/routines/export/bulk/stations/monthly.py
 53 * * * * python3 ~/routines/export/bulk/stations/normals.py
