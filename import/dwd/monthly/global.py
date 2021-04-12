@@ -61,7 +61,7 @@ PARAMETERS = [
         }
     },
     {
-        'dir': 'air_temperature_absolute_max/' + MODE,
+        'dir': 'air_temperature_mean_of_daily_max/' + MODE,
         'name': 'tmax',
         'stubnames': {
             'Jahr': 'year',
@@ -80,7 +80,7 @@ PARAMETERS = [
         }
     },
     {
-        'dir': 'air_temperature_absolute_min/' + MODE,
+        'dir': 'air_temperature_mean_of_daily_min/' + MODE,
         'name': 'tmin',
         'stubnames': {
             'Jahr': 'year',
