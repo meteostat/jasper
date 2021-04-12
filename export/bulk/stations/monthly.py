@@ -58,7 +58,7 @@ for station in stations:
 				`tmin`,
 				`tmax`,
 				`prcp`,
-                NULL AS `snow`
+				NULL AS `snow`,
 				NULL AS `wdir`,
 				NULL AS `wspd`,
 				NULL AS `wpgt`,
