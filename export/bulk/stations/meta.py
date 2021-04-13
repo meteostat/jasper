@@ -66,9 +66,8 @@ result = task.read(f'''
         MAX(`inventory_hourly`.`end`) AS "hourly_end",
         MIN(`inventory_daily`.`start`) AS "daily_start",
         MAX(`inventory_daily`.`end`) AS "daily_end",
-        MIN(`inventory_monthly`.`start`) AS "monthly_start",
-        MAX(`inventory_monthly`.`end`) AS "monthly_end",
-        IF((SELECT `mode` FROM `inventory` WHERE `mode` = 'N' AND `inventory`.`station` = `stations`.`id`) IS NULL, NULL, 1) AS "normals_exist"
+        YEAR(MIN(`inventory_monthly`.`start`)) AS "monthly_start",
+        YEAR(MAX(`inventory_monthly`.`end`)) AS "monthly_end"
     FROM `stations`
     LEFT JOIN (
         SELECT
@@ -163,8 +162,7 @@ if result.rowcount > 0:
                 'monthly': {
                     'start': record[18],
                     'end': record[19]
-                },
-                'normals': bool(record[20])
+                }
             }
         }
 
@@ -177,7 +175,7 @@ if result.rowcount > 0:
             # Convert to list
             record = record.values()
             # Add slim rows
-            slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20]
+            slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19]
             slim.append([record[i] for i in slim_cols])
 
     # Write JSON dumps
