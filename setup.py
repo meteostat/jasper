@@ -38,6 +38,8 @@ setup(
         'pyproj',
         'netCDF4==1.5.6',
         'xarray',
+        'numba',
+        'pykdtree',
         'verde==1.6.1'],
     license='MIT',
     classifiers=[

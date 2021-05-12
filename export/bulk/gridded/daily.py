@@ -16,12 +16,22 @@ from routines import Routine
 
 # Configuration
 date: datetime = datetime.date.today() - datetime.timedelta(days=7)
+parameters: list = [
+	'tavg',
+	'tmin',
+	'tmax',
+	'prcp',
+	'wdir',
+	'wspd',
+	'wpgt',
+	'pres'
+]
 
 # Create task
 task: Routine = Routine('export.bulk.gridded.daily', True)
 
 # Export data for all weather stations
-df = pd.read_sql(f'''
+raw = pd.read_sql(f'''
 	SET STATEMENT
 		max_statement_time=1200
 	FOR
@@ -82,78 +92,84 @@ df = pd.read_sql(f'''
 ''', task.db)
 
 # Clean DataFrame
-df = df.dropna()
-keep = ~df.isin([np.nan, np.inf, -np.inf]).any(1)
-df = df[keep].astype(np.float64)
-df = df.drop(df[df.latitude < -89].index)
-df = df.drop(df[df.latitude > 89].index)
-df = df.drop(df[df.longitude < -179].index)
-df = df.drop(df[df.longitude > 179].index)
+raw = raw.drop(raw[raw.latitude < -89.9].index)
+raw = raw.drop(raw[raw.latitude > 89.9].index)
+raw = raw.drop(raw[raw.longitude < -179.9].index)
+raw = raw.drop(raw[raw.longitude > 179.9].index)
 
-if len(df.index):
-	# Use Mercator projection because Spline is a Cartesian gridder
-	projection = pyproj.Proj(proj="merc", lat_ts=df.latitude.mean())
-	proj_coords = projection(df.longitude.values, df.latitude.values)
+if len(raw.index):
+	for parameter in parameters:
+		# Create subset
+		df = raw[['latitude', 'longitude', parameter]]
 
-	region = vd.get_region((df.longitude, df.latitude))
+		# Remove NaN values
+		df = df[df[parameter].notna()]
 
-	# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
-	spacing = 1
+		if len(df.index) > 250:
+			# Convert to float
+			df = df.astype(np.float64)
 
-	# Tuning
-	dampings = [None, 1e-4, 1e-3, 1e-2]
-	mindists = [5e3, 10e3, 50e3, 100e3]
+			# Use Mercator projection because Spline is a Cartesian gridder
+			projection = pyproj.Proj(proj="merc", lat_ts=df.latitude.mean())
+			proj_coords = projection(df.longitude.values, df.latitude.values)
 
-	# Use itertools to create a list with all combinations of parameters to test
-	parameter_sets = [
-	    dict(damping=combo[0], mindist=combo[1])
-	    for combo in itertools.product(dampings, mindists)
-	]
+			region = vd.get_region((df.longitude, df.latitude))
 
-	# Loop over the combinations and collect the scores for each parameter set
-	spline = vd.Spline()
-	scores = []
-	for params in parameter_sets:
-	    spline.set_params(**params)
-	    score = np.mean(vd.cross_val_score(spline, proj_coords, df.tmax))
-	    scores.append(score)
+			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
+			spacing = 1
 
-	# The largest score will yield the best parameter combination.
-	best = np.argmax(scores)
+			# Tuning
+			dampings = [None, 1e-4, 1e-3, 1e-2]
+			mindists = [5e3, 10e3, 50e3, 100e3]
 
+			# Use itertools to create a list with all combinations of parameters to test
+			parameter_sets = [
+			    dict(damping=combo[0], mindist=combo[1])
+			    for combo in itertools.product(dampings, mindists)
+			]
 
-	# Cross-validated gridders
-	spline = vd.SplineCV(
-	    dampings=dampings,
-	    mindists=mindists,
-	)
+			# Loop over the combinations and collect the scores for each parameter set
+			spline = vd.Spline()
+			scores = []
+			for params in parameter_sets:
+			    spline.set_params(**params)
+			    score = np.mean(vd.cross_val_score(spline, proj_coords, df[parameter]))
+			    scores.append(score)
 
-	# Calling :meth:`~verde.SplineCV.fit` will run a grid search over all parameter
-	# combinations to find the one that maximizes the cross-validation score.
-	spline.fit(proj_coords, df.tmax)
+			# The largest score will yield the best parameter combination.
+			best = np.argmax(scores)
 
+			# Cross-validated gridders
+			spline = vd.SplineCV(
+			    dampings=dampings,
+			    mindists=mindists,
+			)
 
-	# Cross-validated gridder
-	grid = spline.grid(
-	    region=region,
-	    spacing=spacing,
-	    projection=projection,
-	    dims=["lat", "lon"],
-	    data_names="value",
-	)
+			# Calling :meth:`~verde.SplineCV.fit` will run a grid search over all parameter
+			# combinations to find the one that maximizes the cross-validation score.
+			spline.fit(proj_coords, df[parameter])
 
-	spline = vd.SplineCV(dampings=dampings, mindists=mindists, delayed=True)
-	spline.fit(proj_coords, df.tmax)
+			# Cross-validated gridder
+			grid = spline.grid(
+			    region=region,
+			    spacing=spacing,
+			    projection=projection,
+			    dims=["lat", "lon"],
+			    data_names="value",
+			)
 
+			spline = vd.SplineCV(dampings=dampings, mindists=mindists, delayed=True)
+			spline.fit(proj_coords, df[parameter])
 
-	# Plot grids side-by-side:
-	mask = vd.distance_mask(
-	    (df.longitude, df.latitude),
-	    maxdist=3 * spacing * 111e3,
-	    coordinates=vd.grid_coordinates(region, spacing=spacing),
-	    projection=projection,
-	)
+			# Plot grids side-by-side:
+			mask = vd.distance_mask(
+			    (df.longitude, df.latitude),
+			    maxdist=3 * spacing * 111e3,
+			    coordinates=vd.grid_coordinates(region, spacing=spacing),
+			    projection=projection,
+			)
 
-	# Export grid as NetCDF4
-	grid = grid.where(mask)
-	grid.to_netcdf(Path(__file__).parent + '/grid.nc')
+			# Export grid as NetCDF4
+			grid = grid.where(mask)
+			grid.to_netcdf(f'{Path(__file__).parent}/{parameter}.nc')
+			exit()
