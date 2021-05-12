@@ -34,6 +34,7 @@ setup(
         'mysql-connector-python',
         'lxml',
         'metar>=1.8',
+        'cython',
         'pyproj',
         'netCDF4==1.5.6',
         'xarray',
