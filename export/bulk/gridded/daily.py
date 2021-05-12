@@ -15,7 +15,7 @@ import verde as vd
 from routines import Routine
 
 # Configuration
-date: datetime = datetime.date.today() - datetime.timedelta(days=1)
+date: datetime = datetime.date.today() - datetime.timedelta(days=7)
 
 # Create task
 task: Routine = Routine('export.bulk.gridded.daily', True)
