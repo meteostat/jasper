@@ -13,6 +13,10 @@ from routines.schema import hourly_synop
 
 # Configuration
 STATIONS_PER_CYCLE = 10
+
+def DATEPARSER(date, hour):
+    return datetime.strptime(f'{date} {hour}', '%d.%m.%Y %H:%M')
+
 POI_PATH = os.path.abspath(
     os.path.join(
         os.path.dirname(__file__),
@@ -127,7 +131,8 @@ for station in stations.to_dict(orient='records'):
             na_values='---',
             usecols=usecols,
             decimal=',',
-            parse_dates=parse_dates)
+            parse_dates=parse_dates,
+            date_parser=DATEPARSER)
 
         # Rename columns
         df = df.rename(columns=names)
