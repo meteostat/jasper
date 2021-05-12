@@ -85,17 +85,17 @@ df = pd.read_sql(f'''
 df = df.dropna()
 keep = ~df.isin([np.nan, np.inf, -np.inf]).any(1)
 df = df[keep].astype(np.float64)
-df = df.drop(data[data.latitude < -89].index)
-df = df.drop(data[data.latitude > 89].index)
-df = df.drop(data[data.longitude < -179].index)
-df = df.drop(data[data.longitude > 179].index)
+df = df.drop(df[df.latitude < -89].index)
+df = df.drop(df[df.latitude > 89].index)
+df = df.drop(df[df.longitude < -179].index)
+df = df.drop(df[df.longitude > 179].index)
 
 if len(df.index):
 	# Use Mercator projection because Spline is a Cartesian gridder
-	projection = pyproj.Proj(proj="merc", lat_ts=data.latitude.mean())
-	proj_coords = projection(data.longitude.values, data.latitude.values)
+	projection = pyproj.Proj(proj="merc", lat_ts=df.latitude.mean())
+	proj_coords = projection(df.longitude.values, df.latitude.values)
 
-	region = vd.get_region((data.longitude, data.latitude))
+	region = vd.get_region((df.longitude, df.latitude))
 
 	# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
 	spacing = 1
@@ -115,7 +115,7 @@ if len(df.index):
 	scores = []
 	for params in parameter_sets:
 	    spline.set_params(**params)
-	    score = np.mean(vd.cross_val_score(spline, proj_coords, data.tmax))
+	    score = np.mean(vd.cross_val_score(spline, proj_coords, df.tmax))
 	    scores.append(score)
 
 	# The largest score will yield the best parameter combination.
@@ -130,7 +130,7 @@ if len(df.index):
 
 	# Calling :meth:`~verde.SplineCV.fit` will run a grid search over all parameter
 	# combinations to find the one that maximizes the cross-validation score.
-	spline.fit(proj_coords, data.tmax)
+	spline.fit(proj_coords, df.tmax)
 
 
 	# Cross-validated gridder
@@ -143,12 +143,12 @@ if len(df.index):
 	)
 
 	spline = vd.SplineCV(dampings=dampings, mindists=mindists, delayed=True)
-	spline.fit(proj_coords, data.tmax)
+	spline.fit(proj_coords, df.tmax)
 
 
 	# Plot grids side-by-side:
 	mask = vd.distance_mask(
-	    (data.longitude, data.latitude),
+	    (df.longitude, df.latitude),
 	    maxdist=3 * spacing * 111e3,
 	    coordinates=vd.grid_coordinates(region, spacing=spacing),
 	    projection=projection,
