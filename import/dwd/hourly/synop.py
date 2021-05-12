@@ -7,6 +7,7 @@ The code is licensed under the MIT license.
 """
 
 import os
+from datetime import datetime
 import pandas as pd
 from routines import Routine
 from routines.schema import hourly_synop
@@ -15,7 +16,7 @@ from routines.schema import hourly_synop
 STATIONS_PER_CYCLE = 10
 
 def DATEPARSER(date, hour):
-    return datetime.strptime(f'{date} {hour}', '%d.%m.%Y %H:%M')
+    return datetime.strptime(f'{date} {hour}', '%d.%m.%y %H:%M')
 
 POI_PATH = os.path.abspath(
     os.path.join(
