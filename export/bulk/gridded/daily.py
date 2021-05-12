@@ -84,7 +84,7 @@ df = pd.read_sql(f'''
 # Clean DataFrame
 df = df.dropna()
 keep = ~df.isin([np.nan, np.inf, -np.inf]).any(1)
-df = df[indices_to_keep].astype(np.float64)
+df = df[keep].astype(np.float64)
 df = df.drop(data[data.latitude < -89].index)
 df = df.drop(data[data.latitude > 89].index)
 df = df.drop(data[data.longitude < -179].index)
