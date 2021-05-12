@@ -170,7 +170,7 @@ df = pd.read_sql(f'''
 			IF(count(`hourly_model`.`temp`)<24, NULL, MAX(`hourly_model`.`temp`)) AS `tmax`,
 			IF(count(`hourly_model`.`prcp`)<24, NULL, SUM(`hourly_model`.`prcp`)) AS `prcp`,
 			NULL AS `snow`,
-			IF(count(`hourly_model`.`wdir`)<24, NULL, ROUND(DEGAVG(SUM(SIN(RADIANS(`hourly_model`.`wdir`))), SUM(COS(RADIANS(`hourly_model`.`wdir`)))), 1)) AS `wdir` AS `wdir`,
+			IF(count(`hourly_model`.`wdir`)<24, NULL, ROUND(DEGAVG(SUM(SIN(RADIANS(`hourly_model`.`wdir`))), SUM(COS(RADIANS(`hourly_model`.`wdir`)))), 1)) AS `wdir`,
 			IF(count(`hourly_model`.`wspd`)<24, NULL, ROUND(AVG(`hourly_model`.`wspd`),1)) AS `wspd`,
 			IF(count(`hourly_model`.`wpgt`)<24, NULL, MAX(`hourly_model`.`wpgt`)) AS `wpgt`,
 			IF(count(`hourly_model`.`pres`)<24, NULL, ROUND(AVG(`hourly_model`.`pres`),1)) AS `pres`,
