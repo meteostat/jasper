@@ -35,7 +35,7 @@ setup(
         'lxml',
         'metar>=1.8',
         'netCDF4==1.5.6',
-        'xarray==0.18.0',
+        'xarray',
         'verde==1.6.1'],
     license='MIT',
     classifiers=[
