@@ -23,7 +23,6 @@ parameters: list = [
 	'tmax',
 	'prcp',
 	'wspd',
-	'wpgt',
 	'pres'
 ]
 
@@ -43,7 +42,6 @@ raw = pd.read_sql(f'''
 		SUBSTRING_INDEX(GROUP_CONCAT(`tmax` ORDER BY `priority`), ",", 1) AS `tmax`,
 		SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `priority`), ",", 1) AS `prcp`,
 		SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority`), ",", 1) AS `wspd`,
-		SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `priority`), ",", 1) AS `wpgt`,
 		SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority`), ",", 1) AS `pres`
 	FROM (
 {f"""
@@ -54,7 +52,6 @@ raw = pd.read_sql(f'''
 			`tmax`,
 			`prcp`,
 			`wspd`,
-			`wpgt`,
 			`pres`,
 			"A" AS `priority`
 		FROM `daily_national`
@@ -69,7 +66,6 @@ raw = pd.read_sql(f'''
 			`tmax`,
 			`prcp`,
 			`wspd`,
-			`wpgt`,
 			NULL AS `pres`,
 			"A" AS `priority`
 		FROM `daily_ghcn`
@@ -84,7 +80,6 @@ raw = pd.read_sql(f'''
 			IF(count(`hourly_national`.`temp`)<24, NULL, MAX(`hourly_national`.`temp`)) AS `tmax`,
 			IF(count(`hourly_national`.`prcp`)<24, NULL, SUM(`hourly_national`.`prcp`)) AS `prcp`,
 			IF(count(`hourly_national`.`wspd`)<24, NULL, ROUND(AVG(`hourly_national`.`wspd`), 1)) AS `wspd`,
-			NULL AS `wpgt`,
 			IF(count(`hourly_national`.`pres`)<24, NULL, ROUND(AVG(`hourly_national`.`pres`), 1)) AS `pres`,
 			"B" AS `priority`
 		FROM `hourly_national`
@@ -109,7 +104,6 @@ raw = pd.read_sql(f'''
 			IF(count(`hourly_isd`.`temp`)<24, NULL, MAX(`hourly_isd`.`temp`)) AS `tmax`,
 			IF(count(`hourly_isd`.`prcp`)<24, NULL, SUM(`hourly_isd`.`prcp`)) AS `prcp`,
 			IF(count(`hourly_isd`.`wspd`)<24, NULL, ROUND(AVG(`hourly_isd`.`wspd`),1)) AS `wspd`,
-			NULL AS `wpgt`,
 			IF(count(`hourly_isd`.`pres`)<24, NULL, ROUND(AVG(`hourly_isd`.`pres`),1)) AS `pres`,
 			"B" AS `priority`
 		FROM `hourly_isd`
@@ -135,7 +129,6 @@ raw = pd.read_sql(f'''
 			IF(count(`hourly_synop`.`temp`)<24, NULL, MAX(`hourly_synop`.`temp`)) AS `tmax`,
 			IF(count(`hourly_synop`.`prcp`)<24, NULL, SUM(`hourly_synop`.`prcp`)) AS `prcp`,
 			IF(count(`hourly_synop`.`wspd`)<24, NULL, ROUND(AVG(`hourly_synop`.`wspd`),1)) AS `wspd`,
-			IF(count(`hourly_synop`.`wpgt`)<24, NULL, MAX(`wpgt`)) AS `wpgt`,
 			IF(count(`hourly_synop`.`pres`)<24, NULL, ROUND(AVG(`hourly_synop`.`pres`),1)) AS `pres`,
 			"C" AS `priority`
 		FROM `hourly_synop`
@@ -160,7 +153,6 @@ raw = pd.read_sql(f'''
 			IF(count(`hourly_metar`.`temp`)<24, NULL, MAX(`hourly_metar`.`temp`)) AS `tmax`,
 			NULL AS `prcp`,
 			IF(count(`hourly_metar`.`wspd`)<24, NULL, ROUND(AVG(`hourly_metar`.`wspd`),1)) AS `wspd`,
-			NULL AS `wpgt`,
 			IF(count(`hourly_metar`.`pres`)<24, NULL, ROUND(AVG(`hourly_metar`.`pres`),1)) AS `pres`,
 			"D" AS `priority`
 		FROM `hourly_metar`
@@ -185,7 +177,6 @@ raw = pd.read_sql(f'''
 			IF(count(`hourly_model`.`temp`)<24, NULL, MAX(`hourly_model`.`temp`)) AS `tmax`,
 			IF(count(`hourly_model`.`prcp`)<24, NULL, SUM(`hourly_model`.`prcp`)) AS `prcp`,
 			IF(count(`hourly_model`.`wspd`)<24, NULL, ROUND(AVG(`hourly_model`.`wspd`),1)) AS `wspd`,
-			IF(count(`hourly_model`.`wpgt`)<24, NULL, MAX(`hourly_model`.`wpgt`)) AS `wpgt`,
 			IF(count(`hourly_model`.`pres`)<24, NULL, ROUND(AVG(`hourly_model`.`pres`),1)) AS `pres`,
 			"E" AS `priority`
 		FROM `hourly_model`
@@ -222,7 +213,6 @@ raw = raw.drop(raw[raw.longitude < -179.9].index)
 raw = raw.drop(raw[raw.longitude > 179.9].index)
 
 if len(raw.index):
-	for parameter in parameters:
 		# Create subset
 		df = raw[['latitude', 'longitude', parameter]]
 
@@ -236,61 +226,29 @@ if len(raw.index):
 			# Use Mercator projection because Spline is a Cartesian gridder
 			projection = pyproj.Proj(proj="merc", lat_ts=df.latitude.mean())
 			proj_coords = projection(df.longitude.values, df.latitude.values)
-
 			region = vd.get_region((df.longitude, df.latitude))
 
 			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
-			spacing = 1
+			spacing = 2.5
 
-			# Tuning
-			dampings = [None, 1e-4, 1e-3, 1e-2]
-			mindists = [5e3, 10e3, 50e3, 100e3]
+			# Set up gridder
+			grd = vd.ScipyGridder(method="cubic").fit(proj_coords, df[parameter])
 
-			# Use itertools to create a list with all combinations of parameters to test
-			parameter_sets = [
-			    dict(damping=combo[0], mindist=combo[1])
-			    for combo in itertools.product(dampings, mindists)
-			]
-
-			# Loop over the combinations and collect the scores for each parameter set
-			spline = vd.Spline()
-			scores = []
-			for params in parameter_sets:
-			    spline.set_params(**params)
-			    score = np.mean(vd.cross_val_score(spline, proj_coords, df[parameter]))
-			    scores.append(score)
-
-			# The largest score will yield the best parameter combination.
-			best = np.argmax(scores)
-
-			# Cross-validated gridders
-			spline = vd.SplineCV(
-			    dampings=dampings,
-			    mindists=mindists,
-			)
-
-			# Calling :meth:`~verde.SplineCV.fit` will run a grid search over all parameter
-			# combinations to find the one that maximizes the cross-validation score.
-			spline.fit(proj_coords, df[parameter])
-
-			# Cross-validated gridder
-			grid = spline.grid(
+			# Create grid
+			grid = grd.grid(
 			    region=region,
 			    spacing=spacing,
 			    projection=projection,
 			    dims=["lat", "lon"],
-			    data_names="value",
+			    data_names="value"
 			)
 
-			spline = vd.SplineCV(dampings=dampings, mindists=mindists, delayed=True)
-			spline.fit(proj_coords, df[parameter])
-
-			# Plot grids side-by-side:
+			# Mask grid points that are too far from the given data points
 			mask = vd.distance_mask(
 			    (df.longitude, df.latitude),
-			    maxdist=3 * spacing * 111e3,
+			    maxdist=2 * spacing * 111e3,
 			    coordinates=vd.grid_coordinates(region, spacing=spacing),
-			    projection=projection,
+			    projection=projection
 			)
 
 			# Export grid as NetCDF4
