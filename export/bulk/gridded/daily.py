@@ -213,6 +213,7 @@ raw = raw.drop(raw[raw.longitude < -179.9].index)
 raw = raw.drop(raw[raw.longitude > 179.9].index)
 
 if len(raw.index):
+	for parameter in parameters:
 		# Create subset
 		df = raw[['latitude', 'longitude', parameter]]
 
