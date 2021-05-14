@@ -261,7 +261,7 @@ if len(raw.index):
 			# Transfer to bulk server
 			file = open(filename, 'rb')
 			task.bulk_ftp.cwd(f'/gridded/daily/{parameter}')
-			task.bulk_ftp.storbinary(f'STOR {date.strftime('%Y-%m-%d')}.nc', file)
+			task.bulk_ftp.storbinary(f'STOR {date.strftime("%Y-%m-%d")}.nc', file)
 
 			# Remove temp file
 			if os.path.exists(filename):
