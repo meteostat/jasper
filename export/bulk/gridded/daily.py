@@ -230,7 +230,7 @@ if len(raw.index):
 			region = vd.get_region((df.longitude, df.latitude))
 
 			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
-			spacing = 2.5
+			spacing = 1
 
 			# Set up gridder
 			grd = vd.ScipyGridder(method="cubic").fit(proj_coords, df[parameter])
@@ -254,5 +254,9 @@ if len(raw.index):
 
 			# Export grid as NetCDF4
 			grid = grid.where(mask)
-			grid.to_netcdf(f'{Path(__file__).parent}/{parameter}.nc')
-			exit()
+			grid.to_netcdf(f'{Path(__file__).parent}/temp.nc')
+
+			# Transfer to bulk server
+			file = open(f'{Path(__file__).parent}/temp.nc', 'rb')   
+	        task.bulk_ftp.cwd(f'/gridded/daily/{parameter}')
+	        task.bulk_ftp.storbinary(f'STOR {date.strftime('%Y-%m-%d')}.nc', file)
