@@ -4,6 +4,7 @@ Export daily grid data
 The code is licensed under the MIT license.
 """
 
+import os
 from sys import argv
 from pathlib import Path
 import datetime
@@ -254,9 +255,14 @@ if len(raw.index):
 
 			# Export grid as NetCDF4
 			grid = grid.where(mask)
-			grid.to_netcdf(f'{Path(__file__).parent}/temp.nc')
+			filename = f'{Path(__file__).parent}/temp.nc'
+			grid.to_netcdf(filename)
 
 			# Transfer to bulk server
-			file = open(f'{Path(__file__).parent}/temp.nc', 'rb')   
+			file = open(filename, 'rb')
 	        task.bulk_ftp.cwd(f'/gridded/daily/{parameter}')
 	        task.bulk_ftp.storbinary(f'STOR {date.strftime('%Y-%m-%d')}.nc', file)
+
+			# Remove temp file
+			if os.path.exists(filename):
+				os.remove(filename)
