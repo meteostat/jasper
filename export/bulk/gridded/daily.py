@@ -45,7 +45,6 @@ raw = pd.read_sql(f'''
 		SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority`), ",", 1) AS `wspd`,
 		SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority`), ",", 1) AS `pres`
 	FROM (
-{f"""
 		(SELECT
 			`station`,
 			`tavg`,
@@ -57,7 +56,7 @@ raw = pd.read_sql(f'''
 			"A" AS `priority`
 		FROM `daily_national`
 		WHERE
-			`date` = '{date.strftime('%Y-%m-%d')}'
+			`date` = "{date.strftime('%Y-%m-%d')}"
 		)
 	UNION ALL
 		(SELECT
@@ -71,7 +70,7 @@ raw = pd.read_sql(f'''
 			"A" AS `priority`
 		FROM `daily_ghcn`
 		WHERE
-			`date` = '{date.strftime('%Y-%m-%d')}'
+			`date` = "{date.strftime('%Y-%m-%d')}"
 		)
 	UNION ALL
 		(SELECT
@@ -88,12 +87,12 @@ raw = pd.read_sql(f'''
 		ON
 			`hourly_national`.`station` = `stations`.`id` AND
 			`hourly_national`.`time` BETWEEN
-				DATE_SUB('{date.strftime('%Y-%m-%d')} 00:00:00', INTERVAL 12 HOUR) AND
-				DATE_ADD('{date.strftime('%Y-%m-%d')} 23:59:59', INTERVAL 12 HOUR)
+				DATE_SUB("{date.strftime('%Y-%m-%d')} 00:00:00", INTERVAL 12 HOUR) AND
+				DATE_ADD("{date.strftime('%Y-%m-%d')} 23:59:59", INTERVAL 12 HOUR)
 		WHERE
 			`hourly_national`.`time` BETWEEN
-				CONVERT_TZ('{date.strftime('%Y-%m-%d')} 00:00:00', `stations`.`tz`, "UTC") AND
-				CONVERT_TZ('{date.strftime('%Y-%m-%d')} 23:59:59', `stations`.`tz`, "UTC")
+				CONVERT_TZ("{date.strftime('%Y-%m-%d')} 00:00:00", `stations`.`tz`, "UTC") AND
+				CONVERT_TZ("{date.strftime('%Y-%m-%d')} 23:59:59", `stations`.`tz`, "UTC")
 		GROUP BY
 			`station`
 		)
@@ -112,17 +111,16 @@ raw = pd.read_sql(f'''
 		ON
 			`hourly_isd`.`station` = `stations`.`id` AND
 			`hourly_isd`.`time` BETWEEN
-				DATE_SUB('{date.strftime('%Y-%m-%d')} 00:00:00', INTERVAL 12 HOUR) AND
-				DATE_ADD('{date.strftime('%Y-%m-%d')} 23:59:59', INTERVAL 12 HOUR)
+				DATE_SUB("{date.strftime('%Y-%m-%d')} 00:00:00", INTERVAL 12 HOUR) AND
+				DATE_ADD("{date.strftime('%Y-%m-%d')} 23:59:59", INTERVAL 12 HOUR)
 		WHERE
 			`hourly_isd`.`time` BETWEEN
-				CONVERT_TZ('{date.strftime('%Y-%m-%d')} 00:00:00', `stations`.`tz`, "UTC") AND
-				CONVERT_TZ('{date.strftime('%Y-%m-%d')} 23:59:59', `stations`.`tz`, "UTC")
+				CONVERT_TZ("{date.strftime('%Y-%m-%d')} 00:00:00", `stations`.`tz`, "UTC") AND
+				CONVERT_TZ("{date.strftime('%Y-%m-%d')} 23:59:59", `stations`.`tz`, "UTC")
 		GROUP BY
 			`station`
 		)
 	UNION ALL
-""" if delta > 7 else ''}
 		(SELECT
 			`hourly_synop`.`station` AS `station`,
 			IF(count(`hourly_synop`.`temp`)<24, NULL, ROUND(AVG(`hourly_synop`.`temp`),1)) AS `tavg`,
@@ -233,11 +231,39 @@ if len(raw.index):
 			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
 			spacing = 1
 
-			# Set up gridder
-			grd = vd.ScipyGridder(method="cubic").fit(proj_coords, df[parameter])
+			# Tuning
+			dampings = [None, 1e-4, 1e-3, 1e-2]
+			mindists = [5e3, 10e3, 50e3, 100e3]
 
-			# Create grid
-			grid = grd.grid(
+			# Use itertools to create a list with all combinations of parameters to test
+			parameter_sets = [
+			    dict(damping=combo[0], mindist=combo[1])
+			    for combo in itertools.product(dampings, mindists)
+			]
+
+			# Loop over the combinations and collect the scores for each parameter set
+			spline = vd.Spline()
+			scores = []
+			for params in parameter_sets:
+			    spline.set_params(**params)
+			    score = np.mean(vd.cross_val_score(spline, proj_coords, df[parameter]))
+			    scores.append(score)
+
+			# The largest score will yield the best parameter combination.
+			best = np.argmax(scores)
+
+			# Cross-validated gridders
+			spline = vd.SplineCV(
+			    dampings=dampings,
+			    mindists=mindists,
+			)
+
+			# Calling :meth:`~verde.SplineCV.fit` will run a grid search over all parameter
+			# combinations to find the one that maximizes the cross-validation score.
+			spline.fit(proj_coords, df[parameter])
+
+			# Cross-validated gridder
+			grid = spline.grid(
 			    region=region,
 			    spacing=spacing,
 			    projection=projection,
@@ -248,7 +274,7 @@ if len(raw.index):
 			# Mask grid points that are too far from the given data points
 			mask = vd.distance_mask(
 			    (df.longitude, df.latitude),
-			    maxdist=0.5 * 111e3,
+			    maxdist=spacing * 111e3,
 			    coordinates=vd.grid_coordinates(region, spacing=spacing),
 			    projection=projection
 			)
