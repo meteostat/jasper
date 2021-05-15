@@ -248,7 +248,7 @@ if len(raw.index):
 			# Mask grid points that are too far from the given data points
 			mask = vd.distance_mask(
 			    (df.longitude, df.latitude),
-			    maxdist=spacing * 111e3,
+			    maxdist=0.25 * 111e3,
 			    coordinates=vd.grid_coordinates(region, spacing=spacing),
 			    projection=projection
 			)
