@@ -231,32 +231,8 @@ if len(raw.index):
 			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
 			spacing = 1
 
-			# Tuning
-			dampings = [None, 1e-4, 1e-3, 1e-2]
-			mindists = [5e3, 10e3, 50e3, 100e3]
-
-			# Use itertools to create a list with all combinations of parameters to test
-			parameter_sets = [
-			    dict(damping=combo[0], mindist=combo[1])
-			    for combo in itertools.product(dampings, mindists)
-			]
-
 			# Loop over the combinations and collect the scores for each parameter set
-			spline = vd.Spline()
-			scores = []
-			for params in parameter_sets:
-			    spline.set_params(**params)
-			    score = np.mean(vd.cross_val_score(spline, proj_coords, df[parameter]))
-			    scores.append(score)
-
-			# The largest score will yield the best parameter combination.
-			best = np.argmax(scores)
-
-			# Cross-validated gridders
-			spline = vd.SplineCV(
-			    dampings=dampings,
-			    mindists=mindists,
-			)
+			spline = vd.Spline(mindist=5e3, damping=1e-4)
 
 			# Calling :meth:`~verde.SplineCV.fit` will run a grid search over all parameter
 			# combinations to find the one that maximizes the cross-validation score.
