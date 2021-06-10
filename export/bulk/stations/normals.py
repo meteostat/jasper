@@ -121,6 +121,8 @@ for station in stations:
         data = pd.concat([data, data_db])
 
     # Convert to list
+    print(data)
+    exit()
     data = data.values.tolist()
 
     if len(data) > 0:
