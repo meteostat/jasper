@@ -124,7 +124,7 @@ for station in stations:
         data = data.groupby(data.index).agg('last')
 
     # Convert to list
-    data.index.rename(['start', 'end', 'month'], inplace=True)
+    data.index.set_names(['start', 'end', 'month'], inplace=True)
     data = data.reset_index().to_dict('records')
     data = list(map(lambda d: d.values(), data))
 
