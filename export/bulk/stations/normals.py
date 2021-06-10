@@ -116,7 +116,7 @@ for station in stations:
 
     # Convert to list
     try:
-        data = data.drop('index')
+        data = data.drop('index', axis=1)
     except BaseException:
         pass
     data = data.reset_index().to_dict('records')
