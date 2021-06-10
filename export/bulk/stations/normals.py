@@ -79,7 +79,7 @@ for station in stations:
         df = df.groupby(df.index.month).agg('mean')
         df = df.round(1)
         # Refactor index
-        df.index.reset_index(inplace=True)
+        df.reset_index(inplace=True)
         df = df.reset_index()
         df['start'] = year - 29
         df['end'] = year
