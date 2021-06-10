@@ -36,10 +36,12 @@ stations = [['10637']]
 for station in stations:
 
     # Full DataFrame
-    data: pd.DataFrame = pd.DataFrame(columns=[
+    data: pd.DataFrame = pd.DataFrame(index=[
         'start',
         'end',
-        'month',
+        'month'
+    ],
+    columns=[
         'tavg',
         'tmin',
         'tmax',
@@ -119,6 +121,7 @@ for station in stations:
     # Merge data
     if data_db.index.size > 0:
         data = pd.concat([data, data_db])
+        data = data.groupby(data.index).agg('last')
 
     # Convert to list
     print(data)
