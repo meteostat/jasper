@@ -130,7 +130,7 @@ for station in stations:
         with GzipFile(fileobj=file, mode='w') as gz:
             output = StringIO()
             writer = csv.writer(output, delimiter=',')
-            writer.writerows(result)
+            writer.writerows(data)
             gz.write(output.getvalue().encode())
             gz.close()
             file.seek(0)
