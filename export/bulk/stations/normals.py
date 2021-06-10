@@ -79,11 +79,11 @@ for station in stations:
         df = df.groupby(df.index.month).agg('mean')
         df = df.round(1)
         # Refactor index
-        df.index.rename('month', inplace=True)
+        df.index.reset_index(inplace=True)
         df = df.reset_index()
         df['start'] = year - 29
         df['end'] = year
-        df = df.set_index(['start', 'end', 'month'])
+        df.set_index(['start', 'end', 'time'], inplace=True)
         # Remove uncertain data
         for parameter in coverage:
             if parameter in df.columns and coverage[parameter] < 0.6:
@@ -99,7 +99,7 @@ for station in stations:
 		SELECT
             `start`,
             `end`,
-            `month`,
+            `month` AS `time`,
             `tavg`,
             `tmin`,
             `tmax`,
@@ -116,7 +116,7 @@ for station in stations:
             `month`
     ''',
     task.db,
-    index_col=['start', 'end', 'month'])
+    index_col=['start', 'end', 'time'])
 
     # Merge data
     if data_db.index.size > 0:
