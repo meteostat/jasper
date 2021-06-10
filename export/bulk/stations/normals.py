@@ -118,7 +118,7 @@ for station in stations:
 
     # Merge data
     if data_db.index.size > 0:
-        data = data.merge(data_db, how='outer', on=['start', 'end', 'month'])
+        data = pd.concat([data, data_db])
 
     # Convert to list
     data = data.values.tolist()
