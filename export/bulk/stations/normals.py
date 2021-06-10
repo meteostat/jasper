@@ -115,7 +115,10 @@ for station in stations:
         ).agg('last')
 
     # Convert to list
-    data = data.drop('index')
+    try:
+        data = data.drop('index')
+    except BaseException:
+        pass
     data = data.reset_index().to_dict('records')
     data = list(map(lambda d: d.values(), data))
 
