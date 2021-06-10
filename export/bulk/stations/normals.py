@@ -36,20 +36,7 @@ stations = [['10637']]
 for station in stations:
 
     # Full DataFrame
-    data: pd.DataFrame = pd.DataFrame(index=[
-        'start',
-        'end',
-        'month'
-    ],
-    columns=[
-        'tavg',
-        'tmin',
-        'tmax',
-        'prcp',
-        'wspd',
-        'pres',
-        'tsun'
-    ])
+    data: pd.DataFrame = pd.DataFrame()
 
     # Get centuries
     decades = []
