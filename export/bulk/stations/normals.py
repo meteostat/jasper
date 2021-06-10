@@ -123,7 +123,7 @@ for station in stations:
     # Convert to list
     data = data.values.tolist()
 
-    if data.rowcount > 0:
+    if len(data) > 0:
 
         file = BytesIO()
 
