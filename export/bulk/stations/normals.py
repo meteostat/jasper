@@ -125,6 +125,7 @@ for station in stations:
 
     # Convert to list
     data = data.reset_index().to_dict('records')
+    data = map(lambda d: d.items(), data)
 
     if len(data) > 0:
 
