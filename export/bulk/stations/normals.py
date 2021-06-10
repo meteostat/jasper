@@ -124,9 +124,7 @@ for station in stations:
         data = data.groupby(data.index).agg('last')
 
     # Convert to list
-    print(data)
-    exit()
-    data = data.values.tolist()
+    data = data.reset_index().to_dict('records')
 
     if len(data) > 0:
 
