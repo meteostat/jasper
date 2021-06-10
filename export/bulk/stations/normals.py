@@ -108,9 +108,14 @@ for station in stations:
     # Merge data
     if data_db.index.size > 0:
         data = pd.concat([data, data_db])
-        data = data.groupby(data.index).agg('last')
+        data = data.groupby([
+            data.index.get_level_values('start'),
+            data.index.get_level_values('end'),
+            data.index.get_level_values('time')]
+        ).agg('last')
 
     # Convert to list
+    data = data.drop('index')
     data = data.reset_index().to_dict('records')
     data = list(map(lambda d: d.values(), data))
 
