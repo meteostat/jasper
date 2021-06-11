@@ -78,7 +78,8 @@ for station in stations:
                     if parameter in df.columns and coverage[parameter] < 0.6:
                         df[parameter] = np.NaN
 
-                data = data.append(df)
+                if not df.isnull().all().all():
+                    data = data.append(df)
 
             except BaseException:
 
@@ -120,13 +121,11 @@ for station in stations:
                 data.index.get_level_values('time')]
             ).agg('last')
 
-        # Convert to list
+        # Drop needless column(s)
         try:
             data = data.drop('index', axis=1)
         except BaseException:
             pass
-        data = data.reset_index().to_dict('records')
-        data = list(map(lambda d: d.values(), data))
 
         if len(data) > 0:
 
@@ -134,8 +133,7 @@ for station in stations:
 
             with GzipFile(fileobj=file, mode='w') as gz:
                 output = StringIO()
-                writer = csv.writer(output, delimiter=',')
-                writer.writerows(data)
+                data.to_csv(output)
                 gz.write(output.getvalue().encode())
                 gz.close()
                 file.seek(0)
