@@ -78,6 +78,9 @@ for station in stations:
                     if parameter in df.columns and coverage[parameter] < 0.6:
                         df[parameter] = np.NaN
 
+                # Add to full DataFrame
+                data = data.append(df)
+
             except BaseException:
 
                 pass
