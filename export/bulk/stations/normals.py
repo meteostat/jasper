@@ -78,9 +78,6 @@ for station in stations:
                     if parameter in df.columns and coverage[parameter] < 0.6:
                         df[parameter] = np.NaN
 
-                if not df.isnull().all().all():
-                    data = data.append(df)
-
             except BaseException:
 
                 pass
@@ -127,7 +124,10 @@ for station in stations:
         except BaseException:
             pass
 
-        if len(data) > 0:
+        # Drop NaN-only rows
+        data = data.dropna(how='all')
+
+        if data.index.size > 0:
 
             file = BytesIO()
 
