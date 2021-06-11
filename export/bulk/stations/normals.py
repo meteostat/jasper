@@ -129,6 +129,7 @@ for station in stations:
 
         # Drop NaN-only rows
         data = data.dropna(how='all')
+        data = data.sort_index()
 
         if data.index.size > 0:
 
@@ -136,7 +137,7 @@ for station in stations:
 
             with GzipFile(fileobj=file, mode='w') as gz:
                 output = StringIO()
-                data.to_csv(output)
+                data.to_csv(output, header=False)
                 gz.write(output.getvalue().encode())
                 gz.close()
                 file.seek(0)
