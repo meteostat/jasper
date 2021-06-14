@@ -35,25 +35,34 @@ if len(stations) > 0:
 
     for station in stations:
 
-        # Get monthly data from Meteostat
-        data = Monthly(station[0], model=False).fetch()
+        try:
 
-        # Get start & end dates of time series
-        start = data.index.min().strftime('%Y-%m-%d')
-        end = data.index.max().strftime('%Y-%m-%d')
+            # Get monthly data from Meteostat
+            data = Monthly(station[0], model=False).fetch()
 
-        task.query(f'''
-            INSERT INTO `inventory`(
-                `station`,
-                `mode`,
-                `start`,
-                `end`
-            ) VALUES (
-                "{station[0]}",
-                "M",
-                "{start}",
-                "{end}"
-            ON DUPLICATE KEY UPDATE
-                `start` = VALUES(`start`),
-                `end` = VALUES(`end`)
-        ''')
+            # Get start & end dates of time series
+            start = data.index.min().strftime('%Y-%m-%d')
+            end = data.index.max().strftime('%Y-%m-%d')
+
+            if len(start) == 10 and len(end) == 10:
+
+                task.query(f'''
+                    INSERT INTO `inventory`(
+                        `station`,
+                        `mode`,
+                        `start`,
+                        `end`
+                    ) VALUES (
+                        "{station[0]}",
+                        "M",
+                        "{start}",
+                        "{end}"
+                    )
+                    ON DUPLICATE KEY UPDATE
+                        `start` = VALUES(`start`),
+                        `end` = VALUES(`end`)
+                ''')
+
+        except BaseException:
+
+            pass
