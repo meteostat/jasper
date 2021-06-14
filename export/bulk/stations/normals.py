@@ -26,248 +26,266 @@ def get_bulk(station: list) -> pd.DataFrame:
     Get climate normals from Meteostat Bulk interface
     """
 
-    # Full DataFrame
-    data: pd.DataFrame = pd.DataFrame()
+    try:
 
-    # Get decades
-    decades = []
-    loop_year = 1990
-    current_year = datetime.now().year
-    while loop_year < current_year:
-        decades.append(loop_year)
-        loop_year += 10
+        # Full DataFrame
+        data: pd.DataFrame = pd.DataFrame()
 
-    # Collect normals from Monthly interface
-    for year in decades:
+        # Get decades
+        decades = []
+        loop_year = 1990
+        current_year = datetime.now().year
+        while loop_year < current_year:
+            decades.append(loop_year)
+            loop_year += 10
 
-        try:
+        # Collect normals from Monthly interface
+        for year in decades:
 
-            # Start & end year
-            start = datetime(year-29, 1, 1)
-            end = datetime(year, 12, 31)
-            # Get data
-            df = Monthly(station[0], start, end)
-            # Get coverage data
-            coverage = {}
-            for parameter in df._columns[2:]:
-                coverage[parameter] = df.coverage(parameter)
-            # Fetch DataFrame
-            df = df.fetch()
-            # Drop certain columns
-            df = df.drop(['snow', 'wdir', 'wpgt'], axis=1)
-            # Aggregate monthly
-            df = df.groupby(df.index.month).agg('mean')
-            df = df.round(1)
-            # Refactor index
-            df.reset_index(inplace=True)
-            df = df.reset_index()
-            df['start'] = year - 29
-            df['end'] = year
-            df.set_index(['start', 'end', 'time'], inplace=True)
-            # Remove uncertain data
-            for parameter in coverage:
-                if parameter in df.columns and coverage[parameter] < 0.6:
-                    df[parameter] = np.NaN
+            try:
 
-            # Add to full DataFrame
-            data = data.append(df)
+                # Start & end year
+                start = datetime(year-29, 1, 1)
+                end = datetime(year, 12, 31)
+                # Get data
+                df = Monthly(station[0], start, end)
+                # Get coverage data
+                coverage = {}
+                for parameter in df._columns[2:]:
+                    coverage[parameter] = df.coverage(parameter)
+                # Fetch DataFrame
+                df = df.fetch()
+                # Drop certain columns
+                df = df.drop(['snow', 'wdir', 'wpgt'], axis=1)
+                # Aggregate monthly
+                df = df.groupby(df.index.month).agg('mean')
+                df = df.round(1)
+                # Refactor index
+                df.reset_index(inplace=True)
+                df = df.reset_index()
+                df['start'] = year - 29
+                df['end'] = year
+                df.set_index(['start', 'end', 'time'], inplace=True)
+                # Remove uncertain data
+                for parameter in coverage:
+                    if parameter in df.columns and coverage[parameter] < 0.6:
+                        df[parameter] = np.NaN
 
-        except BaseException:
+                # Add to full DataFrame
+                data = data.append(df)
 
-            pass
+            except BaseException:
 
-    # Return full DataFrame
-    return data
+                pass
+
+        # Return full DataFrame
+        return data
+
+    except BaseException:
+
+        return pd.DataFrame()
 
 def get_worldclim(task, station: list) -> pd.DataFrame:
     """
     Load climate normals from WorldClim DB
     """
 
-    # Collect normals from WorldClim
-    with task.worldclim_db.connect() as con:
-        tmin = con.execute(text(f'''
-            SELECT
-                `altitude`,
-                `JAN`,
-                `FEB`,
-                `MAR`,
-                `APR`,
-                `MAY`,
-                `JUN`,
-                `JUL`,
-                `AUG`,
-                `SEP`,
-                `OCT`,
-                `NOV`,
-                `DEC`,
-                ROUND(
-                    (6371*acos(cos(radians(:lat)) *
-                    cos(radians(`latitude`)) *
-                    cos(radians(`longitude`) -
-                    radians(:lon)) +
-                    sin(radians(:lat)) *
-                    sin(radians(`latitude`)))
-                ), 1) AS `distance`
-            FROM
-                `normals_temperature_min`
-            WHERE
-                (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
-                (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
-            HAVING
-                `distance` < 10
-            ORDER BY
-                `distance`
-            LIMIT
-                1
-        '''), {
-            'lat': station[1],
-            'lon': station[2]
-        })
+    try:
 
-        tmax = con.execute(text(f'''
-            SELECT
-                `JAN`,
-                `FEB`,
-                `MAR`,
-                `APR`,
-                `MAY`,
-                `JUN`,
-                `JUL`,
-                `AUG`,
-                `SEP`,
-                `OCT`,
-                `NOV`,
-                `DEC`,
-                ROUND(
-                    (6371*acos(cos(radians(:lat)) *
-                    cos(radians(`latitude`)) *
-                    cos(radians(`longitude`) -
-                    radians(:lon)) +
-                    sin(radians(:lat)) *
-                    sin(radians(`latitude`)))
-                ), 1) AS `distance`
-            FROM
-                `normals_temperature_max`
-            WHERE
-                (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
-                (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
-            HAVING
-                `distance` < 10
-            ORDER BY
-                `distance`
-            LIMIT
-                1
-        '''), {
-            'lat': station[1],
-            'lon': station[2]
-        })
+        # Collect normals from WorldClim
+        with task.worldclim_db.connect() as con:
+            tmin = con.execute(text(f'''
+                SELECT
+                    `altitude`,
+                    `JAN`,
+                    `FEB`,
+                    `MAR`,
+                    `APR`,
+                    `MAY`,
+                    `JUN`,
+                    `JUL`,
+                    `AUG`,
+                    `SEP`,
+                    `OCT`,
+                    `NOV`,
+                    `DEC`,
+                    ROUND(
+                        (6371*acos(cos(radians(:lat)) *
+                        cos(radians(`latitude`)) *
+                        cos(radians(`longitude`) -
+                        radians(:lon)) +
+                        sin(radians(:lat)) *
+                        sin(radians(`latitude`)))
+                    ), 1) AS `distance`
+                FROM
+                    `normals_temperature_min`
+                WHERE
+                    (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
+                    (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
+                HAVING
+                    `distance` < 10
+                ORDER BY
+                    `distance`
+                LIMIT
+                    1
+            '''), {
+                'lat': station[1],
+                'lon': station[2]
+            })
 
-        prcp = con.execute(text(f'''
-            SELECT
-                `JAN`,
-                `FEB`,
-                `MAR`,
-                `APR`,
-                `MAY`,
-                `JUN`,
-                `JUL`,
-                `AUG`,
-                `SEP`,
-                `OCT`,
-                `NOV`,
-                `DEC`,
-                ROUND(
-                    (6371*acos(cos(radians(:lat)) *
-                    cos(radians(`latitude`)) *
-                    cos(radians(`longitude`) -
-                    radians(:lon)) +
-                    sin(radians(:lat)) *
-                    sin(radians(`latitude`)))
-                ), 1) AS `distance`
-            FROM
-                `normals_precipitation`
-            WHERE
-                (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
-                (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
-            HAVING
-                `distance` < 10
-            ORDER BY
-                `distance`
-            LIMIT
-                1
-        '''), {
-            'lat': station[1],
-            'lon': station[2]
-        })
+            tmax = con.execute(text(f'''
+                SELECT
+                    `JAN`,
+                    `FEB`,
+                    `MAR`,
+                    `APR`,
+                    `MAY`,
+                    `JUN`,
+                    `JUL`,
+                    `AUG`,
+                    `SEP`,
+                    `OCT`,
+                    `NOV`,
+                    `DEC`,
+                    ROUND(
+                        (6371*acos(cos(radians(:lat)) *
+                        cos(radians(`latitude`)) *
+                        cos(radians(`longitude`) -
+                        radians(:lon)) +
+                        sin(radians(:lat)) *
+                        sin(radians(`latitude`)))
+                    ), 1) AS `distance`
+                FROM
+                    `normals_temperature_max`
+                WHERE
+                    (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
+                    (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
+                HAVING
+                    `distance` < 10
+                ORDER BY
+                    `distance`
+                LIMIT
+                    1
+            '''), {
+                'lat': station[1],
+                'lon': station[2]
+            })
 
-    # Fetch data
-    tmin = [float(r) for r in tmin.fetchall()[0]]
-    tmax = [float(r) for r in tmax.fetchall()[0]]
-    prcp = [float(r) for r in prcp.fetchall()[0]]
+            prcp = con.execute(text(f'''
+                SELECT
+                    `JAN`,
+                    `FEB`,
+                    `MAR`,
+                    `APR`,
+                    `MAY`,
+                    `JUN`,
+                    `JUL`,
+                    `AUG`,
+                    `SEP`,
+                    `OCT`,
+                    `NOV`,
+                    `DEC`,
+                    ROUND(
+                        (6371*acos(cos(radians(:lat)) *
+                        cos(radians(`latitude`)) *
+                        cos(radians(`longitude`) -
+                        radians(:lon)) +
+                        sin(radians(:lat)) *
+                        sin(radians(`latitude`)))
+                    ), 1) AS `distance`
+                FROM
+                    `normals_precipitation`
+                WHERE
+                    (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
+                    (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
+                HAVING
+                    `distance` < 10
+                ORDER BY
+                    `distance`
+                LIMIT
+                    1
+            '''), {
+                'lat': station[1],
+                'lon': station[2]
+            })
 
-    # Get grid cell altitude
-    altitude = tmin.pop(0)
+        # Fetch data
+        tmin = [float(r) for r in tmin.fetchall()[0]]
+        tmax = [float(r) for r in tmax.fetchall()[0]]
+        prcp = [float(r) for r in prcp.fetchall()[0]]
 
-    # Calculate constant
-    const = (2/3) * ((altitude - station[3]) / 100)
+        # Get grid cell altitude
+        altitude = tmin.pop(0)
 
-    # Create result list
-    raw = []
-    for i in range(12):
-        raw.append({
-            "time": i + 1,
-            "tavg": round(((tmin[i] + tmax[i]) / 2) + const, 1),
-            "tmin": round(tmin[i] + const, 1),
-            "tmax": round(tmax[i] + const, 1),
-            "prcp": round(prcp[i], 1)
-        })
+        # Calculate constant
+        const = (2/3) * ((altitude - station[3]) / 100)
 
-    # Convert to DataFrame
-    df = pd.DataFrame(raw)
+        # Create result list
+        raw = []
+        for i in range(12):
+            raw.append({
+                "time": i + 1,
+                "tavg": round(((tmin[i] + tmax[i]) / 2) + const, 1),
+                "tmin": round(tmin[i] + const, 1),
+                "tmax": round(tmax[i] + const, 1),
+                "prcp": round(prcp[i], 1)
+            })
 
-    # Set index
-    df['start'] = 1961
-    df['end'] = 1990
-    df.set_index(['start', 'end', 'time'], inplace=True)
+        # Convert to DataFrame
+        df = pd.DataFrame(raw)
 
-    # Return DataFrame
-    return df
+        # Set index
+        df['start'] = 1961
+        df['end'] = 1990
+        df.set_index(['start', 'end', 'time'], inplace=True)
+
+        # Return DataFrame
+        return df
+
+    except BaseException:
+
+        return pd.DataFrame()
 
 def get_database(task, station: list) -> pd.DataFrame:
     """
     Get climate normals from Meteostat DB
     """
 
-    # Get data from DB
-    df = pd.read_sql(f'''
-		SET STATEMENT
-			max_statement_time=60
-		FOR
-		SELECT
-            `start`,
-            `end`,
-            `month` AS `time`,
-            `tavg`,
-            `tmin`,
-            `tmax`,
-            `prcp`,
-            `pres`,
-            `tsun`
-        FROM
-            `normals_global`
-        WHERE
-            `station` = "{station[0]}"
-        ORDER BY
-            `start`,
-            `end`,
-            `month`
-    ''',
-    task.db,
-    index_col=['start', 'end', 'time'])
+    try:
 
-    # Return DataFrame
-    return df
+        # Get data from DB
+        df = pd.read_sql(f'''
+    		SET STATEMENT
+    			max_statement_time=60
+    		FOR
+    		SELECT
+                `start`,
+                `end`,
+                `month` AS `time`,
+                `tavg`,
+                `tmin`,
+                `tmax`,
+                `prcp`,
+                `pres`,
+                `tsun`
+            FROM
+                `normals_global`
+            WHERE
+                `station` = "{station[0]}"
+            ORDER BY
+                `start`,
+                `end`,
+                `month`
+        ''',
+        task.db,
+        index_col=['start', 'end', 'time'])
+
+        # Return DataFrame
+        return df
+
+    except BaseException:
+
+        return pd.DataFrame()
 
 
 stations = task.get_stations(f'''
