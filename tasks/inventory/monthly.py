@@ -17,18 +17,9 @@ task = Routine('task.inventory.monthly')
 # Get stations
 stations = task.get_stations("""
     SELECT
-        `stations`.`id` AS `id`
+        `id`
     FROM
         `stations`
-    WHERE
-        `stations`.`id` IN (
-            SELECT DISTINCT
-                `station`
-            FROM
-                `inventory`
-            WHERE
-                `mode` IN ('H', 'D', 'M')
-        )
 """, STATIONS_PER_CYCLE)
 
 if len(stations) > 0:

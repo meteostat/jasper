@@ -28,7 +28,7 @@
 5 5 * * * python3 ~/routines/export/bulk/gridded/daily.py 30
 5 4 * * * python3 ~/routines/export/bulk/gridded/daily.py 270
 15 3 * * * python3 ~/routines/tasks/inventory/hourly.py
-10 3 * * * python3 ~/routines/tasks/inventory/daily.py
-25 3 * * * python3 ~/routines/tasks/inventory/monthly.py
-0 0 1 * * python3 ~/routines/tasks/inventory/normals.py
+* * * * * python3 ~/routines/tasks/inventory/daily.py
+* * * * * python3 ~/routines/tasks/inventory/monthly.py
+# 0 0 1 * * python3 ~/routines/tasks/inventory/normals.py
 47 4 * * * /bin/sh ~/routines/export/internal/stations.sh

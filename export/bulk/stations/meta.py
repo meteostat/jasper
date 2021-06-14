@@ -56,19 +56,35 @@ result = task.read(f'''
         `stations`.`national_id` AS `national_id`,
         CAST(`stations`.`wmo` AS CHAR(5)) AS `wmo`,
         `stations`.`icao` AS `icao`,
-        `stations`.`iata` AS `iata`,
         `stations`.`latitude` AS `latitude`,
         `stations`.`longitude` AS `longitude`,
         `stations`.`altitude` AS `altitude`,
         `stations`.`tz` as `timezone`,
         `stations`.`history` as `history`,
+        MIN(`inventory_model`.`start`) AS "model_start",
+        MAX(`inventory_model`.`end`) AS "model_end",
         MIN(`inventory_hourly`.`start`) AS "hourly_start",
         MAX(`inventory_hourly`.`end`) AS "hourly_end",
         MIN(`inventory_daily`.`start`) AS "daily_start",
         MAX(`inventory_daily`.`end`) AS "daily_end",
         YEAR(MIN(`inventory_monthly`.`start`)) AS "monthly_start",
-        YEAR(MAX(`inventory_monthly`.`end`)) AS "monthly_end"
+        YEAR(MAX(`inventory_monthly`.`end`)) AS "monthly_end",
+        YEAR(MIN(`inventory_normals`.`start`)) AS "normals_start",
+        YEAR(MAX(`inventory_normals`.`end`)) AS "normals_end"
     FROM `stations`
+    LEFT JOIN (
+        SELECT
+            `station`,
+            `start`,
+            `end`
+        FROM `inventory`
+        WHERE
+            `mode` = "P"
+    )
+    AS
+        `inventory_model`
+    ON
+        `stations`.`id` = `inventory_model`.`station`
     LEFT JOIN (
         SELECT
             `station`,
@@ -108,6 +124,19 @@ result = task.read(f'''
         `inventory_monthly`
     ON
         `stations`.`id` = `inventory_monthly`.`station`
+    LEFT JOIN (
+        SELECT
+            `station`,
+            `start`,
+            `end`
+        FROM `inventory`
+        WHERE
+            `mode` = "N"
+    )
+    AS
+        `inventory_normals`
+    ON
+        `stations`.`id` = `inventory_normals`.`station`
     GROUP BY
         `stations`.`id`
 ''')
@@ -140,28 +169,35 @@ if result.rowcount > 0:
             'identifiers': {
                 'national': record[5],
                 'wmo': record[6],
-                'icao': record[7],
-                'iata': record[8]
+                'icao': record[7]
             },
             'location': {
-                'latitude': record[9],
-                'longitude': record[10],
-                'elevation': record[11]
+                'latitude': record[8],
+                'longitude': record[9],
+                'elevation': record[10]
             },
-            'timezone': record[12],
-            'history': record[13],
+            'timezone': record[11],
+            'history': record[12],
             'inventory': {
+                'model': {
+                    'start': record[13],
+                    'end': record[14]
+                },
                 'hourly': {
-                    'start': record[14],
-                    'end': record[15]
+                    'start': record[15],
+                    'end': record[16]
                 },
                 'daily': {
-                    'start': record[16],
-                    'end': record[17]
+                    'start': record[17],
+                    'end': record[18]
                 },
                 'monthly': {
-                    'start': record[18],
-                    'end': record[19]
+                    'start': record[19],
+                    'end': record[20]
+                },
+                'normals': {
+                    'start': record[21],
+                    'end': record[22]
                 }
             }
         }
@@ -170,12 +206,12 @@ if result.rowcount > 0:
         full.append(object)
 
         # Check if any data is available
-        if record[15] is not None or record[17] is not None or record[19] is not None:
+        if record[14] is not None or record[16] is not None or record[18] is not None or record[20] is not None or record[22] is not None:
             lite.append(object)
             # Convert to list
             record = record.values()
             # Add slim rows
-            slim_cols = [0, 1, 3, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19]
+            slim_cols = [0, 1, 3, 4, 6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20]
             slim.append([record[i] for i in slim_cols])
 
     # Write JSON dumps
