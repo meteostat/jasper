@@ -41,7 +41,7 @@ setup(
         'numba',
         'pykdtree',
         'verde==1.6.1',
-        'meteostat==1.3.4'],
+        'meteostat==1.3.5'],
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3',
