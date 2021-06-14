@@ -10,6 +10,7 @@ from gzip import GzipFile
 import csv
 import numpy as np
 import pandas as pd
+from sqlalchemy import text
 from meteostat import Monthly
 from routines import Routine
 
@@ -201,9 +202,9 @@ def get_worldclim(task, station: list) -> pd.DataFrame:
         })
 
     # Fetch data
-    tmin = tmin.fetchall()
-    tmax = tmax.fetchall()
-    prcp = prcp.fetchall()
+    tmin = [float(r) for r in tmin.fetchall()[0]]
+    tmax = [float(r) for r in tmax.fetchall()[0]]
+    prcp = [float(r) for r in prcp.fetchall()[0]]
 
     # Get grid cell altitude
     altitude = tmin.pop(0)
