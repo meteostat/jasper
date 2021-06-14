@@ -10,6 +10,12 @@ host = localhost
 user = meteostat
 password = mypassword
 
+[worldclim]
+name = worldclim
+host = localhost
+user = worldclim
+password = mypassword
+
 [bulk_ftp]
 host = localhost
 user = meteostat

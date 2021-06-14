@@ -48,6 +48,13 @@ class Routine():
             f"""mysql+mysqlconnector://{self.config.get('database', 'user')}:{self.config.get('database', 'password')}@{self.config.get('database', 'host')}/{self.config.get('database', 'name')}?charset=utf8""")
         self.db = db
 
+    def _connect_worldclim(self) -> None:
+
+        # WorldClim database connection
+        db = create_engine(
+            f"""mysql+mysqlconnector://{self.config.get('worldclim', 'user')}:{self.config.get('worldclim', 'password')}@{self.config.get('worldclim', 'host')}/{self.config.get('worldclim', 'name')}?charset=utf8""")
+        self.worldclim_db = db
+
     def _connect_bulk(self) -> None:
 
         # Configuration file
@@ -61,7 +68,8 @@ class Routine():
     def __init__(
         self,
         name: str,
-        connect_bulk: bool = False
+        connect_bulk: bool = False,
+        connect_worldclim: bool = False
     ) -> None:
 
         # Meta data
@@ -77,6 +85,10 @@ class Routine():
         # Bulk FTP connection
         if connect_bulk:
             self._connect_bulk()
+
+        # WorldClim DB connection
+        if connect_worldclim:
+            self._connect_worldclim()
 
     def set_var(self, name: str, value: str) -> None:
 
