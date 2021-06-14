@@ -234,7 +234,7 @@ def get_worldclim(task, station: list) -> pd.DataFrame:
     # Return DataFrame
     return df
 
-def get_database(task) -> pd.DataFrame:
+def get_database(task, station: list) -> pd.DataFrame:
     """
     Get climate normals from Meteostat DB
     """
