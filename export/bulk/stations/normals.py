@@ -296,6 +296,11 @@ stations = task.get_stations(f'''
         `altitude`
     FROM
         `stations`
+    WHERE
+        `id` IN (
+            SELECT DISTINCT `station`
+            FROM `inventory`
+        )
 ''', STATIONS_PER_CYCLE)
 
 # Export data for each weather station
