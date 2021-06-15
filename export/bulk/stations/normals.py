@@ -56,7 +56,7 @@ def get_bulk(station: list) -> pd.DataFrame:
                 # Fetch DataFrame
                 df = df.fetch()
                 # Drop certain columns
-                df = df.drop(['snow', 'wdir', 'wpgt'], axis=1)
+                df = df.drop(['tavg', 'snow', 'wdir', 'wpgt'], axis=1)
                 # Aggregate monthly
                 df = df.groupby(df.index.month).agg('mean')
                 df = df.round(1)
@@ -225,7 +225,6 @@ def get_worldclim(task, station: list) -> pd.DataFrame:
         for i in range(12):
             raw.append({
                 "time": i + 1,
-                "tavg": round(((tmin[i] + tmax[i]) / 2) + const, 1),
                 "tmin": round(tmin[i] + const, 1),
                 "tmax": round(tmax[i] + const, 1),
                 "prcp": round(prcp[i], 1)
@@ -262,7 +261,6 @@ def get_database(task, station: list) -> pd.DataFrame:
                 `start`,
                 `end`,
                 `month` AS `time`,
-                `tavg`,
                 `tmin`,
                 `tmax`,
                 `prcp`,
@@ -300,6 +298,10 @@ stations = task.get_stations(f'''
         `id` IN (
             SELECT DISTINCT `station`
             FROM `inventory`
+        ) OR
+        `id` IN (
+            SELECT DISTINCT `station`
+            FROM `normals_global`
         )
 ''', STATIONS_PER_CYCLE)
 
