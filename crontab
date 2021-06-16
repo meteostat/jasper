@@ -30,5 +30,5 @@
 15 3 * * * python3 ~/routines/tasks/inventory/hourly.py
 * * * * * python3 ~/routines/tasks/inventory/daily.py
 * * * * * python3 ~/routines/tasks/inventory/monthly.py
-# 0 0 1 * * python3 ~/routines/tasks/inventory/normals.py
+* * * * * python3 ~/routines/tasks/inventory/normals.py
 47 4 * * * /bin/sh ~/routines/export/internal/stations.sh
