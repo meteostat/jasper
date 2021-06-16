@@ -28,7 +28,7 @@ if len(stations) > 0:
         try:
 
             # Get daily data from Meteostat
-            data = Normals(station[0]).fetch()
+            data = Normals(station[0], 'all').fetch()
 
             # Get start & end dates of time series
             start = data.index.get_level_values('start').min()
