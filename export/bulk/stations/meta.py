@@ -155,7 +155,7 @@ if result.rowcount > 0:
 
         # Create dict of names
         try:
-            names = json.loads(data[2])
+            names = json.loads(record[2])
         except BaseException:
             names = {}
         names['en'] = record[1]
