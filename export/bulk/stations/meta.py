@@ -21,7 +21,7 @@ def write_json_dump(data: list, name: str) -> None:
     if len(data) > 0:
 
         with GzipFile(fileobj=file, mode='w') as gz:
-            gz.write(json.dumps(data, indent=4, default=str).encode())
+            gz.write(json.dumps(data, indent=4, default=str, ensure_ascii=False).encode())
             gz.close()
             file.seek(0)
 
