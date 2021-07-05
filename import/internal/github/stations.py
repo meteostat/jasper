@@ -107,7 +107,7 @@ def write_station(file: str) -> None:
         'country': data['country'],
         'region': data['region'],
         'name': data['name']['en'],
-        'name_alt': json.dumps(name_alt),
+        'name_alt': json.dumps(name_alt, ensure_ascii=False, sort_keys=True),
         'national_id': data['identifiers']['national'],
         'wmo': data['identifiers']['wmo'],
         'icao': data['identifiers']['icao'],
