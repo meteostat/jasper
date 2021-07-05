@@ -177,7 +177,6 @@ if result.rowcount > 0:
                 'elevation': record[10]
             },
             'timezone': record[11],
-            'history': record[12],
             'inventory': {
                 'model': {
                     'start': record[13],
