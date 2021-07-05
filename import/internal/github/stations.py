@@ -11,7 +11,7 @@ from routines import Routine
 
 # Configuration
 REPO_PATH = os.path.expanduser('~') + os.sep + 'repos' + os.sep + 'weather-stations'
-THREADS = 36
+THREADS = 12
 
 # Create task
 task = Routine('import.internal.github.stations')
