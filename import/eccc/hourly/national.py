@@ -18,7 +18,7 @@ THREADS = 8
 # Base URL of ECCC interface
 BASE_URL = 'https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&time=UTC&timeframe=1&submit=Download+Data'
 # Start year
-FIRST_YEAR = 2000
+FIRST_YEAR = datetime.now().year - 1
 # Current year
 CURRENT_YEAR = datetime.now().year
 # How many stations per cycle?
