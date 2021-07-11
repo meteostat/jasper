@@ -21,9 +21,9 @@ def temp_dwpt_to_rhum(row: dict):
         243.04 + row['temp']))) if row['temp'] is not None and row['dwpt'] is not None else None
 
 
-def pres_to_msl(row: dict, altitude: int = None):
+def pres_to_msl(row: dict, altitude: int = None, temp: str = 'tavg'):
     try:
-        return None if isnan(row['pres']) or isnan(row['tavg']) or isnan(altitude) or altitude is None or row['pres'] == - \
-            999 else row['pres'] * math.pow((1 - ((0.0065 * altitude) / (row['tavg'] + 0.0065 * altitude + 273.15))), -5.257)
+        return None if isnan(row['pres']) or isnan(row[temp]) or isnan(altitude) or altitude is None or row['pres'] == - \
+            999 else round(row['pres'] * math.pow((1 - ((0.0065 * altitude) / (row[temp] + 0.0065 * altitude + 273.15))), -5.257), 1)
     except BaseException:
         return None
