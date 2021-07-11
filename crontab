@@ -4,6 +4,7 @@
 * * * * * python3 -W ignore ~/routines/import/dwd/hourly/model.py
 10 * * * * python3 -W ignore ~/routines/import/noaa/hourly/metar_cycle.py
 2-59/10 * * * * python3 -W ignore ~/routines/import/dwd/hourly/national.py recent 6
+#3-59/5 * * * * python3 -W ignore ~/routines/import/eccc/hourly/national.py
 4 * * * * python3 -W ignore ~/routines/import/dwd/hourly/national.py historical 1
 6-59/20 * * * * python3 -W ignore ~/routines/import/dwd/daily/national.py recent 5
 8 * * * * python3 -W ignore ~/routines/import/dwd/daily/national.py historical 1
