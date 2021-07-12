@@ -57,6 +57,53 @@ if len(stations) > 0:
 
             pass
 
+task.query('''
+    INSERT INTO
+        `inventory`(`station`, `mode`, `start`)
+    SELECT
+        `station`,
+        'D' AS `mode`,
+        MIN(`mindate`) AS `start` FROM (
+            (SELECT
+                `station`,
+                MIN(`date`) as `mindate`
+            FROM `daily_national`
+            GROUP BY `station`)
+        UNION ALL
+            (SELECT
+                `station`,
+                MIN(`date`) as `mindate`
+            FROM `daily_ghcn`
+            GROUP BY `station`)
+        ) AS `daily_inventory`
+    GROUP BY `station`
+    ON DUPLICATE KEY UPDATE
+        `start` = COALESCE(LEAST(VALUES(`start`), `start`), VALUES(`start`), `start`)
+''')
+
+task.query('''
+    INSERT INTO
+        `inventory`(`station`, `mode`, `end`)
+    SELECT
+        `station`,
+        'D' AS `mode`,
+        MAX(`maxdate`) AS `end` FROM (
+            (SELECT
+                `station`,
+                MAX(`date`) as `maxdate`
+            FROM `daily_national`
+            GROUP BY `station`)
+        UNION ALL
+            (SELECT
+                `station`,
+                MAX(`date`) as `maxdate`
+            FROM `daily_ghcn`
+            GROUP BY `station`)
+        ) AS `daily_inventory`
+    GROUP BY `station`
+    ON DUPLICATE KEY UPDATE
+        `end` = COALESCE(GREATEST(VALUES(`end`), `end`), VALUES(`end`), `end`)
+''')
 
 # Legacy
 task.query("INSERT INTO `stations_inventory`(`station`, `daily_start`) SELECT `station`,MIN(`mindate`) AS `daily_start` FROM ((SELECT `station`,MIN(`date`) as `mindate` FROM `daily_national` GROUP BY `station`) UNION ALL (SELECT `station`,MIN(`date`) as `mindate` FROM `daily_ghcn` GROUP BY `station`)) AS `daily_inventory` GROUP BY `station` ON DUPLICATE KEY UPDATE `daily_start` = VALUES(`daily_start`)")
