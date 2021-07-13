@@ -6,6 +6,7 @@ Get hourly synop data for selected weather stations in Austria.
 The code is licensed under the MIT license.
 """
 
+from datetime import datetime
 import pandas as pd
 from routines import Routine
 from routines.schema import hourly_synop
@@ -16,6 +17,9 @@ task = Routine('import.zamg.hourly.synop')
 parse_dates = {
     'time': [1, 2]
 }
+
+def DATEPARSER(date: str, hour: str):
+    return datetime.strptime(f'{date} {hour}', '%d-%m-%Y %H:%M')
 
 usecols = [0, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15]
 
@@ -36,6 +40,7 @@ df = pd.read_csv(
     'http://www.zamg.ac.at/ogd/',
     ';',
     parse_dates=parse_dates,
+    date_parser=DATEPARSER,
     usecols=usecols,
     decimal=',')
 
