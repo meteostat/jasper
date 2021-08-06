@@ -33,7 +33,7 @@ task: Routine = Routine('export.bulk.gridded.daily', True)
 # Export data for all weather stations
 raw = pd.read_sql(f'''
 	SET STATEMENT
-		max_statement_time=1200
+		max_statement_time=3000
 	FOR
 	SELECT
 		ROUND(`stations`.`latitude`, 2) AS `latitude`,
