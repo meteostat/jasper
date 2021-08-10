@@ -30,6 +30,20 @@ parameters: list = [
 # Create task
 task: Routine = Routine('export.bulk.gridded.daily', True)
 
+# Check if already exported
+modified = None
+
+try:
+	modified = task.bulk_ftp.voidcmd(f'MDTM /gridded/daily/tavg/{date.strftime("%Y-%m-%d")}.nc')[4:].strip()
+except BaseException:
+	pass
+
+if modified is not None:
+	modified = datetime.datetime.strptime(modified, '%Y%m%d%H%M%S')
+	age = datetime.datetime.now() - modified
+	if age.days < 3:
+		exit()
+
 # Export data for all weather stations
 raw = pd.read_sql(f'''
 	SET STATEMENT
