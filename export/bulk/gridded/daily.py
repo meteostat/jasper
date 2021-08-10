@@ -4,6 +4,7 @@ Export daily grid data
 The code is licensed under the MIT license.
 """
 
+import resource
 import os
 from sys import argv
 from pathlib import Path
@@ -14,6 +15,13 @@ import itertools
 import pyproj
 import verde as vd
 from routines import Routine
+
+# Resource limits
+def limit_memory(maxsize):
+    soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
+
+limit_memory(2e+9)
 
 # Configuration
 delta: int = int(argv[1])
