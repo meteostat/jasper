@@ -193,15 +193,18 @@ for station in stations:
 			)
     """ if SCOPE == 'full' else ''}
 		) AS `daily_derived`
-			WHERE
-				`tavg` IS NOT NULL
-				OR `tmin` IS NOT NULL
-				OR `tmax` IS NOT NULL
-				OR `prcp` IS NOT NULL
-			GROUP BY
-				`date`
-			ORDER BY
-				`date`
+		WHERE
+            (
+    			`tavg` IS NOT NULL OR
+    			`tmin` IS NOT NULL OR
+    			`tmax` IS NOT NULL OR
+    			`prcp` IS NOT NULL
+            ) AND
+            `date` <= DATE_ADD(CURRENT_DATE(), INTERVAL 2 DAY)
+		GROUP BY
+			`date`
+		ORDER BY
+			`date`
     ''', {
         'station': station[0],
         'timezone': station[1]
