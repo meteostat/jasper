@@ -97,6 +97,7 @@ raw = pd.read_sql(f'''
 			IF(count(`hourly_model`.`pres`)<24, NULL, ROUND(AVG(`hourly_model`.`pres`),1)) AS `pres`,
 			"E" AS `priority`
 		FROM `hourly_model`
+		FORCE INDEX (TIME)
 		INNER JOIN `stations`
 		ON
 			`hourly_model`.`station` = `stations`.`id` AND
