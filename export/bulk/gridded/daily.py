@@ -130,45 +130,49 @@ raw = raw.drop(raw[raw.latitude > 89.9].index)
 raw = raw.drop(raw[raw.longitude < -179.9].index)
 raw = raw.drop(raw[raw.longitude > 179.9].index)
 
-# Convert to float
-raw = raw.astype(np.float64)
-
 # Check if any data
 if len(raw.index):
-
-	# Projection
-	projection = pyproj.Proj(proj="merc", lat_ts=raw.latitude.mean())
-	proj_coords = projection(raw.longitude.values, raw.latitude.values)
-	region = vd.get_region((raw.longitude, raw.latitude))
-
-	# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
-	spacing = 1
-
-	# Mask grid points that are too far from the given data points
-	mask = vd.distance_mask(
-	    (raw.longitude, raw.latitude),
-	    maxdist=spacing * 111e3,
-	    coordinates=vd.grid_coordinates(region, spacing=spacing),
-	    projection=projection
-	)
 
 	# Go through all parameters
 	for parameter in parameters:
 
-		# Check if enough data points
-		if len(raw[raw[parameter].notna()].index) > 250:
+		# Create subset
+		df = raw[['latitude', 'longitude', parameter]]
+
+		# Remove NaN values
+		df = df[df[parameter].notna()]
+
+		if len(df.index) > 250:
+			# Convert to float
+			df = df.astype(np.float64)
+
+			# Use Mercator projection because Spline is a Cartesian gridder
+			projection = pyproj.Proj(proj="merc", lat_ts=df.latitude.mean())
+			proj_coords = projection(df.longitude.values, df.latitude.values)
+			region = vd.get_region((df.longitude, df.latitude))
+
+			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
+			spacing = 1
 
 			# Loop over the combinations and collect the scores for each parameter set
 			spline = vd.Spline(mindist=5e3, damping=1e-4)
-			spline.fit(proj_coords, raw[parameter])
+			spline.fit(proj_coords, df[parameter])
 
-			# Grid
+			# Cross-validated gridder
 			grid = spline.grid(
 			    region=region,
 			    spacing=spacing,
 			    projection=projection,
 			    dims=["lat", "lon"],
 			    data_names="value"
+			)
+
+			# Mask grid points that are too far from the given data points
+			mask = vd.distance_mask(
+			    (df.longitude, df.latitude),
+			    maxdist=spacing * 111e3,
+			    coordinates=vd.grid_coordinates(region, spacing=spacing),
+			    projection=projection
 			)
 
 			# Export grid as NetCDF4
