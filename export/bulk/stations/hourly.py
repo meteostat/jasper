@@ -78,17 +78,17 @@ for station in stations:
 		SELECT
 			DATE(MIN(`time`)) AS `date`,
 			DATE_FORMAT(MIN(`time`), '%H') AS `hour`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`temp` ORDER BY `priority`), ',', 1) AS `temp`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`dwpt` ORDER BY `priority`), ',', 1) AS `dwpt`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`rhum` ORDER BY `priority`), ',', 1) AS `rhum`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `priority`), ',', 1) AS `prcp`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `priority`), ',', 1) AS `snow`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `priority`), ',', 1) AS `wdir`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority`), ',', 1) AS `wspd`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `priority`), ',', 1) AS `wpgt`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority`), ',', 1) AS `pres`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `priority`), ',', 1) AS `tsun`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`coco` ORDER BY `priority`), ',', 1) AS `coco`
+			SUBSTRING_INDEX(GROUP_CONCAT(`temp` ORDER BY `priority` ASC), ',', 1) AS `temp`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`dwpt` ORDER BY `priority` ASC), ',', 1) AS `dwpt`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`rhum` ORDER BY `priority` ASC), ',', 1) AS `rhum`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `priority` ASC), ',', 1) AS `prcp`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `priority` ASC), ',', 1) AS `snow`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `priority` ASC), ',', 1) AS `wdir`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority` ASC), ',', 1) AS `wspd`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `priority` ASC), ',', 1) AS `wpgt`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority` ASC), ',', 1) AS `pres`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `priority` ASC), ',', 1) AS `tsun`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`coco` ORDER BY `priority` ASC), ',', 1) AS `coco`
 		FROM (
 			(SELECT
 				`time`,
@@ -123,7 +123,7 @@ for station in stations:
 				`pres`,
 				NULL AS `tsun`,
 				NULL AS `coco`,
-				'A' AS `priority`
+				'B' AS `priority`
 			FROM `hourly_isd`
 			WHERE
 				`station` = :station
@@ -143,7 +143,7 @@ for station in stations:
 				`pres`,
 				`tsun`,
 				`coco`,
-				'B' AS `priority`
+				'C' AS `priority`
 			FROM `hourly_synop`
 			WHERE
 				`station` = :station
@@ -163,7 +163,7 @@ for station in stations:
 				`pres`,
 				NULL AS `tsun`,
 				`coco`,
-				'C' AS `priority`
+				'D' AS `priority`
 			FROM `hourly_metar`
 			WHERE
 				`station` = :station
@@ -184,7 +184,7 @@ for station in stations:
 				`pres`,
 				NULL AS `tsun`,
 				`coco`,
-				'D' AS `priority`
+				'E' AS `priority`
 			FROM `hourly_model`
 			WHERE
 				`station` = :station

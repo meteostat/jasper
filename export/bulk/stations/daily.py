@@ -39,16 +39,16 @@ for station in stations:
 		FOR
 		SELECT
 			`date`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`tavg` ORDER BY `priority`), ",", 1) AS `tavg`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`tmin` ORDER BY `priority`), ",", 1) AS `tmin`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`tmax` ORDER BY `priority`), ",", 1) AS `tmax`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `priority`), ",", 1) AS `prcp`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `priority`), ",", 1) AS `snow`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `priority`), ",", 1) AS `wdir`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority`), ",", 1) AS `wspd`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `priority`), ",", 1) AS `wpgt`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority`), ",", 1) AS `pres`,
-			SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `priority`), ",", 1) AS `tsun`
+			SUBSTRING_INDEX(GROUP_CONCAT(`tavg` ORDER BY `priority` ASC), ",", 1) AS `tavg`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`tmin` ORDER BY `priority` ASC), ",", 1) AS `tmin`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`tmax` ORDER BY `priority` ASC), ",", 1) AS `tmax`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `priority` ASC), ",", 1) AS `prcp`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `priority` ASC), ",", 1) AS `snow`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `priority` ASC), ",", 1) AS `wdir`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority` ASC), ",", 1) AS `wspd`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `priority` ASC), ",", 1) AS `wpgt`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority` ASC), ",", 1) AS `pres`,
+			SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `priority` ASC), ",", 1) AS `tsun`
 		FROM (
 			(SELECT
 				`date`,
@@ -80,7 +80,7 @@ for station in stations:
 				`wpgt`,
 				NULL AS `pres`,
 				`tsun`,
-				"A" AS `priority`
+				"B" AS `priority`
 			FROM `daily_ghcn`
 			WHERE
 				`station` = :station
@@ -98,7 +98,7 @@ for station in stations:
 				NULL AS `wpgt`,
 				IF(count(`hourly_national`.`pres`)<24, NULL, ROUND(AVG(`hourly_national`.`pres`), 1)) AS `pres`,
 				NULL AS `tsun`,
-				"B" AS `priority`
+				"C" AS `priority`
 			FROM `hourly_national`
 			WHERE
 				`hourly_national`.`station` = :station
@@ -119,7 +119,7 @@ for station in stations:
 				NULL AS `wpgt`,
 				IF(count(`hourly_isd`.`pres`)<24, NULL, ROUND(AVG(`hourly_isd`.`pres`),1)) AS `pres`,
 				NULL AS `tsun`,
-				"B" AS `priority`
+				"D" AS `priority`
 			FROM `hourly_isd`
 			WHERE
 				`hourly_isd`.`station` = :station
@@ -140,7 +140,7 @@ for station in stations:
 				IF(count(`hourly_synop`.`wpgt`)<24, NULL, MAX(`wpgt`)) AS `wpgt`,
 				IF(count(`hourly_synop`.`pres`)<24, NULL, ROUND(AVG(`hourly_synop`.`pres`),1)) AS `pres`,
 				NULL AS `tsun`,
-				"C" AS `priority`
+				"E" AS `priority`
 			FROM `hourly_synop`
 			WHERE
 				`hourly_synop`.`station` = :station
@@ -161,7 +161,7 @@ for station in stations:
 				NULL AS `wpgt`,
 				IF(count(`hourly_metar`.`pres`)<24, NULL, ROUND(AVG(`hourly_metar`.`pres`),1)) AS `pres`,
 				NULL AS `tsun`,
-				"D" AS `priority`
+				"F" AS `priority`
 			FROM `hourly_metar`
 			WHERE
 				`hourly_metar`.`station` = :station
@@ -183,7 +183,7 @@ for station in stations:
 				IF(count(`hourly_model`.`wpgt`)<24, NULL, MAX(`hourly_model`.`wpgt`)) AS `wpgt`,
 				IF(count(`hourly_model`.`pres`)<24, NULL, ROUND(AVG(`hourly_model`.`pres`),1)) AS `pres`,
 				NULL AS `tsun`,
-				"E" AS `priority`
+				"G" AS `priority`
 			FROM `hourly_model`
 			WHERE
 				`hourly_model`.`station` = :station
