@@ -242,7 +242,7 @@ for station in stations:
             """ if SCOPE == 'full' else ''}
         		) AS `daily_derived`
                 WHERE
-                    `date` <= DATE_ADD(CURRENT_DATE(), INTERVAL 2 DAY)
+                    `date` <= DATE_ADD(CURRENT_DATE(), INTERVAL 10 DAY)
         		GROUP BY
         		      `date`
     	) AS `daily_aggregated`

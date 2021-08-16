@@ -193,7 +193,7 @@ for station in stations:
     """ if SCOPE == 'full' else ''}
 		) AS `hourly_derived`
         WHERE
-            `time` <= DATE_ADD(NOW(), INTERVAL 48 HOUR)
+            `time` <= DATE_ADD(NOW(), INTERVAL 10 DAY)
 		GROUP BY
 			DATE_FORMAT(`time`, '%Y %m %d %H')
 		ORDER BY

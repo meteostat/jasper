@@ -200,7 +200,7 @@ for station in stations:
     			`tmax` IS NOT NULL OR
     			`prcp` IS NOT NULL
             ) AND
-            `date` <= DATE_ADD(CURRENT_DATE(), INTERVAL 2 DAY)
+            `date` <= DATE_ADD(CURRENT_DATE(), INTERVAL 10 DAY)
 		GROUP BY
 			`date`
 		ORDER BY
