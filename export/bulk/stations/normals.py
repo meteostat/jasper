@@ -45,7 +45,7 @@ def get_bulk(station: list) -> pd.DataFrame:
             try:
 
                 # Start & end year
-                start = datetime(year-29, 1, 1)
+                start = datetime(year - 29, 1, 1)
                 end = datetime(year, 12, 31)
                 # Get data
                 df = Monthly(station[0], start, end)
@@ -80,166 +80,6 @@ def get_bulk(station: list) -> pd.DataFrame:
 
         # Return full DataFrame
         return data
-
-    except BaseException:
-
-        return pd.DataFrame()
-
-def get_worldclim(task, station: list) -> pd.DataFrame:
-    """
-    Load climate normals from WorldClim DB
-    """
-
-    try:
-
-        # Collect normals from WorldClim
-        with task.worldclim_db.connect() as con:
-            tmin = con.execute(text(f'''
-                SELECT
-                    `altitude`,
-                    `JAN`,
-                    `FEB`,
-                    `MAR`,
-                    `APR`,
-                    `MAY`,
-                    `JUN`,
-                    `JUL`,
-                    `AUG`,
-                    `SEP`,
-                    `OCT`,
-                    `NOV`,
-                    `DEC`,
-                    ROUND(
-                        (6371*acos(cos(radians(:lat)) *
-                        cos(radians(`latitude`)) *
-                        cos(radians(`longitude`) -
-                        radians(:lon)) +
-                        sin(radians(:lat)) *
-                        sin(radians(`latitude`)))
-                    ), 1) AS `distance`
-                FROM
-                    `normals_temperature_min`
-                WHERE
-                    (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
-                    (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
-                HAVING
-                    `distance` < 10
-                ORDER BY
-                    `distance`
-                LIMIT
-                    1
-            '''), {
-                'lat': station[1],
-                'lon': station[2]
-            })
-
-            tmax = con.execute(text(f'''
-                SELECT
-                    `JAN`,
-                    `FEB`,
-                    `MAR`,
-                    `APR`,
-                    `MAY`,
-                    `JUN`,
-                    `JUL`,
-                    `AUG`,
-                    `SEP`,
-                    `OCT`,
-                    `NOV`,
-                    `DEC`,
-                    ROUND(
-                        (6371*acos(cos(radians(:lat)) *
-                        cos(radians(`latitude`)) *
-                        cos(radians(`longitude`) -
-                        radians(:lon)) +
-                        sin(radians(:lat)) *
-                        sin(radians(`latitude`)))
-                    ), 1) AS `distance`
-                FROM
-                    `normals_temperature_max`
-                WHERE
-                    (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
-                    (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
-                HAVING
-                    `distance` < 10
-                ORDER BY
-                    `distance`
-                LIMIT
-                    1
-            '''), {
-                'lat': station[1],
-                'lon': station[2]
-            })
-
-            prcp = con.execute(text(f'''
-                SELECT
-                    `JAN`,
-                    `FEB`,
-                    `MAR`,
-                    `APR`,
-                    `MAY`,
-                    `JUN`,
-                    `JUL`,
-                    `AUG`,
-                    `SEP`,
-                    `OCT`,
-                    `NOV`,
-                    `DEC`,
-                    ROUND(
-                        (6371*acos(cos(radians(:lat)) *
-                        cos(radians(`latitude`)) *
-                        cos(radians(`longitude`) -
-                        radians(:lon)) +
-                        sin(radians(:lat)) *
-                        sin(radians(`latitude`)))
-                    ), 1) AS `distance`
-                FROM
-                    `normals_precipitation`
-                WHERE
-                    (`latitude` BETWEEN :lat-0.1 AND :lat+0.1) AND
-                    (`longitude` BETWEEN :lon-0.1 AND :lon+0.1)
-                HAVING
-                    `distance` < 10
-                ORDER BY
-                    `distance`
-                LIMIT
-                    1
-            '''), {
-                'lat': station[1],
-                'lon': station[2]
-            })
-
-        # Fetch data
-        tmin = [float(r) for r in tmin.fetchall()[0]]
-        tmax = [float(r) for r in tmax.fetchall()[0]]
-        prcp = [float(r) for r in prcp.fetchall()[0]]
-
-        # Get grid cell altitude
-        altitude = tmin.pop(0)
-
-        # Calculate constant
-        const = (2/3) * ((altitude - station[3]) / 100)
-
-        # Create result list
-        raw = []
-        for i in range(12):
-            raw.append({
-                "time": i + 1,
-                "tmin": round(tmin[i] + const, 1),
-                "tmax": round(tmax[i] + const, 1),
-                "prcp": round(prcp[i], 1)
-            })
-
-        # Convert to DataFrame
-        df = pd.DataFrame(raw)
-
-        # Set index
-        df['start'] = 1961
-        df['end'] = 1990
-        df.set_index(['start', 'end', 'time'], inplace=True)
-
-        # Return DataFrame
-        return df
 
     except BaseException:
 
@@ -312,12 +152,11 @@ for station in stations:
 
         # Get data
         bulk = get_bulk(station)
-        worldclim = get_worldclim(task, station)
         database = get_database(task, station)
 
         # Merge data
-        if bulk.index.size > 0 or worldclim.index.size > 0 or database.index.size > 0:
-            data = pd.concat([bulk, worldclim, database])
+        if bulk.index.size > 0 or database.index.size > 0:
+            data = pd.concat([bulk, database])
             data = data.groupby([
                 data.index.get_level_values('start'),
                 data.index.get_level_values('end'),
