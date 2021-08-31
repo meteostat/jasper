@@ -68,7 +68,7 @@ def get_bulk(station: list) -> pd.DataFrame:
                 df.set_index(['start', 'end', 'time'], inplace=True)
                 # Remove uncertain data
                 for parameter in coverage:
-                    if parameter in df.columns and coverage[parameter] < 0.6:
+                    if parameter in df.columns and coverage[parameter] < (1/3):
                         df[parameter] = np.NaN
 
                 # Add to full DataFrame
