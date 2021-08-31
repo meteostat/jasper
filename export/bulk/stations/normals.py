@@ -78,34 +78,6 @@ def get_bulk(station: list) -> pd.DataFrame:
 
                 pass
 
-        # Collect all-time normals from Monthly interface
-        try:
-
-            # Get data
-            df = Monthly(station[0])
-            # Fetch DataFrame
-            df = df.fetch()
-            # Get start & end date
-            start = df.index.min().year
-            end = df.index.max().year
-            # Drop certain columns
-            df = df.drop(['tavg', 'snow', 'wdir', 'wpgt'], axis=1)
-            # Aggregate monthly
-            df = df.groupby(df.index.month).agg('mean')
-            df = df.round(1)
-            # Refactor index
-            df.reset_index(inplace=True)
-            df = df.reset_index()
-            df['start'] = start
-            df['end'] = end
-            df.set_index(['start', 'end', 'time'], inplace=True)
-            # Add to full DataFrame
-            data = data.append(df)
-
-        except BaseException:
-
-            pass
-
         # Return full DataFrame
         return data
 
