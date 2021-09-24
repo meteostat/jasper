@@ -10,7 +10,7 @@ Meteostat is a voluntary initiative that fosters open source. We rely on coding 
 
 ## Project Management
 
-The backlog and all active tasks are publicly available on our [Kanban board](https://planning.meteostat.org/?controller=BoardViewController&action=readonly&token=b7023e317a9b38efbc7b748f709d065342e58cf0cc3d1bc4cb22c1f4b379).
+The backlog and all active tasks are publicly available on our [Kanban board](https://planning.meteostat.org/?controller=BoardViewController&action=show&plugin=&project_id=6&search=category%3A6).
 
 ## License
 
