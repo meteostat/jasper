@@ -26,6 +26,7 @@
 39 * * * * python3 -W ignore ~/routines/export/bulk/stations/monthly.py full
 53 * * * * python3 -W ignore ~/routines/export/bulk/stations/normals.py
 12 5 * * * python3 -W ignore ~/routines/export/bulk/stations/meta.py
+*/15 * * * * python3 -W ignore ~/routines/export/bulk/gridded/daily_historical.py
 5 5-23/3 * * * python3 -W ignore ~/routines/export/bulk/gridded/daily.py 1
 25 3-23/3 * * * python3 -W ignore ~/routines/export/bulk/gridded/daily.py 30
 45 1-23/3 * * * python3 -W ignore ~/routines/export/bulk/gridded/daily.py 270
