@@ -24,6 +24,8 @@ delta = 0 if delta is None else int(delta)
 if delta > 18493:
     exit()
 
+task.set_var('date_offset', delta + 1)
+
 # Configuration
 date: datetime = datetime.date(2020, 8, 18) - datetime.timedelta(days=delta)
 parameters: list = [
