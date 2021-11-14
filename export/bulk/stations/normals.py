@@ -162,6 +162,8 @@ for station in stations:
                 data.index.get_level_values('end'),
                 data.index.get_level_values('time')]
             ).agg('last')
+        else:
+            continue
 
         # Drop needless column(s)
         try:
