@@ -74,7 +74,7 @@ def write_station(file: str) -> None:
             `ghcn`,
             `wban`,
             `usaf`,
-            `mosmix`
+            `mosmix`,
             `latitude`,
             `longitude`,
             `altitude`,
