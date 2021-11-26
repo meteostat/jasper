@@ -8,15 +8,15 @@ from sys import argv
 from io import BytesIO, StringIO
 from gzip import GzipFile
 import csv
-from routines import Routine
+from meteor import Meteor
 
 # Configuration
 SCOPE = argv[1]
 STATIONS_PER_CYCLE = 10
 
-task = Routine('export.bulk.daily.' + SCOPE.lower(), True)
+ctx = Meteor(f'export.bulk.daily.{SCOPE.lower()}', bulk=True)
 
-stations = task.get_stations(f'''
+stations = ctx.get_stations(f'''
     SELECT
         `stations`.`id` AS `id`,
         `stations`.`tz` AS `tz`
@@ -33,7 +33,7 @@ stations = task.get_stations(f'''
 # Export data for each weather station
 for station in stations:
 
-    result = task.read(f'''
+    result = ctx.query(f'''
 		SET STATEMENT
 			max_statement_time=60
 		FOR
@@ -222,5 +222,5 @@ for station in stations:
             gz.close()
             file.seek(0)
 
-        task.bulk_ftp.cwd(f'/daily/{SCOPE}')
-        task.bulk_ftp.storbinary(f'STOR {station[0]}.csv.gz', file)
+        ctx.bulk.cwd(f'/daily/{SCOPE}')
+        ctx.bulk.storbinary(f'STOR {station[0]}.csv.gz', file)

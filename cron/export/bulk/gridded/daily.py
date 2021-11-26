@@ -13,7 +13,7 @@ import pandas as pd
 import itertools
 import pyproj
 import verde as vd
-from routines import Routine
+from meteor import Meteor
 
 # Configuration
 delta: int = int(argv[1])
@@ -27,14 +27,16 @@ parameters: list = [
 	'pres'
 ]
 
-# Create task
-task: Routine = Routine('export.bulk.gridded.daily', True)
+# Create Meteor context
+ctx = Meteor('export.bulk.gridded.daily', bulk=True)
 
 # Check if already exported
 modified = None
 
 try:
-	modified = task.bulk_ftp.voidcmd(f'MDTM /gridded/daily/tavg/{date.strftime("%Y-%m-%d")}.nc')[4:].strip()
+	modified = ctx.bulk.voidcmd(f'
+		MDTM /gridded/daily/tavg/{date.strftime("%Y-%m-%d")}.nc
+	')[4:].strip()
 except BaseException:
 	pass
 
@@ -122,7 +124,7 @@ raw = pd.read_sql(f'''
 		OR `prcp` IS NOT NULL
 	GROUP BY
 		`station`
-''', task.db)
+''', ctx.db)
 
 # Clean DataFrame
 raw = raw.drop(raw[raw.latitude < -89.9].index)
@@ -151,10 +153,12 @@ if len(raw.index):
 			proj_coords = projection(df.longitude.values, df.latitude.values)
 			region = vd.get_region((df.longitude, df.latitude))
 
-			# The desired grid spacing in degrees (converted to meters using 1 degree approx. 111km)
+			# The desired grid spacing in degrees
+			# (converted to meters using 1 degree approx. 111km)
 			spacing = 1
 
-			# Loop over the combinations and collect the scores for each parameter set
+			# Loop over the combinations and collect
+			# the scores for each parameter set
 			spline = vd.Spline(mindist=5e3, damping=1e-4)
 			spline.fit(proj_coords, df[parameter])
 
@@ -182,8 +186,11 @@ if len(raw.index):
 
 			# Transfer to bulk server
 			file = open(filename, 'rb')
-			task.bulk_ftp.cwd(f'/gridded/daily/{parameter}')
-			task.bulk_ftp.storbinary(f'STOR {date.strftime("%Y-%m-%d")}.nc', file)
+			ctx.bulk.cwd(f'/gridded/daily/{parameter}')
+			ctx.bulk.storbinary(
+				f'STOR {date.strftime("%Y-%m-%d")}.nc',
+				file
+			)
 
 			# Remove temp file
 			if os.path.exists(filename):

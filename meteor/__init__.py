@@ -2,12 +2,13 @@
 █▀▄▀█ █▀▀ ▀█▀ █▀▀ █▀█ █▀ ▀█▀ ▄▀█ ▀█▀
 █░▀░█ ██▄ ░█░ ██▄ █▄█ ▄█ ░█░ █▀█ ░█░
 
-Import & export routines.
+Meteor: Automated routines for importing,
+exporting and managing Meteostat data.
 
 The code is licensed under the MIT license.
 """
 
-__appname__ = 'routines'
-__version__ = '0.0.1'
+__appname__ = 'meteor'
+__version__ = '1.0.0'
 
-from .routine import Routine
+from .meteor import Meteor

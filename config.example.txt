@@ -4,19 +4,13 @@ host = localhost
 user = system
 password = mypassword
 
-[database]
+[db]
 name = meteostat
 host = localhost
 user = meteostat
 password = mypassword
 
-[worldclim]
-name = worldclim
-host = localhost
-user = worldclim
-password = mypassword
-
-[bulk_ftp]
+[bulk]
 host = localhost
 user = meteostat
 password = mypassword
