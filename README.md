@@ -1,6 +1,10 @@
-<img src="https://media.meteostat.net/meteor-logo.svg" width="100%">
+<p align="center">
+  <img src="https://media.meteostat.net/meteor-logo.svg" width="300">
+</p>
 
-Meteor is Meteostat's central data management tool.
+<p align="center">
+  <strong>Meteor is Meteostat's central data management tool.</strong>
+</p>
 
 ## License
 
