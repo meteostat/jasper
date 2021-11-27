@@ -5,6 +5,7 @@ The code is licensed under the MIT license.
 """
 
 import os
+from sys import argv
 from ftplib import FTP
 from sqlalchemy import create_engine, text
 from configparser import ConfigParser
@@ -207,3 +208,11 @@ class Meteor():
                 text(query).execution_options(autocommit=True),
                 payload
             )
+
+    @staticmethod
+    def run(ref: class) -> None:
+
+        params = argv
+        params.pop()
+
+        ref(*params)
