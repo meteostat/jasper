@@ -93,6 +93,9 @@ class Meteor():
         )
 
     def setup(self) -> None:
+        """
+        Initialize Meteor context
+        """
         # Configuration file
         self.config = ConfigParser()
         self.config.read(self._config_path)
@@ -140,7 +143,7 @@ class Meteor():
                 payload
             )
 
-    def get_var(self, name: str, default=None, type=str) -> str:
+    def get_var(self, name: str, default=None, type_ref=str) -> str:
         """
         Retrieve a variable (scoped by task name)
         """
@@ -165,7 +168,7 @@ class Meteor():
             )
 
         if result.rowcount == 1:
-            return type(result.first()[0])
+            return type_ref(result.first()[0])
 
         return default
 
@@ -231,9 +234,9 @@ class Meteor():
         for directory in directories:
             try:
                 self.bulk.cwd(str(directory))
-            except:
+            except BaseException:
                 self.bulk.mkd(str(directory))
-                self.bulk.cwd(str(directory))            
+                self.bulk.cwd(str(directory))
 
     def export_csv(self, data: list, filename: str) -> None:
         """
