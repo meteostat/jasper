@@ -1,4 +1,11 @@
-from routines import validation
+"""
+Meteostat database schemas
+
+The code is licensed under the MIT license.
+"""
+
+from meteor import validation
+
 
 hourly_model = {
     'template': {

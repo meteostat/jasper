@@ -5,32 +5,38 @@ The code is licensed under the MIT license.
 """
 
 import os
-from sys import argv
+from io import BytesIO, StringIO
+from gzip import GzipFile
+import csv
+import json
 from ftplib import FTP
-from sqlalchemy import create_engine, text
 from configparser import ConfigParser
+from sqlalchemy import create_engine, text
 import pandas as pd
 
 
 class Meteor():
-
     """
     Core class which is used to talk to internal interfaces like
     the Meteostat DB and Meteostat Bulk
     """
 
     # Name of the instance
-    _name: str = None
+    name: str = ''
+
+    # Use flags
+    use_db: bool = True
+    use_bulk: bool = False
 
     # Running in dev environment?
-    _dev = False
+    dev_mode = False
 
     # Path of configuration file
     _config_path: str = os.path.expanduser(
-        '~') + os.sep + '.meteor' + os.sep + 'config.txt'
+        '~') + os.sep + '.meteor' + os.sep + 'config.ini'
 
     # The config
-    _config = None
+    config = None
 
     # System database connection
     _sys_db = None
@@ -42,72 +48,72 @@ class Meteor():
     bulk = None
 
     def _connect_sys(self) -> None:
-
-        # System database engine
-        self._sys_db = create_engine(f"""
-            mysql+mysqlconnector://
-                {self.config.get('sys_db', 'user')}:
-                {self.config.get('sys_db', 'password')}@
-                {self.config.get('sys_db', 'host')}/
-                {self.config.get('sys_db', 'name')}
-                ?charset=utf8
-        """)
+        """
+        Connect to Meteostat System DB
+        """
+        self._sys_db = create_engine(
+            "mysql+mysqlconnector://" +
+            self.config.get('sys_db', 'user') +
+            ":" +
+            self.config.get('sys_db', 'password') +
+            "@" +
+            self.config.get('sys_db', 'host') +
+            "/" +
+            self.config.get('sys_db', 'name') +
+            "?charset=utf8"
+        )
 
     def _connect_db(self) -> None:
-
-        # Meteostat database engine
-        self.db = create_engine(f"""
-            mysql+mysqlconnector://
-                {self.config.get('db', 'user')}:
-                {self.config.get('db', 'password')}@
-                {self.config.get('db', 'host')}/
-                {self.config.get('db', 'name')}
-                ?charset=utf8
-        """)
+        """
+        Connect to Meteostat DB
+        """
+        self.db = create_engine(
+            'mysql+mysqlconnector://' +
+            self.config.get('db', 'user') +
+            ':' +
+            self.config.get('db', 'password') +
+            '@' +
+            self.config.get('db', 'host') +
+            '/' +
+            self.config.get('db', 'name') +
+            '?charset=utf8'
+        )
 
     def _connect_bulk(self) -> None:
-
-        # Connect
+        """
+        Connect to Meteostat Bulk server
+        """
         self.bulk = FTP(
-            self._config.get('bulk', 'host')
+            self.config.get('bulk', 'host')
         )
 
-        # Login
         self.bulk.login(
-            self._config.get('bulk', 'user'),
-            self._config.get('bulk', 'password')
+            self.config.get('bulk', 'user'),
+            self.config.get('bulk', 'password')
         )
 
-    def __init__(
-        self,
-        name: str,
-        db: bool = True, # Connect to Meteostat DB?
-        bulk: bool = False, # Connect to Meteostat Bulk FTP server?
-        dev: bool = False # Run in dev mode?
-    ) -> None:
-
-        # Meta data
-        self._name = name
-
+    def setup(self) -> None:
         # Configuration file
-        self._config = ConfigParser()
-        self._config.read(self.config_path)
+        self.config = ConfigParser()
+        self.config.read(self._config_path)
 
         # Connect to system DB
         self._connect_sys()
 
         # Meteostat DB connection
-        if db:
+        if self.use_db:
             self._connect_db()
 
         # Bulk FTP connection
-        if bulk:
+        if self.use_bulk:
             self._connect_bulk()
 
-        # Set dev mode
-        self._dev = dev
-
     def set_var(self, name: str, value: str) -> None:
+        """
+        Set a variable (scoped by task name)
+        """
+        if self.dev_mode:
+            return None
 
         payload = {
             'ctx': self.name,
@@ -134,10 +140,12 @@ class Meteor():
                 payload
             )
 
-    def get_var(self, name: str, default=None) -> str:
-
+    def get_var(self, name: str, default=None, type=str) -> str:
+        """
+        Retrieve a variable (scoped by task name)
+        """
         payload = {
-            'ctx': self._name,
+            'ctx': self.name,
             'name': name
         }
 
@@ -157,15 +165,16 @@ class Meteor():
             )
 
         if result.rowcount == 1:
-            return result.first()[0]
-        else:
-            return default
+            return type(result.first()[0])
+
+        return default
 
     def get_stations(self, query: str, limit: int) -> list:
-
+        """
+        Get list of weather stations based on counter
+        """
         # Get counter value
-        counter = self.get_var('station_counter')
-        skip = 0 if counter is None else int(counter)
+        skip = self.get_var('station_counter', 0, int)
 
         # Get weather stations
         with self.db.connect() as con:
@@ -179,8 +188,10 @@ class Meteor():
 
         return result.fetchall()
 
-    def import(self, data: pd.DataFrame, schema: dict) -> None:
-
+    def persist(self, data: pd.DataFrame, schema: dict) -> None:
+        """
+        Import a Pandas DataFrame into the Meteostat DB
+        """
         # Validations
         for parameter, validation in schema['validation'].items():
             if parameter in data.columns:
@@ -196,23 +207,104 @@ class Meteor():
         data.index = data.index.set_levels(
             data.index.levels[1].astype(str), level=1)
 
+        # Print to console and abort if in dev mode
+        if self.dev_mode:
+            print(data)
+            return None
+
         with self.db.begin() as con:
             for record in data.reset_index().to_dict(orient='records'):
                 con.execute(text(schema['import_query']), {
                             **schema['template'], **record})
 
-    def query(self, query: str, payload: dict = {}):
+    def cd_tree(self, path: str) -> None:
+        """
+        Change into directory path and create missing directories
+        """
+        # Go to root directory
+        self.bulk.cwd('/')
 
-        with self._sys_db.connect() as con:
+        # Create directory tree
+        directories = list(filter(None, path.split('/')))
+
+        # Process directory tree
+        for directory in directories:
+            try:
+                self.bulk.cwd(str(directory))
+            except:
+                self.bulk.mkd(str(directory))
+                self.bulk.cwd(str(directory))            
+
+    def export_csv(self, data: list, filename: str) -> None:
+        """
+        Store data in CSV format on Meteostat Bulk
+        """
+        # Print to console and abort if in dev mode
+        if self.dev_mode:
+            print(data)
+            return None
+
+        # Create a file
+        file = BytesIO()
+
+        # Write gzipped CSV data
+        if len(data) > 0:
+            with GzipFile(fileobj=file, mode='w') as gz:
+                output = StringIO()
+                writer = csv.writer(output, delimiter=',')
+                writer.writerows(data)
+                gz.write(output.getvalue().encode())
+                gz.close()
+                file.seek(0)
+
+        # Change into directory
+        self.cd_tree(
+            os.path.dirname(os.path.abspath(filename))
+        )
+
+        # Store file
+        self.bulk.storbinary(f'STOR {filename}', file)
+
+    def export_json(self, data: list, filename: str) -> None:
+        """
+        Store data in JSON format on Meteostat Bulk
+        """
+        # Print to console and abort if in dev mode
+        if self.dev_mode:
+            print(data)
+            return None
+
+        # Create a file
+        file = BytesIO()
+
+        # Write gzipped JSON data
+        if len(data) > 0:
+            with GzipFile(fileobj=file, mode='w') as gz:
+                gz.write(
+                    json.dumps(
+                        data,
+                        indent=4,
+                        default=str,
+                        ensure_ascii=False
+                    ).encode()
+                )
+                gz.close()
+                file.seek(0)
+
+        # Change into directory
+        self.cd_tree(
+            os.path.dirname(os.path.abspath(filename))
+        )
+
+        # Store file
+        self.bulk.storbinary(f'STOR {filename}', file)
+
+    def query(self, query: str, payload: dict = None):
+        """
+        Execute an SQL query on the Meteostat DB
+        """
+        with self.db.connect() as con:
             return con.execute(
                 text(query).execution_options(autocommit=True),
                 payload
             )
-
-    @staticmethod
-    def run(ref: class) -> None:
-
-        params = argv
-        params.pop()
-
-        ref(*params)

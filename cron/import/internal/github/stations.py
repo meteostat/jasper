@@ -7,162 +7,169 @@ The code is licensed under the MIT license.
 import os
 import json
 from multiprocessing.pool import ThreadPool
-from routines import Routine
+from meteor import Meteor, run
 
-# Configuration
-REPO_PATH = os.path.expanduser('~') + os.sep + 'repos' + os.sep + 'weather-stations'
-THREADS = 12
 
-# Create task
-task = Routine('import.internal.github.stations')
-
-def get_file(file: str) -> dict:
+class Task(Meteor):
     """
-    Get a JSON file
+    Sync weather stations between GitHub and Meteostat DB
     """
 
-    with open(file, 'r') as f:
-        return json.load(f)
+    name = 'import.internal.github.stations'  # Task name
+    # dev_mode = True  # Running in dev mode?
 
-def delete_station(station: str) -> None:
-    """
-    Delete a weather station
-    """
+    REPO_PATH = (
+        os.path.expanduser('~') +
+        os.sep +
+        'repos' +
+        os.sep +
+        'weather-stations'
+    )
+    THREADS = 12
 
-    global task
+    @staticmethod
+    def get_file(file: str) -> dict:
+        """
+        Get a JSON file
+        """
+        with open(file, 'r', encoding='UTF-8') as f:
+            return json.load(f)
 
-    task.query('''
-        DELETE FROM
-            `stations`
-        WHERE
-            `id` = :station
-        LIMIT 1
-    ''', {
-        'station': station
-    })
+    def delete_station(self, station: str) -> None:
+        """
+        Delete a weather station
+        """
+        self.query('''
+            DELETE FROM
+                `stations`
+            WHERE
+                `id` = :station
+            LIMIT 1
+        ''', {
+            'station': station
+        })
 
-def write_station(file: str) -> None:
-    """
-    Add a new weather station or update existing
-    """
+    # pylint: disable=inconsistent-return-statements
+    def write_station(self, file: str) -> None:
+        """
+        Add a new weather station or update existing
+        """
+        # Get JSON data
+        data = self.get_file(file)
 
-    global task
+        # Break if invalid data
+        if len(data['id']) != 5 or len(data['country']) != 2:
+            return None
 
-    # Get JSON data
-    data = get_file(file)
+        # Extract alternate names
+        name_alt = {
+            key: data['name'][key] for key in data['name'] if key != 'en'
+        }
 
-    # Break if invalid data
-    if len(data['id']) != 5 or len(data['country']) != 2:
-        return None
+        self.query('''
+            INSERT INTO `stations` (
+                `id`,
+                `country`,
+                `region`,
+                `name`,
+                `name_alt`,
+                `national_id`,
+                `wmo`,
+                `icao`,
+                `latitude`,
+                `longitude`,
+                `altitude`,
+                `tz`
+            )
+            VALUES (
+                :id,
+                :country,
+                :region,
+                :name,
+                :name_alt,
+                :national_id,
+                :wmo,
+                :icao,
+                :lat,
+                :lon,
+                :elevation,
+                :tz
+            )
+            ON DUPLICATE KEY UPDATE
+                `id` = VALUES(`id`),
+                `country` = VALUES(`country`),
+                `region` = VALUES(`region`),
+                `name` = VALUES(`name`),
+                `name_alt` = VALUES(`name_alt`),
+                `national_id` = VALUES(`national_id`),
+                `wmo` = VALUES(`wmo`),
+                `icao` = VALUES(`icao`),
+                `latitude` = VALUES(`latitude`),
+                `longitude` = VALUES(`longitude`),
+                `altitude` = VALUES(`altitude`),
+                `tz` = VALUES(`tz`)
+        ''', {
+            'id': data['id'],
+            'country': data['country'],
+            'region': data['region'],
+            'name': data['name']['en'],
+            'name_alt': json.dumps(name_alt, ensure_ascii=False, sort_keys=True),
+            'national_id': data['identifiers']['national'],
+            'wmo': data['identifiers']['wmo'],
+            'icao': data['identifiers']['icao'],
+            'lat': data['location']['latitude'],
+            'lon': data['location']['longitude'],
+            'elevation': data['location']['elevation'],
+            'tz': data['timezone']
+        })
 
-    # Extract alternate names
-    name_alt = {
-        key: data['name'][key] for key in data['name'] if key != 'en'
-    }
+    def main(self) -> None:
+        """
+        Main script & entry point
+        """
+        # Fetch repository
+        os.system(f'cd {self.REPO_PATH} && git fetch')
 
-    task.query('''
-        INSERT INTO `stations` (
-            `id`,
-            `country`,
-            `region`,
-            `name`,
-            `name_alt`,
-            `national_id`,
-            `wmo`,
-            `icao`,
-            `latitude`,
-            `longitude`,
-            `altitude`,
-            `tz`
-        )
-        VALUES (
-            :id,
-            :country,
-            :region,
-            :name,
-            :name_alt,
-            :national_id,
-            :wmo,
-            :icao,
-            :lat,
-            :lon,
-            :elevation,
-            :tz
-        )
-        ON DUPLICATE KEY UPDATE
-            `id` = VALUES(`id`),
-            `country` = VALUES(`country`),
-            `region` = VALUES(`region`),
-            `name` = VALUES(`name`),
-            `name_alt` = VALUES(`name_alt`),
-            `national_id` = VALUES(`national_id`),
-            `wmo` = VALUES(`wmo`),
-            `icao` = VALUES(`icao`),
-            `latitude` = VALUES(`latitude`),
-            `longitude` = VALUES(`longitude`),
-            `altitude` = VALUES(`altitude`),
-            `tz` = VALUES(`tz`)
-    ''', {
-        'id': data['id'],
-        'country': data['country'],
-        'region': data['region'],
-        'name': data['name']['en'],
-        'name_alt': json.dumps(name_alt, ensure_ascii=False, sort_keys=True),
-        'national_id': data['identifiers']['national'],
-        'wmo': data['identifiers']['wmo'],
-        'icao': data['identifiers']['icao'],
-        'lat': data['location']['latitude'],
-        'lon': data['location']['longitude'],
-        'elevation': data['location']['elevation'],
-        'tz': data['timezone']
-    })
+        # Get diff
+        diff = os.popen(
+            f'cd {self.REPO_PATH} && git diff master origin/master --name-status'
+        ).read()
 
-"""
-Fetch changes and get differences
-"""
-# Fetch repository
-os.system(f'cd {REPO_PATH} && git fetch')
+        # Merge changes
+        os.system(f'cd {self.REPO_PATH} && git merge origin/master')
 
-# Get diff
-diff = os.popen(f'cd {REPO_PATH} && git diff master origin/master --name-status').read()
+        # Delete weather stations
+        for change in diff.splitlines():
+            # Get performed action
+            action = change[0]
 
-# Merge changes
-os.system(f'cd {REPO_PATH} && git merge origin/master')
+            # Delete station
+            if action == 'D':
 
-"""
-Delete weather stations
-"""
-for change in diff.splitlines():
+                # Get station ID
+                station = change[-10:-5]
 
-    # Get performed action
-    action = change[0]
+                # Delete station
+                if action == 'D':
+                    self.delete_station(station)
 
-    # Delete station
-    if action == 'D':
+        # Update all weather stations
+        files = []
 
-        # Get station ID
-        station = change[-10:-5]
+        # Go through all files
+        for dirpath, _dirnames, filenames in os.walk(
+                self.REPO_PATH + os.sep + 'stations'):
+            for filename in [f for f in filenames if f.endswith('.json')]:
+                # Write station data
+                files.append(os.path.join(dirpath, filename))
 
-        # Delete station
-        if action == 'D':
-            delete_station(station)
+        # Create ThreadPool
+        with ThreadPool(self.THREADS) as pool:
+            # Process datasets in pool
+            pool.map(self.write_station, files)
+            # Wait for Pool to finish
+            pool.close()
+            pool.join()
 
-"""
-Update all weather stations
-"""
-# List of files
-files = []
 
-# Go through all files
-for dirpath, dirnames, filenames in os.walk(REPO_PATH + os.sep + 'stations'):
-    for filename in [f for f in filenames if f.endswith('.json')]:
-        # Write station data
-        files.append(os.path.join(dirpath, filename))
-
-# Create ThreadPool
-with ThreadPool(THREADS) as pool:
-    # Process datasets in pool
-    output = pool.map(write_station, files)
-    # Wait for Pool to finish
-    pool.close()
-    pool.join()
+run(Task)
