@@ -19,7 +19,12 @@ Meteostat has a strong focus on open source. We rely on coding enthusiasts who a
 All tasks extend the `Meteor` base class. Use the following template for creating new tasks:
 
 ```py
+"""
+Module description
+"""
+
 from meteor import Meteor, run
+
 
 class Task(Meteor):
   """
@@ -34,6 +39,9 @@ class Task(Meteor):
     """
 
     # Your implementation
+
+# Run task
+run(Task)
 ```
 
 You may use additional methods or class attributes to structure your code.
