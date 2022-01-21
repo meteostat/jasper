@@ -93,25 +93,25 @@ def dly_to_df(ftp, station_id):
 
     # File params
     num_chars_line = 269
-    # num_chars_metadata = 21
+    num_chars_metadata = 21
 
-    # element_list = [
-    #     'TMAX',
-    #     'TMIN',
-    #     'TAVG',
-    #     'PRCP',
-    #     'SNWD',
-    #     'AWDR',
-    #     'AWND',
-    #     'TSUN',
-    #     'WSFG'
-    # ]
+    element_list = [
+        'TMAX',
+        'TMIN',
+        'TAVG',
+        'PRCP',
+        'SNWD',
+        'AWDR',
+        'AWND',
+        'TSUN',
+        'WSFG'
+    ]
 
     # Read through entire StringIO stream (the .dly file)
     # and collect the data
     all_dicts = {}
     element_flag = {}
-    # prev_year = '0000'
+    prev_year = '0000'
     index = 0
 
     while True:
@@ -119,7 +119,7 @@ def dly_to_df(ftp, station_id):
 
         # Read metadata for each line
         # (one month of data for a particular element per line)
-        # id_station = stream.read(11)
+        id_station = stream.read(11)
         year = stream.read(4)
         month = stream.read(2)
         day = 0
@@ -137,7 +137,7 @@ def dly_to_df(ftp, station_id):
             # current row
             if day == 1:
                 try:
-                    # first_hit = element_flag[element]
+                    first_hit = element_flag[element]
                     pass
                 except BaseException:
                     element_flag[element] = 1
