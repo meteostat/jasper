@@ -1,5 +1,6 @@
 """
 Setup file
+
 The code is licensed under the MIT license.
 """
 
@@ -13,15 +14,21 @@ with open(path.join(here, 'README.md')) as f:
 
 # Setup
 setup(
-    name='routines',
-    version='0.0.1',
+    name='meteor',
+    version='0.9.0',
     author='Meteostat',
     author_email='info@meteostat.net',
     description='Import and export meteorological data using Python.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/meteostat/routines',
-    keywords=['weather', 'climate', 'data', 'timeseries', 'meteorology'],
+    url='https://github.com/meteostat/meteor',
+    keywords=[
+        'weather',
+        'climate',
+        'data',
+        'timeseries',
+        'meteorology'
+    ],
     python_requires='>=3.6.0',
     packages=find_packages(),
     include_package_data=True,
@@ -41,7 +48,8 @@ setup(
         'numba',
         'pykdtree',
         'verde==1.6.1',
-        'meteostat==1.4.0'],
+        'meteostat==1.5.11'
+    ],
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3',

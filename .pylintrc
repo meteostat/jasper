@@ -1,0 +1,9 @@
+[BASIC]
+good-names=db,df,f,gz
+extension-pkg-whitelist=lxml
+
+[MESSAGES CONTROL]
+disable=broad-except,
+  too-few-public-methods,
+  import-error,
+  inconsistent-return-statements

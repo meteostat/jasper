@@ -1,16 +1,50 @@
-# Meteostat Routines
+# Meteor
 
-This repository is a collection of automated routines for importing, exporting and managing weather and climate data with Python. Its purpose is the maintenance of the Meteostat database which provides detailed historical time series for thousands of weather stations worldwide.
+<p align="center">
+  <img src="https://media.meteostat.net/meteor-logo.svg" width="300">
+</p>
 
-The data is imported from different governmental interfaces which provide open weather and climate data.
+<p align="center">
+  <strong>Meteor is Meteostat's central data management tool.</strong>
+</p>
+
+Meteor provides a simple base class for creating automated import, export and maintenance tasks which interact with different Meteostat interfaces. Most tasks import meteorological data from open governmental interfaces into Meteostat's central SQL database. All automated tasks are placed in the `cron` directory.
 
 ## Contributing
 
-Meteostat is a voluntary initiative that fosters open source. We rely on coding enthusiasts who are passionate about meteorology to grow our database and collect as much weather and climate data as possible.
+Meteostat has a strong focus on open source. We rely on coding enthusiasts who are passionate about meteorology to grow our database and collect as much weather and climate data as possible.
 
-## Project Management
+### Creating a Task
 
-The backlog and all active tasks are publicly available on our [Kanban board](https://planning.meteostat.org/?controller=BoardViewController&action=show&plugin=&project_id=6&search=category%3A6).
+All tasks extend the `Meteor` base class. Use the following template for creating new tasks:
+
+```py
+"""
+Module description
+"""
+
+from meteor import Meteor, run
+
+
+class Task(Meteor):
+  """
+  Task description
+  """
+
+  name = 'import.example'
+
+  def main(self) -> None:
+    """
+    Main script & entry point
+    """
+
+    # Your implementation
+
+# Run task
+run(Task)
+```
+
+You may use additional methods or class attributes to structure your code.
 
 ## License
 
