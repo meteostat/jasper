@@ -21,13 +21,6 @@ class Task(Meteor):
     # dev_mode = True # Run task in dev mode?
 
     STATIONS_PER_CYCLE = 8 if MODE == 'recent' else 1
-    FLAGS = {
-        'A': 'N',  # National dataset
-        'B': 'G',  # Global dataset
-        'C': 'S',  # SYNOP data
-        'D': 'A',  # METAR data
-        'E': 'M'  # Model data
-    }
 
     def _write_dump(self, data: list, station: str, year: int = None) -> None:
         """
@@ -58,8 +51,11 @@ class Task(Meteor):
             list(map(
                 lambda d: d[:2] + tuple(
                     [
-                        flag if flag not in self.FLAGS else self.FLAGS[flag]
-                        for flag in d[13:]
+                        ''.join(
+                            sorted(
+                                list(set(flag))
+                            )
+                        ) if flag is not None else None for flag in d[13:]
                     ]
                 ),
                 data

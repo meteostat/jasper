@@ -15,14 +15,9 @@ class Task(Meteor):
 
     name = 'export.bulk.monthly'  # Task name
     use_bulk = True  # Connect to Meteostat Bulk server?
-    # dev_mode = True # Run task in dev mode?
+    # dev_mode = True  # Run task in dev mode?
 
     STATIONS_PER_CYCLE = 11
-    FLAGS = {
-        'A': 'G',  # Global dataset
-        'B': 'D',  # Aggregated daily data
-        'C': 'M',  # Aggregated model data
-    }
 
     def main(self) -> None:
         """
@@ -66,7 +61,7 @@ class Task(Meteor):
                 # Export data dump
                 self.export_csv(
                     list(map(
-                        lambda d: d[:11],
+                        lambda d: d[:12],
                         data
                     )),
                     f'/monthly/{station[0]}.csv.gz'
@@ -76,10 +71,13 @@ class Task(Meteor):
                 # pylint: disable=consider-using-generator
                 self.export_csv(
                     list(map(
-                        lambda d: d[:1] + tuple(
+                        lambda d: d[:2] + tuple(
                             [
-                                flag if flag not in self.FLAGS else self.FLAGS[flag]
-                                for flag in d[11:]
+                                ''.join(
+                                    sorted(
+                                        list(set(flag))
+                                    )
+                                ) if flag is not None else None for flag in d[12:]
                             ]
                         ),
                         data

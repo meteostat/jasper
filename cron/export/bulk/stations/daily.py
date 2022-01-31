@@ -18,15 +18,6 @@ class Task(Meteor):
     # dev_mode = True # Run task in dev mode?
 
     STATIONS_PER_CYCLE = 10
-    FLAGS = {
-        'A': 'N',  # National dataset
-        'B': 'G',  # Global datasat
-        'C': 'H',  # Processed national dataset
-        'D': 'H',  # Processed global dataset
-        'E': 'H',  # Processed SYNOP data
-        'F': 'H',  # Processed METAR data
-        'G': 'M'  # Processed model data
-    }
 
     def main(self) -> None:
         """
@@ -79,8 +70,11 @@ class Task(Meteor):
                     list(map(
                         lambda d: d[:1] + tuple(
                             [
-                                flag if flag not in self.FLAGS else self.FLAGS[flag]
-                                for flag in d[11:]
+                                ''.join(
+                                    sorted(
+                                        list(set(flag))
+                                    )
+                                ) if flag is not None else None for flag in d[11:]
                             ]
                         ),
                         data

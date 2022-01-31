@@ -31,7 +31,7 @@ FROM (
     SELECT
       `time`,
       `temp`,
-      ROUND((243.04*(LN(`rhum`/100)+((17.625*`temp`)/(243.04+`temp`)))/(17.625-LN(`rhum`/100)-((17.625*`temp`)/(243.04+`temp`)))),1) AS `dwpt`,
+      ROUND((243.04*(LN(`rhum`/100)+((17.625*`temp`)/(243.04+`temp`)))/(17.625-LN(`rhum`/100)-((17.625*`temp`)/(243.04+`temp`)))), 1) AS `dwpt`,
       `rhum`,
       `prcp`,
       NULL AS `snow`,
@@ -55,7 +55,7 @@ FROM (
       ROUND(
         (
           243.04 * (
-            LN(`rhum` / 100) + 
+            LN(`rhum` / 100) +
             (
               (17.625 * `temp`) / (243.04 + `temp`)
             )
@@ -91,7 +91,7 @@ FROM (
       ROUND(
         (
           243.04 * (
-            LN(`rhum` / 100) + 
+            LN(`rhum` / 100) +
             (
               (17.625 * `temp`) / (243.04 + `temp`)
             )
@@ -127,7 +127,7 @@ FROM (
       ROUND(
         (
           243.04 * (
-            LN(`rhum` / 100) + 
+            LN(`rhum` / 100) +
             (
               (17.625 * `temp`) / (243.04 + `temp`)
             )
@@ -163,7 +163,7 @@ FROM (
       ROUND(
         (
           243.04 * (
-            LN(`rhum` / 100) + 
+            LN(`rhum` / 100) +
             (
               (17.625 * `temp`) / (243.04 + `temp`)
             )
