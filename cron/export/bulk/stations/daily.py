@@ -15,7 +15,7 @@ class Task(Meteor):
 
     name = 'export.bulk.daily'  # Task name
     use_bulk = True  # Connect to Meteostat Bulk server?
-    # dev_mode = True # Run task in dev mode?
+    # dev_mode = True  # Run task in dev mode?
 
     STATIONS_PER_CYCLE = 10
 

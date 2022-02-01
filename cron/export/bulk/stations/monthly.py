@@ -61,7 +61,7 @@ class Task(Meteor):
                 # Export data dump
                 self.export_csv(
                     list(map(
-                        lambda d: d[:12],
+                        lambda d: d[:9],
                         data
                     )),
                     f'/monthly/{station[0]}.csv.gz'
@@ -77,7 +77,7 @@ class Task(Meteor):
                                     sorted(
                                         list(set(flag))
                                     )
-                                ) if flag is not None else None for flag in d[12:]
+                                ) if flag is not None else None for flag in d[9:]
                             ]
                         ),
                         data

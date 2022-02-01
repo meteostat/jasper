@@ -122,8 +122,6 @@ FROM (
         SELECT
           CONVERT_TZ(MIN(`time`), 'UTC', :timezone) AS `time`,
           SUBSTRING_INDEX(GROUP_CONCAT(`temp` ORDER BY `flag` ASC), ',', 1) AS `temp`,
-          SUBSTRING_INDEX(GROUP_CONCAT(`dwpt` ORDER BY `flag` ASC), ',', 1) AS `dwpt`,
-          SUBSTRING_INDEX(GROUP_CONCAT(`rhum` ORDER BY `flag` ASC), ',', 1) AS `rhum`,
           SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `flag` ASC), ',', 1) AS `prcp`,
           SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `flag` ASC), ',', 1) AS `snow`,
           SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `flag` ASC), ',', 1) AS `wdir`,
@@ -132,8 +130,6 @@ FROM (
           SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `flag` ASC), ',', 1) AS `pres`,
           SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `flag` ASC), ',', 1) AS `tsun`,
           SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`temp`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `temp_flag`,
-          SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`dwpt`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `dwpt_flag`,
-          SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`rhum`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `rhum_flag`,
           SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`prcp`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `prcp_flag`,
           SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`snow`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `snow_flag`,
           SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wdir`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `wdir_flag`,
@@ -146,8 +142,6 @@ FROM (
             SELECT
               `time`,
               `temp`,
-              ROUND((243.04*(LN(`rhum`/100)+((17.625*`temp`)/(243.04+`temp`)))/(17.625-LN(`rhum`/100)-((17.625*`temp`)/(243.04+`temp`)))), 1) AS `dwpt`,
-              `rhum`,
               `prcp`,
               NULL AS `snow`,
               `wdir`,
@@ -165,23 +159,6 @@ FROM (
             SELECT
               `time`,
               `temp`,
-              ROUND(
-                (
-                  243.04 * (
-                    LN(`rhum` / 100) +
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  ) / (
-                    17.625 - LN(`rhum` / 100) -
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  )
-                ),
-                1
-              ) AS `dwpt`,
-              `rhum`,
               `prcp`,
               NULL AS `snow`,
               `wdir`,
@@ -199,23 +176,6 @@ FROM (
             SELECT
               `time`,
               `temp`,
-              ROUND(
-                (
-                  243.04 * (
-                    LN(`rhum` / 100) +
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  ) / (
-                    17.625 - LN(`rhum` / 100) -
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  )
-                ),
-                1
-              ) AS `dwpt`,
-              `rhum`,
               `prcp`,
               `snow`,
               `wdir`,
@@ -233,23 +193,6 @@ FROM (
             SELECT
               `time`,
               `temp`,
-              ROUND(
-                (
-                  243.04 * (
-                    LN(`rhum` / 100) +
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  ) / (
-                    17.625 - LN(`rhum` / 100) -
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  )
-                ),
-                1
-              ) AS `dwpt`,
-              `rhum`,
               NULL AS `prcp`,
               NULL AS `snow`,
               `wdir`,
@@ -267,23 +210,6 @@ FROM (
             SELECT
               `time`,
               `temp`,
-              ROUND(
-                (
-                  243.04 * (
-                    LN(`rhum` / 100) +
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  ) / (
-                    17.625 - LN(`rhum` / 100) -
-                    (
-                      (17.625 * `temp`) / (243.04 + `temp`)
-                    )
-                  )
-                ),
-                1
-              ) AS `dwpt`,
-              `rhum`,
               `prcp`,
               NULL AS `snow`,
               `wdir`,
