@@ -23,7 +23,8 @@
 * * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/daily.py
 * * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/daily_legacy.py
 36 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly.py
-39 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly_legacy.py
+39 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly_legacy_obs.py
+44 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly_legacy_full.py
 53 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/normals.py
 12 5 * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/meta.py
 5 5-23/3 * * * python3 -W ignore ~/meteor/cron/export/bulk/gridded/daily.py recent 1
