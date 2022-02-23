@@ -4,28 +4,28 @@ FOR
 SELECT
   DATE(MIN(`time`)) AS `date`,
   DATE_FORMAT(MIN(`time`), '%H') AS `hour`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`temp` ORDER BY `priority` ASC), ',', 1) AS `temp`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`dwpt` ORDER BY `priority` ASC), ',', 1) AS `dwpt`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`rhum` ORDER BY `priority` ASC), ',', 1) AS `rhum`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `priority` ASC), ',', 1) AS `prcp`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `priority` ASC), ',', 1) AS `snow`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `priority` ASC), ',', 1) AS `wdir`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `priority` ASC), ',', 1) AS `wspd`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `priority` ASC), ',', 1) AS `wpgt`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `priority` ASC), ',', 1) AS `pres`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `priority` ASC), ',', 1) AS `tsun`,
-  SUBSTRING_INDEX(GROUP_CONCAT(`coco` ORDER BY `priority` ASC), ',', 1) AS `coco`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`temp`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `temp_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`dwpt`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `dwpt_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`rhum`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `rhum_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`prcp`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `prcp_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`snow`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `snow_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wdir`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `wdir_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wspd`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `wspd_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wpgt`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `wpgt_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`pres`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `pres_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`tsun`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `tsun_flag`,
-  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`coco`, ':', `priority`) ORDER BY `priority` ASC), ',', 1), -1, 1) AS `coco_flag`
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`temp` ORDER BY `flag` ASC), ',', 1) AS DECIMAL(3, 1)) AS `temp`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`dwpt` ORDER BY `flag` ASC), ',', 1) AS DECIMAL(3, 1)) AS `dwpt`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`rhum` ORDER BY `flag` ASC), ',', 1) AS INT) AS `rhum`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`prcp` ORDER BY `flag` ASC), ',', 1) AS DECIMAL(4, 1)) AS `prcp`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`snow` ORDER BY `flag` ASC), ',', 1) AS INT) AS `snow`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`wdir` ORDER BY `flag` ASC), ',', 1) AS INT) AS `wdir`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`wspd` ORDER BY `flag` ASC), ',', 1) AS DECIMAL(4, 1)) AS `wspd`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`wpgt` ORDER BY `flag` ASC), ',', 1) AS DECIMAL(4, 1)) AS `wpgt`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`pres` ORDER BY `flag` ASC), ',', 1) AS DECIMAL(5, 1)) AS `pres`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`tsun` ORDER BY `flag` ASC), ',', 1) AS INT) AS `tsun`,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(`coco` ORDER BY `flag` ASC), ',', 1) AS INT) AS `coco`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`temp`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `temp_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`dwpt`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `dwpt_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`rhum`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `rhum_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`prcp`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `prcp_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`snow`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `snow_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wdir`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `wdir_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wspd`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `wspd_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`wpgt`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `wpgt_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`pres`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `pres_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`tsun`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `tsun_flag`,
+  SUBSTR(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(`coco`, ':', `flag`) ORDER BY `flag` ASC), ',', 1), -1, 1) AS `coco_flag`
 FROM (
   (
     SELECT
@@ -41,7 +41,7 @@ FROM (
       `pres`,
       `tsun`,
       NULL AS `coco`,
-      'A' AS `priority`
+      'A' AS `flag`
     FROM
       `hourly_national`
     WHERE
@@ -77,7 +77,7 @@ FROM (
       `pres`,
       NULL AS `tsun`,
       NULL AS `coco`,
-      'B' AS `priority`
+      'B' AS `flag`
     FROM
       `hourly_isd`
     WHERE
@@ -113,7 +113,7 @@ FROM (
       `pres`,
       `tsun`,
       `coco`,
-      'C' AS `priority`
+      'C' AS `flag`
     FROM
       `hourly_synop`
     WHERE
@@ -149,7 +149,7 @@ FROM (
       `pres`,
       NULL AS `tsun`,
       `coco`,
-      'D' AS `priority`
+      'D' AS `flag`
     FROM
       `hourly_metar`
     WHERE
@@ -185,7 +185,7 @@ FROM (
       `pres`,
       NULL AS `tsun`,
       `coco`,
-      'E' AS `priority`
+      'E' AS `flag`
     FROM
       `hourly_model`
     WHERE
