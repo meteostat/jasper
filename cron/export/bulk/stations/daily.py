@@ -19,24 +19,6 @@ class Task(Meteor):
 
     STATIONS_PER_CYCLE = 10
 
-    @staticmethod
-    def qa_check(data: list) -> list:
-        # TMIN > TMAX
-        if data[2] and data[3] and data[2] > data[3]:
-            data[2] = None
-            data[3] = None
-            data[12] = None
-            data[13] = None
-        # TMIN > TAVG
-        if data[1] and data[2] and data[2] > data[1]:
-            data[2] = None
-            data[12] = None
-        # TMAX < TAVG
-        if data[1] and data[3] and data[3] < data[1]:
-            data[3] = None
-            data[13] = None
-        return data
-
     def main(self) -> None:
         """
         Main script & entry point
@@ -71,7 +53,7 @@ class Task(Meteor):
 
             if result.rowcount > 0:
                 # Fetch data
-                data = list(map(Task.qa_check, result.fetchall()))
+                data = result.fetchall()
 
                 # Export data dump
                 self.export_csv(
