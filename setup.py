@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md')) as f:
 # Setup
 setup(
     name='meteor',
-    version='0.9.1',
+    version='0.9.2',
     author='Meteostat',
     author_email='info@meteostat.net',
     description='Import and export meteorological data using Python.',
