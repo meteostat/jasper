@@ -139,6 +139,7 @@ class Task(Meteor):
             'wban': data['identifiers']['wban'] if 'wban' in data['identifiers'] else None,
             'usaf': data['identifiers']['usaf'] if 'usaf' in data['identifiers'] else None,
             'mosmix': data['identifiers']['mosmix'] if 'mosmix' in data['identifiers'] else None,
+            'synoptic': data['identifiers']['synoptic'] if 'synoptic' in data['identifiers'] else None,
             'lat': data['location']['latitude'],
             'lon': data['location']['longitude'],
             'elevation': data['location']['elevation'],
