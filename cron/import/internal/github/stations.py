@@ -4,9 +4,10 @@ Get latest weather station meta data from GitHub
 The code is licensed under the MIT license.
 """
 
-import os
 import json
-from multiprocessing.pool import ThreadPool
+import re
+import urllib.request as request
+import zipfile
 from meteor import Meteor, run
 
 
@@ -18,45 +19,11 @@ class Task(Meteor):
     name = 'import.internal.github.stations'  # Task name
     # dev_mode = True  # Running in dev mode?
 
-    REPO_PATH = (
-        os.path.expanduser('~') +
-        os.sep +
-        'repos' +
-        os.sep +
-        'weather-stations'
-    )
-    THREADS = 12
-
-    @staticmethod
-    def get_file(file: str) -> dict:
-        """
-        Get a JSON file
-        """
-        with open(file, 'r', encoding='UTF-8') as f:
-            return json.load(f)
-
-    def delete_station(self, station: str) -> None:
-        """
-        Delete a weather station
-        """
-        self.query('''
-            DELETE FROM
-                `stations`
-            WHERE
-                `id` = :station
-            LIMIT 1
-        ''', {
-            'station': station
-        })
-
     # pylint: disable=inconsistent-return-statements
-    def write_station(self, file: str) -> None:
+    def write_station(self, data: dict) -> None:
         """
         Add a new weather station or update existing
         """
-        # Get JSON data
-        data = self.get_file(file)
-
         # Break if invalid data
         if len(data['id']) != 5 or len(data['country']) != 2:
             return None
@@ -67,7 +34,7 @@ class Task(Meteor):
         }
 
         self.query('''
-            INSERT INTO `stations` (
+            INSERT INTO `stations_temp` (
                 `id`,
                 `country`,
                 `region`,
@@ -149,49 +116,32 @@ class Task(Meteor):
         """
         Main script & entry point
         """
-        # Fetch repository
-        os.system(f'cd {self.REPO_PATH} && git fetch')
+        # Create copy of stations table
+        self.query('CREATE TABLE `stations_temp` LIKE `stations`')
 
-        # Get diff
-        diff = os.popen(
-            f'cd {self.REPO_PATH} && git diff master origin/master --name-status'
-        ).read()
+        try:
+            # Load station repository
+            handle, _ = request.urlretrieve(
+                'https://github.com/meteostat/weather-stations/archive/refs/heads/master.zip'
+            )
+            zip_obj = zipfile.ZipFile(handle, 'r')
 
-        # Merge changes
-        os.system(f'cd {self.REPO_PATH} && git merge origin/master')
+            # Write all stations
+            for index, name in enumerate(zip_obj.namelist()):
+                if re.search("/stations/([A-Z0-9]{5}).json$", name):
+                    file = zip_obj.namelist()[index]
+                    raw = zip_obj.open(file)
+                    data = json.loads(raw.read().decode('UTF-8'))
+                    self.write_station(data)
 
-        # Delete weather stations
-        for change in diff.splitlines():
-            # Get performed action
-            action = change[0]
+            # Rename temp table
+            self.query('ALTER TABLE `stations_temp` RENAME `stations`')
 
-            # Delete station
-            if action == 'D':
+            # Remove existing table
+            self.query('DROP TABLE `stations`')
 
-                # Get station ID
-                station = change[-10:-5]
-
-                # Delete station
-                if action == 'D':
-                    self.delete_station(station)
-
-        # Update all weather stations
-        files = []
-
-        # Go through all files
-        for dirpath, _dirnames, filenames in os.walk(
-                self.REPO_PATH + os.sep + 'stations'):
-            for filename in [f for f in filenames if f.endswith('.json')]:
-                # Write station data
-                files.append(os.path.join(dirpath, filename))
-
-        # Create ThreadPool
-        with ThreadPool(self.THREADS) as pool:
-            # Process datasets in pool
-            pool.map(self.write_station, files)
-            # Wait for Pool to finish
-            pool.close()
-            pool.join()
+        except BaseException:
+            self.query('DROP TABLE `stations_temp`')
 
 
 run(Task)
