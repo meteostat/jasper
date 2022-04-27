@@ -23,7 +23,7 @@ PARAMETERS = ["tavg", "tmin", "tmax", "prcp", "wspd", "pres"]
 MODE = sys.argv[1]
 
 # Create Jasper instance
-jsp = Jasper(f"export.bulk.gridded.daily.{MODE}", bulk=True)
+jsp = Jasper(f"export.bulk.gridded.daily.{MODE}")
 
 # Variables
 modified: bool = None

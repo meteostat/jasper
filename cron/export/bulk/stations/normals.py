@@ -19,7 +19,7 @@ Monthly.max_age = 0
 STATIONS_PER_CYCLE = 10
 
 # Create Jasper instance
-jsp = Jasper("export.bulk.normals", bulk=True)
+jsp = Jasper("export.bulk.normals")
 
 
 def get_bulk(station: list) -> pd.DataFrame:

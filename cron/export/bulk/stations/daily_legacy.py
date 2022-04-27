@@ -16,7 +16,7 @@ from jasper.actions import export_csv
 STATIONS_PER_CYCLE = 10
 
 # Create Jasper instance
-jsp = Jasper("export.bulk.daily.legacy", bulk=True)
+jsp = Jasper("export.bulk.daily.legacy")
 
 # Get weather station(s)
 stations = get_stations(

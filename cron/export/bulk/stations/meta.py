@@ -11,7 +11,7 @@ from jasper.actions import export_csv, export_json
 
 
 # Create Jasper instance
-jsp = Jasper("export.bulk.stations.meta", bulk=True)
+jsp = Jasper("export.bulk.stations.meta")
 
 # Export data for all weather stations
 result = jsp.query(read_file("meta.sql"))

@@ -18,7 +18,7 @@ MODE = argv[1]
 STATIONS_PER_CYCLE = 8 if MODE == "recent" else 1
 
 # Create Jasper instance
-jsp = Jasper(f"export.bulk.hourly.legacy.{MODE}", bulk=True)
+jsp = Jasper(f"export.bulk.hourly.legacy.{MODE}")
 
 
 def write_dump(data: list, station: str, year: int = None) -> None:
