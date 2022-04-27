@@ -25,7 +25,7 @@ class Jasper:
 
     # Path of configuration file
     _config_path: str = (
-        os.path.expanduser("~") + os.sep + ".meteor" + os.sep + "config.ini"
+        os.path.expanduser("~") + os.sep + ".jasper" + os.sep + "config.ini"
     )
 
     # The config
