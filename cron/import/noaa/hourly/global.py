@@ -157,3 +157,6 @@ for station in stations.to_dict(orient="records"):
 
 # Quit FTP connection
 ftp.quit()
+
+# Close Jasper instance
+jsp.close()

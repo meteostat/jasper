@@ -5,4 +5,4 @@ SELECT `id`,
 FROM   `stations`
 WHERE  `id` in (SELECT DISTINCT `station`
                 FROM   `inventory`) or `id` in (SELECT DISTINCT `station`
-                                FROM   `normals_global`);
+                                FROM   `normals_global`)

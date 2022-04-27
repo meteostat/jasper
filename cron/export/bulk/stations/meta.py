@@ -81,5 +81,5 @@ if result.rowcount > 0:
     export_csv(jsp, slim, "/stations/slim.csv.gz")
     export_csv(jsp, [row[0:13] for row in slim], "/stations/lib.csv.gz")
 
-# Close FTP connection
-jsp.bulk.quit()
+# Close Jasper instance
+jsp.close()

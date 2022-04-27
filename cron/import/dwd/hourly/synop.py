@@ -165,3 +165,6 @@ for station in stations.to_dict(orient="records"):
 
 # Write DataFrame into Meteostat database
 persist(jsp, df_full, hourly_synop)
+
+# Close Jasper instance
+jsp.close()

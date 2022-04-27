@@ -170,3 +170,6 @@ df_full["end"] = END
 
 # Write DataFrame into Meteostat database
 persist(jsp, df_full, normals_global)
+
+# Close Jasper instance
+jsp.close()

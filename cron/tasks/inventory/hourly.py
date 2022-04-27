@@ -134,3 +134,6 @@ jsp.query(
 jsp.query(
     "INSERT INTO `stations_inventory`(`station`, `hourly_end`) SELECT `station`, MAX(`maxdate`) AS `hourly_end` FROM ((SELECT `station`,DATE(MAX(`time`)) as `maxdate` FROM `hourly_model` GROUP BY `station`) UNION ALL (SELECT `station`,DATE(MAX(`time`)) as `maxdate` FROM `hourly_metar` GROUP BY `station`) UNION ALL (SELECT `station`,DATE(MAX(`time`)) as `maxdate` FROM `hourly_synop` GROUP BY `station`) UNION ALL (SELECT `station`,DATE(MAX(`time`)) as `maxdate` FROM `hourly_national` GROUP BY `station`) UNION ALL (SELECT `station`,DATE(MAX(`time`)) as `maxdate` FROM `hourly_isd` GROUP BY `station`)) AS `hourly_inventory` GROUP BY `station` ON DUPLICATE KEY UPDATE `hourly_end` = VALUES(`hourly_end`)"
 )
+
+# Close Jasper instance
+jsp.close()

@@ -13,7 +13,7 @@ from jasper.actions import export_csv
 STATIONS_PER_CYCLE = 10
 
 # Create Jasper instance
-jsp = Jasper("export.bulk.daily", bulk=True)
+jsp = Jasper("export.bulk.daily")
 
 # Get weather station(s)
 stations = get_stations(jsp, read_file("daily_stations.sql"), STATIONS_PER_CYCLE)
@@ -54,5 +54,5 @@ for station in stations:
             f"/daily/{station[0]}.map.csv.gz",
         )
 
-# Close FTP connection
-jsp.bulk.quit()
+# Close Jasper instance
+jsp.close()

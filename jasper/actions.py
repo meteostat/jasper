@@ -38,10 +38,9 @@ def export_csv(jsp: Jasper, data: list, filename: str) -> None:
             file.seek(0)
 
     # Change into directory
-    bulk_cd(jsp, os.path.dirname(os.path.abspath(filename)))
-
+    bulk_cd(jsp.bulk(), os.path.dirname(os.path.abspath(filename)))
     # Store file
-    jsp.bulk.storbinary(f"STOR {filename}", file)
+    jsp.bulk().storbinary(f"STOR {filename}", file)
 
 
 def export_json(jsp: Jasper, data: list, filename: str) -> None:
@@ -66,10 +65,9 @@ def export_json(jsp: Jasper, data: list, filename: str) -> None:
             file.seek(0)
 
     # Change into directory
-    bulk_cd(jsp, os.path.dirname(os.path.abspath(filename)))
-
+    bulk_cd(jsp.bulk(), os.path.dirname(os.path.abspath(filename)))
     # Store file
-    jsp.bulk.storbinary(f"STOR {filename}", file)
+    jsp.bulk().storbinary(f"STOR {filename}", file)
 
 
 def persist(jsp: Jasper, data: pd.DataFrame, schema: dict) -> None:
@@ -95,6 +93,6 @@ def persist(jsp: Jasper, data: pd.DataFrame, schema: dict) -> None:
         print(data)
         return None
 
-    with jsp.db.begin() as con:
+    with jsp.db().begin() as con:
         for record in data.reset_index().to_dict(orient="records"):
             con.execute(text(schema["import_query"]), {**schema["template"], **record})

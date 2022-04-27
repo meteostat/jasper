@@ -118,3 +118,6 @@ if len(datasets) > 1:
     if full.index.size > 0:
         # Write into database
         persist(jsp, full, daily_national)
+
+# Close Jasper instance
+jsp.close()

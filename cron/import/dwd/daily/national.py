@@ -89,7 +89,7 @@ for remote_file in files:
         )
         station_df = pd.read_sql(
             f"SELECT `id`, `altitude` FROM `stations` WHERE `national_id` LIKE '{national_id}'",
-            jsp.db,
+            jsp.db(),
         )
         station = station_df.iloc[0][0]
         altitude = station_df.iloc[0][1]
@@ -152,3 +152,6 @@ for remote_file in files:
 
 # Write DataFrame into Meteostat database
 persist(jsp, df_full, daily_national)
+
+# Close Jasper instance
+jsp.close()

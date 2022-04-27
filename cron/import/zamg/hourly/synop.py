@@ -64,3 +64,6 @@ df["tsun"] = round(60 * (df["tsun"] / 100))
 
 # Write DataFrame into Meteostat database
 persist(jsp, df, hourly_synop)
+
+# Close Jasper instance
+jsp.close()

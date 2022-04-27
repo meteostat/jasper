@@ -8,7 +8,7 @@ from typing import Union
 import os
 from ftplib import FTP
 from configparser import ConfigParser
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, engine
 
 
 class Jasper:
@@ -35,10 +35,10 @@ class Jasper:
     _sys_db = None
 
     # Meteostat database connection
-    db = None
+    _db = None
 
     # Bulk FTP connection
-    bulk = None
+    _bulk = None
 
     def _connect_sys(self) -> None:
         """
@@ -55,35 +55,9 @@ class Jasper:
             + self.config.get("sys_db", "name")
             + "?charset=utf8"
         )
-
-    def _connect_db(self) -> None:
-        """
-        Connect to Meteostat DB
-        """
-        self.db = create_engine(
-            "mysql+mysqlconnector://"
-            + self.config.get("db", "user")
-            + ":"
-            + self.config.get("db", "password")
-            + "@"
-            + self.config.get("db", "host")
-            + "/"
-            + self.config.get("db", "name")
-            + "?charset=utf8"
-        )
-
-    def _connect_bulk(self) -> None:
-        """
-        Connect to Meteostat Bulk server
-        """
-        self.bulk = FTP(self.config.get("bulk", "host"))
-
-        self.bulk.login(
-            self.config.get("bulk", "user"), self.config.get("bulk", "password")
-        )
-
+    
     def __init__(
-        self, name: str, dev: bool = False, db: bool = True, bulk: bool = False
+        self, name: str, dev: bool = False
     ) -> None:
         """
         Initialize Jasper
@@ -99,13 +73,35 @@ class Jasper:
         # Connect to system DB
         self._connect_sys()
 
-        # Meteostat DB connection
-        if db:
-            self._connect_db()
+    def bulk(self) -> FTP:
+        """
+        Meteostat Bulk FTP server connection
+        """
+        if not self._bulk:
+            self._bulk = FTP(self.config.get("bulk", "host"))
+            self._bulk.login(
+                self.config.get("bulk", "user"), self.config.get("bulk", "password")
+            )
+        return self._bulk
 
-        # Bulk FTP connection
-        if bulk:
-            self._connect_bulk()
+    def db(self) -> engine:
+        """
+        Meteostat database connection
+        """
+        if not self._db:
+            self._db = create_engine(
+                "mysql+mysqlconnector://"
+                + self.config.get("db", "user")
+                + ":"
+                + self.config.get("db", "password")
+                + "@"
+                + self.config.get("db", "host")
+                + "/"
+                + self.config.get("db", "name")
+                + "?charset=utf8"
+            )
+        return self._db
+
 
     def set_var(self, name: str, value: str) -> None:
         """
@@ -169,5 +165,14 @@ class Jasper:
         """
         Execute an SQL query on the Meteostat DB
         """
-        with self.db.connect() as con:
+        with self.db().connect() as con:
             return con.execute(text(query).execution_options(autocommit=True), payload)
+
+    def close(self) -> None:
+        """
+        Close all connections
+        """
+        if self._bulk:
+            self._bulk.quit()
+        if self._db:
+            self._db.dispose()

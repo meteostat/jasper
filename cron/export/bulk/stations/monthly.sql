@@ -224,4 +224,4 @@ WHERE  `tavg` is not null
     or `tmax` is not null
     or `prcp` is not null
 GROUP BY `year`, `month`
-ORDER BY `year`, `month`;
+ORDER BY `year`, `month`

@@ -137,4 +137,4 @@ UNION all (SELECT `time`,
               and :end_datetime)) as `hourly_derived`
 WHERE  `time` <= date_add(now(), interval 10 day)
 GROUP BY date_format(`time`, '%Y %m %d %H')
-ORDER BY `time`;
+ORDER BY `time`

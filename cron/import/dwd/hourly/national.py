@@ -135,7 +135,7 @@ for station_file in stations:
             f"""
             SELECT `id` FROM `stations` WHERE `national_id` LIKE "{national_id}"
             """,
-            jsp.db,
+            jsp.db(),
         ).iloc[0][0]
 
         # DataFrame which holds data for one weather station
@@ -211,3 +211,6 @@ for station_file in stations:
 
 # Write DataFrame into Meteostat database
 persist(jsp, df_full, hourly_national)
+
+# Close Jasper instance
+jsp.close()

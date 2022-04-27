@@ -212,4 +212,4 @@ WHERE  (`tavg` is not null
     or `prcp` is not null)
    and `date` <= date_add(current_date(), interval 10 day)
 GROUP BY `date`
-ORDER BY `date`;
+ORDER BY `date`

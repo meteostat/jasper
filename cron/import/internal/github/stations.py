@@ -97,3 +97,6 @@ try:
 
 except BaseException:
     jsp.query("DROP TABLE `stations_temp`")
+
+# Close Jasper instance
+jsp.close()

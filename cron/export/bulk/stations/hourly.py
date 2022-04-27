@@ -91,5 +91,5 @@ for station in stations:
         for year in range(first_year, last_year + 1):
             write_dump(data, station[0], year)
 
-# Close FTP connection
-jsp.bulk.quit()
+# Close Jasper instance
+jsp.close()

@@ -46,7 +46,7 @@ date = datetime.date.today() - datetime.timedelta(days=delta)
 
 # Get modification time
 try:
-    modified = jsp.bulk.voidcmd(
+    modified = jsp.bulk().voidcmd(
         f"""MDTM /gridded/daily/tavg/{
         date.strftime("%Y-%m-%d")
     }.nc"""
@@ -140,7 +140,7 @@ raw: pd.DataFrame = pd.read_sql(
     GROUP BY
         `station`
 """,
-    jsp.db,
+    jsp.db(),
 )
 
 # Clean DataFrame
@@ -203,8 +203,8 @@ if len(raw.index):
 
             # Transfer to bulk server
             with open(filename, "rb") as file:
-                jsp.bulk.cwd(f"/gridded/daily/{parameter}")
-                jsp.bulk.storbinary(f'STOR {date.strftime("%Y-%m-%d")}.nc', file)
+                jsp.bulk().cwd(f"/gridded/daily/{parameter}")
+                jsp.bulk().storbinary(f'STOR {date.strftime("%Y-%m-%d")}.nc', file)
 
             # Remove temp file
             if os.path.exists(filename):

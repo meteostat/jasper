@@ -63,7 +63,7 @@ def get_condicode(weather: list) -> Union[int, None]:
 
 # Get ICAO stations
 stations = pd.read_sql(
-    "SELECT `id`, `icao` FROM `stations` WHERE `icao` IS NOT NULL", jsp.db
+    "SELECT `id`, `icao` FROM `stations` WHERE `icao` IS NOT NULL", jsp.db()
 )
 
 stations = stations.set_index("icao")
@@ -135,3 +135,6 @@ df = df.round(1)
 
 # Write DataFrame into Meteostat database
 persist(jsp, df, hourly_metar)
+
+# Close Jasper instance
+jsp.close()

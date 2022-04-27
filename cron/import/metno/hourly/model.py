@@ -112,3 +112,6 @@ if len(stations) > 0:
 
     # Write DataFrame into Meteostat database
     persist(jsp, df_full, hourly_model)
+
+# Close Jasper instance
+jsp.close()

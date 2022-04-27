@@ -112,7 +112,7 @@ def get_database(station: list) -> pd.DataFrame:
                     `end`,
                     `month`
             """,
-            jsp.db,
+            jsp.db(),
             index_col=["start", "end", "time"],
         )
 
@@ -170,8 +170,8 @@ for station in stations:
                 gz.close()
                 file.seek(0)
 
-            bulk_cd(jsp, "/normals")
-            jsp.bulk.storbinary(f"STOR /normals/{station[0]}.csv.gz", file)
+            bulk_cd(jsp.bulk(), "/normals")
+            jsp.bulk().storbinary(f"STOR /normals/{station[0]}.csv.gz", file)
 
     except BaseException:
         pass

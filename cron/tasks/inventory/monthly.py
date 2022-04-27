@@ -54,3 +54,6 @@ if len(stations) > 0:
 
         except BaseException:
             pass
+
+# Close Jasper instance
+jsp.close()

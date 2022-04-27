@@ -126,3 +126,6 @@ persist(jsp, df_full, daily_global)
 
 # Quit FTP connection
 ftp.quit()
+
+# Close Jasper instance
+jsp.close()
