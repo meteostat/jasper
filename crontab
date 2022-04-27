@@ -1,38 +1,38 @@
-* * * * * python3 -W ignore ~/meteor/cron/import/metno/hourly/model.py
-25 * * * * python3 -W ignore ~/meteor/cron/import/zamg/hourly/synop.py
-* * * * * python3 -W ignore ~/meteor/cron/import/dwd/hourly/synop.py
-* * * * * python3 -W ignore ~/meteor/cron/import/dwd/hourly/model.py
-10 * * * * python3 -W ignore ~/meteor/cron/import/noaa/hourly/metar_cycle.py
-2-59/10 * * * * python3 -W ignore ~/meteor/cron/import/dwd/hourly/national.py recent 6
-* * * * * python3 -W ignore ~/meteor/cron/import/eccc/hourly/national.py
-4 * * * * python3 -W ignore ~/meteor/cron/import/dwd/hourly/national.py historical 1
-6-59/20 * * * * python3 -W ignore ~/meteor/cron/import/dwd/daily/national.py recent 5
-8 * * * * python3 -W ignore ~/meteor/cron/import/dwd/daily/national.py historical 1
-1-59/3 * * * * python3 -W ignore ~/meteor/cron/import/eccc/daily/national.py
-* * * * * python3 -W ignore ~/meteor/cron/import/noaa/daily/global.py
-7-59/10 * * * * python3 -W ignore ~/meteor/cron/import/noaa/hourly/global.py recent
-3-59/3 * * * * python3 -W ignore ~/meteor/cron/import/noaa/hourly/global.py historical
-28 * * * * python3 -W ignore ~/meteor/cron/import/dwd/monthly/global.py recent 5
-42 * * * * python3 -W ignore ~/meteor/cron/import/dwd/monthly/global.py historical 3
-# 50 * * * * python3 -W ignore ~/meteor/cron/import/dwd/normals/global.py
-0 0 * * * python3 -W ignore ~/meteor/cron/import/internal/github/stations.py
-* * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/hourly.py all
-* * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/hourly_legacy.py all
-* * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/hourly.py recent
-* * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/hourly_legacy.py recent
-* * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/daily.py
-* * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/daily_legacy.py
-36 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly.py
-39 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly_legacy_obs.py
-44 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/monthly_legacy_full.py
-53 * * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/normals.py
-12 5 * * * python3 -W ignore ~/meteor/cron/export/bulk/stations/meta.py
-5 5-23/3 * * * python3 -W ignore ~/meteor/cron/export/bulk/gridded/daily.py recent 1
-25 3-23/3 * * * python3 -W ignore ~/meteor/cron/export/bulk/gridded/daily.py recent 30
-45 1-23/3 * * * python3 -W ignore ~/meteor/cron/export/bulk/gridded/daily.py recent 270
-5 0-23/8 * * * python3 -W ignore ~/meteor/cron/export/bulk/gridded/daily.py historical
-15 3 * * * python3 -W ignore ~/meteor/cron/tasks/inventory/hourly.py
-* * * * * python3 -W ignore ~/meteor/cron/tasks/inventory/daily.py
-* * * * * python3 -W ignore ~/meteor/cron/tasks/inventory/monthly.py
-* * * * * python3 -W ignore ~/meteor/cron/tasks/inventory/normals.py
-47 4 * * * /bin/sh ~/meteor/cron/export/internal/stations.sh
+* * * * * python3 -W ignore ~/jasper/cron/import/metno/hourly/model.py
+25 * * * * python3 -W ignore ~/jasper/cron/import/zamg/hourly/synop.py
+* * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/synop.py
+* * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/model.py
+10 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/metar_cycle.py
+2-59/10 * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/national.py recent 6
+* * * * * python3 -W ignore ~/jasper/cron/import/eccc/hourly/national.py
+4 * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/national.py historical 1
+6-59/20 * * * * python3 -W ignore ~/jasper/cron/import/dwd/daily/national.py recent 5
+8 * * * * python3 -W ignore ~/jasper/cron/import/dwd/daily/national.py historical 1
+1-59/3 * * * * python3 -W ignore ~/jasper/cron/import/eccc/daily/national.py
+* * * * * python3 -W ignore ~/jasper/cron/import/noaa/daily/global.py
+7-59/10 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/global.py recent
+3-59/3 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/global.py historical
+28 * * * * python3 -W ignore ~/jasper/cron/import/dwd/monthly/global.py recent 5
+42 * * * * python3 -W ignore ~/jasper/cron/import/dwd/monthly/global.py historical 3
+# 50 * * * * python3 -W ignore ~/jasper/cron/import/dwd/normals/global.py
+0 0 * * * python3 -W ignore ~/jasper/cron/import/internal/github/stations.py
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py all
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py all
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py recent
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py recent
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily.py
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily_legacy.py
+36 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly.py
+39 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly_legacy_obs.py
+44 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly_legacy_full.py
+53 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/normals.py
+12 5 * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/meta.py
+5 5-23/3 * * * python3 -W ignore ~/jasper/cron/export/bulk/gridded/daily.py recent 1
+25 3-23/3 * * * python3 -W ignore ~/jasper/cron/export/bulk/gridded/daily.py recent 30
+45 1-23/3 * * * python3 -W ignore ~/jasper/cron/export/bulk/gridded/daily.py recent 270
+5 0-23/8 * * * python3 -W ignore ~/jasper/cron/export/bulk/gridded/daily.py historical
+15 3 * * * python3 -W ignore ~/jasper/cron/tasks/inventory/hourly.py
+* * * * * python3 -W ignore ~/jasper/cron/tasks/inventory/daily.py
+* * * * * python3 -W ignore ~/jasper/cron/tasks/inventory/monthly.py
+* * * * * python3 -W ignore ~/jasper/cron/tasks/inventory/normals.py
+47 4 * * * /bin/sh ~/jasper/cron/export/internal/stations.sh
