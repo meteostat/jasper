@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="https://media.meteostat.net/dev/jasper.logo.svg" width="300">
+  <img
+    src="https://raw.githubusercontent.com/meteostat/meteor/be2caf1cd918cbd959ab881b0ec2af035c1a604b/logo.svg"
+    width="300"
+  >
 </p>
 
 Meteor provides a simple base class for creating automated import, export and maintenance tasks which interact with different Meteostat interfaces. Most tasks import meteorological data from open governmental interfaces into Meteostat's central SQL database. All automated tasks are placed in the `cron` directory.
