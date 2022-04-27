@@ -18,7 +18,7 @@ MODE = argv[1]
 STATIONS_PER_CYCLE = 8 if MODE == "recent" else 1
 
 # Create Jasper instance
-jsp = Jasper(f"export.bulk.hourly.legacy.{MODE}")
+jsp = Jasper(f"export.bulk.hourly.legacy.{MODE}", bulk=True)
 
 
 def write_dump(data: list, station: str, year: int = None) -> None:
@@ -186,3 +186,6 @@ for station in stations:
 
         for year in range(first_year, last_year + 1):
             write_dump(data, station[0], year)
+
+# Close FTP connection
+jsp.bulk.quit()

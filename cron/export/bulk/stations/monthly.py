@@ -57,3 +57,6 @@ for station in stations:
             ),
             f"/monthly/{station[0]}.map.csv.gz",
         )
+
+# Close FTP connection
+jsp.bulk.quit()

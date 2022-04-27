@@ -80,3 +80,6 @@ if result.rowcount > 0:
     # Write CSV dumps
     export_csv(jsp, slim, "/stations/slim.csv.gz")
     export_csv(jsp, [row[0:13] for row in slim], "/stations/lib.csv.gz")
+
+# Close FTP connection
+jsp.bulk.quit()

@@ -201,3 +201,6 @@ for station in stations:
         export_csv(
             jsp, list(map(lambda d: d[:11], data)), f"/daily/obs/{station[0]}.csv.gz"
         )
+
+# Close FTP connection
+jsp.bulk.quit()
