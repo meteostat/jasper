@@ -1,12 +1,6 @@
-SELECT
-  `stations`.`id` AS `id`,
-  `stations`.`tz` AS `tz`
-FROM
-  `stations`
-WHERE
-  `stations`.`id` IN (
-    SELECT DISTINCT `station`
-    FROM `inventory`
-    WHERE
-      `mode` IN ('D', 'H', 'P')
-  )
+SELECT `stations`.`id` as `id`,
+       `stations`.`tz` as `tz`
+FROM   `stations`
+WHERE  `stations`.`id` in (SELECT DISTINCT `station`
+                           FROM   `inventory`
+                           WHERE  `mode` in ('D', 'H', 'P'));
