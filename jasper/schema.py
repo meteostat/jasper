@@ -4,31 +4,31 @@ Meteostat database schemas
 The code is licensed under the MIT license.
 """
 
-from meteor import validation
+from jasper import validation
 
 
 hourly_model = {
-    'template': {
-        'temp': None,
-        'rhum': None,
-        'prcp': None,
-        'wspd': None,
-        'wpgt': None,
-        'wdir': None,
-        'pres': None,
-        'coco': None
+    "template": {
+        "temp": None,
+        "rhum": None,
+        "prcp": None,
+        "wspd": None,
+        "wpgt": None,
+        "wdir": None,
+        "pres": None,
+        "coco": None,
     },
-    'validation': {
-        'temp': validation.temp,
-        'rhum': validation.rhum,
-        'prcp': validation.prcp_hourly,
-        'wspd': validation.wspd,
-        'wpgt': validation.wpgt,
-        'wdir': validation.wdir,
-        'pres': validation.pres,
-        'coco': validation.coco
+    "validation": {
+        "temp": validation.temp,
+        "rhum": validation.rhum,
+        "prcp": validation.prcp_hourly,
+        "wspd": validation.wspd,
+        "wpgt": validation.wpgt,
+        "wdir": validation.wdir,
+        "pres": validation.pres,
+        "coco": validation.coco,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `hourly_model`
         SET
             `station` = :station,
@@ -50,35 +50,35 @@ hourly_model = {
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `coco` = COALESCE(VALUES(`coco`),`coco`)
-    """
+    """,
 }
 
 hourly_synop = {
-    'template': {
-        'temp': None,
-        'rhum': None,
-        'prcp': None,
-        'wspd': None,
-        'wpgt': None,
-        'wdir': None,
-        'pres': None,
-        'snow': None,
-        'tsun': None,
-        'coco': None
+    "template": {
+        "temp": None,
+        "rhum": None,
+        "prcp": None,
+        "wspd": None,
+        "wpgt": None,
+        "wdir": None,
+        "pres": None,
+        "snow": None,
+        "tsun": None,
+        "coco": None,
     },
-    'validation': {
-        'temp': validation.temp,
-        'rhum': validation.rhum,
-        'prcp': validation.prcp_hourly,
-        'wspd': validation.wspd,
-        'wpgt': validation.wpgt,
-        'wdir': validation.wdir,
-        'pres': validation.pres,
-        'snow': validation.snow,
-        'tsun': validation.tsun_hourly,
-        'coco': validation.coco
+    "validation": {
+        "temp": validation.temp,
+        "rhum": validation.rhum,
+        "prcp": validation.prcp_hourly,
+        "wspd": validation.wspd,
+        "wpgt": validation.wpgt,
+        "wdir": validation.wdir,
+        "pres": validation.pres,
+        "snow": validation.snow,
+        "tsun": validation.tsun_hourly,
+        "coco": validation.coco,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `hourly_synop`
         SET
             `station` = :station,
@@ -104,29 +104,29 @@ hourly_synop = {
             `snow` = COALESCE(VALUES(`snow`),`snow`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
             `coco` = COALESCE(VALUES(`coco`),`coco`)
-    """
+    """,
 }
 
 hourly_national = {
-    'template': {
-        'temp': None,
-        'rhum': None,
-        'prcp': None,
-        'wspd': None,
-        'wdir': None,
-        'pres': None,
-        'tsun': None
+    "template": {
+        "temp": None,
+        "rhum": None,
+        "prcp": None,
+        "wspd": None,
+        "wdir": None,
+        "pres": None,
+        "tsun": None,
     },
-    'validation': {
-        'temp': validation.temp,
-        'rhum': validation.rhum,
-        'prcp': validation.prcp_hourly,
-        'wspd': validation.wspd,
-        'wdir': validation.wdir,
-        'pres': validation.pres,
-        'tsun': validation.tsun_hourly
+    "validation": {
+        "temp": validation.temp,
+        "rhum": validation.rhum,
+        "prcp": validation.prcp_hourly,
+        "wspd": validation.wspd,
+        "wdir": validation.wdir,
+        "pres": validation.pres,
+        "tsun": validation.tsun_hourly,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `hourly_national`
         SET
             `station` = :station,
@@ -146,27 +146,27 @@ hourly_national = {
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
-    """
+    """,
 }
 
 hourly_global = {
-    'template': {
-        'temp': None,
-        'rhum': None,
-        'prcp': None,
-        'wspd': None,
-        'wdir': None,
-        'pres': None
+    "template": {
+        "temp": None,
+        "rhum": None,
+        "prcp": None,
+        "wspd": None,
+        "wdir": None,
+        "pres": None,
     },
-    'validation': {
-        'temp': validation.temp,
-        'rhum': validation.rhum,
-        'prcp': validation.prcp_hourly,
-        'wspd': validation.wspd,
-        'wdir': validation.wdir,
-        'pres': validation.pres
+    "validation": {
+        "temp": validation.temp,
+        "rhum": validation.rhum,
+        "prcp": validation.prcp_hourly,
+        "wspd": validation.wspd,
+        "wdir": validation.wdir,
+        "pres": validation.pres,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `hourly_isd`
         SET
             `station` = :station,
@@ -184,27 +184,27 @@ hourly_global = {
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `pres` = COALESCE(VALUES(`pres`),`pres`)
-    """
+    """,
 }
 
 hourly_metar = {
-    'template': {
-        'temp': None,
-        'rhum': None,
-        'wspd': None,
-        'wdir': None,
-        'pres': None,
-        'coco': None
+    "template": {
+        "temp": None,
+        "rhum": None,
+        "wspd": None,
+        "wdir": None,
+        "pres": None,
+        "coco": None,
     },
-    'validation': {
-        'temp': validation.temp,
-        'rhum': validation.rhum,
-        'wspd': validation.wspd,
-        'wdir': validation.wdir,
-        'pres': validation.pres,
-        'coco': validation.coco
+    "validation": {
+        "temp": validation.temp,
+        "rhum": validation.rhum,
+        "wspd": validation.wspd,
+        "wdir": validation.wdir,
+        "pres": validation.pres,
+        "coco": validation.coco,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `hourly_metar`
         SET
             `station` = :station,
@@ -222,35 +222,35 @@ hourly_metar = {
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `coco` = COALESCE(VALUES(`coco`),`coco`)
-    """
+    """,
 }
 
 daily_national = {
-    'template': {
-        'tavg': None,
-        'tmin': None,
-        'tmax': None,
-        'rhum': None,
-        'prcp': None,
-        'wspd': None,
-        'wpgt': None,
-        'pres': None,
-        'snow': None,
-        'tsun': None
+    "template": {
+        "tavg": None,
+        "tmin": None,
+        "tmax": None,
+        "rhum": None,
+        "prcp": None,
+        "wspd": None,
+        "wpgt": None,
+        "pres": None,
+        "snow": None,
+        "tsun": None,
     },
-    'validation': {
-        'tavg': validation.temp,
-        'tmin': validation.temp,
-        'tmax': validation.temp,
-        'prcp': validation.prcp_daily,
-        'rhum': validation.rhum,
-        'wspd': validation.wspd,
-        'wpgt': validation.wpgt,
-        'pres': validation.pres,
-        'snow': validation.snow,
-        'tsun': validation.tsun_daily
+    "validation": {
+        "tavg": validation.temp,
+        "tmin": validation.temp,
+        "tmax": validation.temp,
+        "prcp": validation.prcp_daily,
+        "rhum": validation.rhum,
+        "wspd": validation.wspd,
+        "wpgt": validation.wpgt,
+        "pres": validation.pres,
+        "snow": validation.snow,
+        "tsun": validation.tsun_daily,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `daily_national`
         SET
             `station` = :station,
@@ -276,33 +276,33 @@ daily_national = {
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `snow` = COALESCE(VALUES(`snow`),`snow`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
-    """
+    """,
 }
 
 daily_global = {
-    'template': {
-        'tavg': None,
-        'tmin': None,
-        'tmax': None,
-        'prcp': None,
-        'wspd': None,
-        'wpgt': None,
-        'wdir': None,
-        'snow': None,
-        'tsun': None
+    "template": {
+        "tavg": None,
+        "tmin": None,
+        "tmax": None,
+        "prcp": None,
+        "wspd": None,
+        "wpgt": None,
+        "wdir": None,
+        "snow": None,
+        "tsun": None,
     },
-    'validation': {
-        'tavg': validation.temp,
-        'tmin': validation.temp,
-        'tmax': validation.temp,
-        'prcp': validation.prcp_daily,
-        'wspd': validation.wspd,
-        'wpgt': validation.wpgt,
-        'wdir': validation.wdir,
-        'snow': validation.snow,
-        'tsun': validation.tsun_daily
+    "validation": {
+        "tavg": validation.temp,
+        "tmin": validation.temp,
+        "tmax": validation.temp,
+        "prcp": validation.prcp_daily,
+        "wspd": validation.wspd,
+        "wpgt": validation.wpgt,
+        "wdir": validation.wdir,
+        "snow": validation.snow,
+        "tsun": validation.tsun_daily,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `daily_ghcn`
         SET
             `station` = :station,
@@ -326,27 +326,27 @@ daily_global = {
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `snow` = COALESCE(VALUES(`snow`),`snow`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
-    """
+    """,
 }
 
 monthly_global = {
-    'template': {
-        'tavg': None,
-        'tmin': None,
-        'tmax': None,
-        'prcp': None,
-        'pres': None,
-        'tsun': None
+    "template": {
+        "tavg": None,
+        "tmin": None,
+        "tmax": None,
+        "prcp": None,
+        "pres": None,
+        "tsun": None,
     },
-    'validation': {
-        'tavg': validation.temp,
-        'tmin': validation.temp,
-        'tmax': validation.temp,
-        'prcp': validation.prcp_monthly,
-        'pres': validation.pres,
-        'tsun': validation.tsun_monthly
+    "validation": {
+        "tavg": validation.temp,
+        "tmin": validation.temp,
+        "tmax": validation.temp,
+        "prcp": validation.prcp_monthly,
+        "pres": validation.pres,
+        "tsun": validation.tsun_monthly,
     },
-    'import_query': """
+    "import_query": """
         INSERT INTO `monthly_global`
         SET
             `station` = :station,
@@ -365,27 +365,27 @@ monthly_global = {
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
-    """
+    """,
 }
 
 normals_global = {
-    'template': {
-        'tavg': None,
-        'tmin': None,
-        'tmax': None,
-        'prcp': None,
-        'pres': None,
-        'tsun': None
+    "template": {
+        "tavg": None,
+        "tmin": None,
+        "tmax": None,
+        "prcp": None,
+        "pres": None,
+        "tsun": None,
     },
-    'validation': {
-        'tavg': validation.temp,
-        'tmin': validation.temp,
-        'tmax': validation.temp,
-        'prcp': validation.prcp_monthly,
-        'pres': validation.pres,
-        'tsun': validation.tsun_monthly
+    "validation": {
+        "tavg": validation.temp,
+        "tmin": validation.temp,
+        "tmax": validation.temp,
+        "prcp": validation.prcp_monthly,
+        "pres": validation.pres,
+        "tsun": validation.tsun_monthly,
     },
-    'import_query': """
+    "import_query": """
         INSERT IGNORE INTO
             `normals_global`
         SET
@@ -406,5 +406,5 @@ normals_global = {
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
-    """
+    """,
 }

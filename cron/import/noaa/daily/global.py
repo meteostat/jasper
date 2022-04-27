@@ -11,137 +11,118 @@ import os
 from typing import Union
 import pandas as pd
 from numpy import nan
-from meteor import Meteor, run, ghcnd
-from meteor.convert import ms_to_kmh
-from meteor.schema import daily_global
+from jasper import Jasper, ghcnd
+from jasper.actions import persist
+from jasper.convert import ms_to_kmh
+from jasper.schema import daily_global
 
 
-class Task(Meteor):
-    """
-    Import daily (global) data from NOAA
-    """
+# General configuration
+STATIONS_PER_CYCLE = 1
+GHCN_PATH = (
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..", "resources"))
+    + "/ghcn.csv"
+)
+NAMES = {
+    "MM/DD/YYYY": "time",
+    "TMAX": "tmax",
+    "TMIN": "tmin",
+    "TAVG": "tavg",
+    "PRCP": "prcp",
+    "SNWD": "snow",
+    "AWDR": "wdir",
+    "AWND": "wspd",
+    "TSUN": "tsun",
+    "WSFG": "wpgt",
+}
 
-    name = 'import.noaa.daily.global'  # Task name
-    # dev_mode = True  # Running in dev mode?
+# Create Jasper instance
+jsp = Jasper("import.noaa.daily.global")
 
-    STATIONS_PER_CYCLE = 1
-    GHCN_PATH = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            '../../../..',
-            'resources'
-        )
-    ) + '/ghcn.csv'
-    # Column names
-    names = {
-        'MM/DD/YYYY': 'time',
-        'TMAX': 'tmax',
-        'TMIN': 'tmin',
-        'TAVG': 'tavg',
-        'PRCP': 'prcp',
-        'SNWD': 'snow',
-        'AWDR': 'wdir',
-        'AWND': 'wspd',
-        'TSUN': 'tsun',
-        'WSFG': 'wpgt'
-    }
-    stations: Union[pd.DataFrame, None] = None
+# Weather stations
+stations: Union[pd.DataFrame, None] = None
 
-    def main(self) -> None:
-        """
-        Main script & entry point
-        """
-        # Get counter value
-        skip = self.get_var('station_counter', 0, int)
+# Get counter value
+skip = jsp.get_var("station_counter", 0, int)
 
-        # Get GHCN stations
-        try:
-            self.stations = pd.read_csv(
-                self.GHCN_PATH,
-                dtype='str',
-                skiprows=skip,
-                nrows=self.STATIONS_PER_CYCLE,
-                names=[
-                    'id',
-                    'ghcn'
-                ]
-            )
-        except pd.errors.EmptyDataError:
-            pass
+# Get GHCN stations
+try:
+    stations = pd.read_csv(
+        GHCN_PATH,
+        dtype="str",
+        skiprows=skip,
+        nrows=STATIONS_PER_CYCLE,
+        names=["id", "ghcn"],
+    )
+except pd.errors.EmptyDataError:
+    pass
 
-        # Update counter
-        if self.stations is None or len(
-                self.stations.index) < self.STATIONS_PER_CYCLE:
-            self.set_var('station_counter', 0)
-            sys.exit()
+# Update counter
+if stations is None or len(stations.index) < STATIONS_PER_CYCLE:
+    jsp.set_var("station_counter", 0)
+    sys.exit()
+else:
+    jsp.set_var("station_counter", skip + STATIONS_PER_CYCLE)
+
+# DataFrame which holds all data
+df_full = None
+
+# Connect to NOAA FTP Server
+ftp = ghcnd.connect_to_ftp()
+
+# Import data for each weather station
+# pylint: disable=no-member
+for station in stations.to_dict(orient="records"):
+    try:
+        df = ghcnd.dly_to_df(ftp, station["ghcn"])
+
+        # Filter relevant columns
+        required_columns = [
+            "TMAX",
+            "TMIN",
+            "TAVG",
+            "PRCP",
+            "SNWD",
+            "AWDR",
+            "AWND",
+            "TSUN",
+            "WSFG",
+        ]
+        df = df.drop(columns=[col for col in df if col not in required_columns])
+
+        # Add missing columns
+        for col in required_columns:
+            if col not in df.columns:
+                df[col] = nan
+
+        # Rename columns
+        df = df.reset_index().rename(columns=NAMES)
+
+        # Adapt columns
+        df["tavg"] = df["tavg"].div(10)
+        df["tmin"] = df["tmin"].div(10)
+        df["tmax"] = df["tmax"].div(10)
+        df["prcp"] = df["prcp"].div(10)
+        df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
+        df["wpgt"] = df["wpgt"].div(10).apply(ms_to_kmh)
+
+        # Add station column
+        df["station"] = station["id"]
+
+        # Set index
+        df = df.set_index(["station", "time"])
+
+        # Append data to full DataFrame
+        if df_full is None:
+            df_full = df
         else:
-            self.set_var('station_counter', skip + self.STATIONS_PER_CYCLE)
+            df_full = df_full.append(df)
 
-        # DataFrame which holds all data
-        df_full = None
+    except BaseException:
+        pass
 
-        # Connect to NOAA FTP Server
-        ftp = ghcnd.connect_to_ftp()
+# Write DataFrame into Meteostat database
+persist(jsp, df_full, daily_global)
 
-        # Import data for each weather station
-        # pylint: disable=no-member
-        for station in self.stations.to_dict(orient='records'):
-            try:
-                df = ghcnd.dly_to_df(ftp, station['ghcn'])
-
-                # Filter relevant columns
-                required_columns = [
-                    'TMAX',
-                    'TMIN',
-                    'TAVG',
-                    'PRCP',
-                    'SNWD',
-                    'AWDR',
-                    'AWND',
-                    'TSUN',
-                    'WSFG']
-                df = df.drop(
-                    columns=[
-                        col for col in df if col not in required_columns
-                    ]
-                )
-
-                # Add missing columns
-                for col in required_columns:
-                    if col not in df.columns:
-                        df[col] = nan
-
-                # Rename columns
-                df = df.reset_index().rename(columns=self.names)
-
-                # Adapt columns
-                df['tavg'] = df['tavg'].div(10)
-                df['tmin'] = df['tmin'].div(10)
-                df['tmax'] = df['tmax'].div(10)
-                df['prcp'] = df['prcp'].div(10)
-                df['wspd'] = df['wspd'].div(10).apply(ms_to_kmh)
-                df['wpgt'] = df['wpgt'].div(10).apply(ms_to_kmh)
-
-                # Add station column
-                df['station'] = station['id']
-
-                # Set index
-                df = df.set_index(['station', 'time'])
-
-                # Append data to full DataFrame
-                if df_full is None:
-                    df_full = df
-                else:
-                    df_full = df_full.append(df)
-
-            except BaseException:
-                pass
-
-        # Write DataFrame into Meteostat database
-        self.persist(df_full, daily_global)
-
-        # Quit FTP connection
-        ftp.quit()
-
-
-run(Task)
+# Quit FTP connection
+ftp.quit()

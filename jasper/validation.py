@@ -18,6 +18,7 @@ def temp(value):
     except BaseException:
         return None
 
+
 def rhum(value):
     """
     Validate relative humidity data (percentage)
@@ -28,6 +29,7 @@ def rhum(value):
         return value
     except BaseException:
         return None
+
 
 def prcp_hourly(value):
     """
@@ -40,6 +42,7 @@ def prcp_hourly(value):
     except BaseException:
         return None
 
+
 def prcp_daily(value):
     """
     Validate daily precipitation data (mm)
@@ -50,6 +53,7 @@ def prcp_daily(value):
         return value
     except BaseException:
         return None
+
 
 def prcp_monthly(value):
     """
@@ -62,6 +66,7 @@ def prcp_monthly(value):
     except BaseException:
         return None
 
+
 def wspd(value):
     """
     Validate (average) wind speed data (km/h)
@@ -72,6 +77,7 @@ def wspd(value):
         return value
     except BaseException:
         return None
+
 
 def wpgt(value):
     """
@@ -84,6 +90,7 @@ def wpgt(value):
     except BaseException:
         return None
 
+
 def wdir(value):
     """
     Validate wind direction data (degrees)
@@ -94,6 +101,7 @@ def wdir(value):
         return value
     except BaseException:
         return None
+
 
 def pres(value):
     """
@@ -106,6 +114,7 @@ def pres(value):
     except BaseException:
         return None
 
+
 def snow(value):
     """
     Validate snow cover data (mm)
@@ -116,6 +125,7 @@ def snow(value):
         return value
     except BaseException:
         return None
+
 
 def tsun_hourly(value):
     """
@@ -128,6 +138,7 @@ def tsun_hourly(value):
     except BaseException:
         return None
 
+
 def tsun_daily(value):
     """
     Validate daily sunshine duration data (minutes)
@@ -138,6 +149,7 @@ def tsun_daily(value):
         return value
     except BaseException:
         return None
+
 
 def tsun_monthly(value):
     """
@@ -150,6 +162,7 @@ def tsun_monthly(value):
         return value
     except BaseException:
         return None
+
 
 def coco(value):
     """

@@ -1,11 +1,5 @@
-# Meteor
-
 <p align="center">
-  <img src="https://media.meteostat.net/meteor-logo.svg" width="300">
-</p>
-
-<p align="center">
-  <strong>Meteor is Meteostat's central data management tool.</strong>
+  <img src="https://media.meteostat.net/dev/jasper.logo.svg" width="300">
 </p>
 
 Meteor provides a simple base class for creating automated import, export and maintenance tasks which interact with different Meteostat interfaces. Most tasks import meteorological data from open governmental interfaces into Meteostat's central SQL database. All automated tasks are placed in the `cron` directory.

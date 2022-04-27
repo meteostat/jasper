@@ -9,108 +9,106 @@ The code is licensed under the MIT license.
 from urllib import request, error
 import json
 import pandas as pd
-from meteor import Meteor, run
-from meteor.schema import hourly_model
+from jasper import Jasper
+from jasper.actions import persist
+from jasper.helpers import get_stations, read_file
+from jasper.schema import hourly_model
 
 
-class Task(Meteor):
-    """
-    Import hourly (global) model data from Met.no
-    """
+# General configuration
+STATIONS_PER_CYCLE = 20
 
-    name = 'import.metno.hourly.model'  # Task name
-    # dev_mode = True  # Running in dev mode?
+# Create Jasper instance
+jsp = Jasper("import.metno.hourly.model")
 
-    STATIONS_PER_CYCLE = 20
+# Get weather stations
+stations = get_stations(
+    jsp,
+    read_file("model_stations.sql"),
+    STATIONS_PER_CYCLE,
+)
 
-    def main(self) -> None:
-        """
-        Main script & entry point
-        """
-        stations = self.get_stations("""
-            SELECT
-                `stations`.`id` AS `id`,
-                `stations`.`latitude` AS `latitude`,
-                `stations`.`longitude` AS `longitude`,
-                `stations`.`altitude` AS `altitude`
-            FROM `stations`
-            WHERE
-                `stations`.`latitude` IS NOT NULL AND
-                `stations`.`longitude` IS NOT NULL AND
-                `stations`.`altitude` IS NOT NULL AND
-                `stations`.`mosmix` IS NULL AND
-                `stations`.`id` IN (
-                    SELECT DISTINCT `station`
-                    FROM `inventory`
-                    WHERE
-                        `mode` IN ('H', 'D') AND
-                        `end` > DATE_SUB(NOW(), INTERVAL 1095 DAY)
-                )
-        """, self.STATIONS_PER_CYCLE)
+# DataFrame which holds all data
+df_full = None
 
-        # DataFrame which holds all data
-        df_full = None
+# Import data for each weather station
+if len(stations) > 0:
+    for station in stations:
+        try:
+            # Create request for JSON file
+            url = (
+                "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?"
+                + f"altitude={station[3]}&lat={station[1]}&lon={station[2]}"
+            )
+            req = request.Request(
+                url, headers={"User-Agent": "meteostat.net info@meteostat.net"}
+            )
 
-        # Import data for each weather station
-        if len(stations) > 0:
-            for station in stations:
-                try:
-                    # Create request for JSON file
-                    url = (
-                        'https://api.met.no/weatherapi/locationforecast/2.0/complete.json?' +
-                        f'altitude={station[3]}&lat={station[1]}&lon={station[2]}'
+            # Get JSON data
+            with request.urlopen(req) as raw:
+                data = json.loads(raw.read().decode())
+
+            # pylint: disable=line-too-long
+            # To be resolved in 1.0.0
+            def map_data(record):
+                """
+                Map JSON data
+                """
+                return {
+                    "time": record["time"],
+                    "temp": record["data"]["instant"]["details"]["air_temperature"]
+                    if "air_temperature" in record["data"]["instant"]["details"]
+                    else None,
+                    "rhum": record["data"]["instant"]["details"]["relative_humidity"]
+                    if "relative_humidity" in record["data"]["instant"]["details"]
+                    else None,
+                    "prcp": record["data"]["next_1_hours"]["details"][
+                        "precipitation_amount"
+                    ]
+                    if "next_1_hours" in record["data"]
+                    and "precipitation_amount"
+                    in record["data"]["next_1_hours"]["details"]
+                    else None,
+                    "wspd": record["data"]["instant"]["details"]["wind_speed"] * 3.6
+                    if "wind_speed" in record["data"]["instant"]["details"]
+                    else None,
+                    "wpgt": record["data"]["instant"]["details"]["wind_speed_of_gust"]
+                    * 3.6
+                    if "wind_speed_of_gust" in record["data"]["instant"]["details"]
+                    else None,
+                    "wdir": int(
+                        round(
+                            record["data"]["instant"]["details"]["wind_from_direction"]
+                        )
                     )
-                    req = request.Request(
-                        url,
-                        headers={
-                            'User-Agent': 'meteostat.net info@meteostat.net'
-                        }
-                    )
+                    if "wind_from_direction" in record["data"]["instant"]["details"]
+                    else None,
+                    "pres": record["data"]["instant"]["details"][
+                        "air_pressure_at_sea_level"
+                    ]
+                    if "air_pressure_at_sea_level"
+                    in record["data"]["instant"]["details"]
+                    else None,
+                }
 
-                    # Get JSON data
-                    with request.urlopen(req) as raw:
-                        data = json.loads(raw.read().decode())
+            # Create DataFrame
+            df = pd.DataFrame(map(map_data, data["properties"]["timeseries"]))
 
-                    # pylint: disable=line-too-long
-                    # To be resolved in 1.0.0
-                    def map_data(record):
-                        """
-                        Map JSON data
-                        """
-                        return {
-                            'time': record['time'],
-                            'temp': record['data']['instant']['details']['air_temperature'] if 'air_temperature' in record['data']['instant']['details'] else None,
-                            'rhum': record['data']['instant']['details']['relative_humidity'] if 'relative_humidity' in record['data']['instant']['details'] else None,
-                            'prcp': record['data']['next_1_hours']['details']['precipitation_amount'] if 'next_1_hours' in record['data'] and 'precipitation_amount' in record['data']['next_1_hours']['details'] else None,
-                            'wspd': record['data']['instant']['details']['wind_speed'] * 3.6 if 'wind_speed' in record['data']['instant']['details'] else None,
-                            'wpgt': record['data']['instant']['details']['wind_speed_of_gust'] * 3.6 if 'wind_speed_of_gust' in record['data']['instant']['details'] else None,
-                            'wdir': int(round(record['data']['instant']['details']['wind_from_direction'])) if 'wind_from_direction' in record['data']['instant']['details'] else None,
-                            'pres': record['data']['instant']['details']['air_pressure_at_sea_level'] if 'air_pressure_at_sea_level' in record['data']['instant']['details'] else None
-                        }
+            # Set index
+            df["station"] = station[0]
+            df = df.set_index(["station", "time"])
 
-                    # Create DataFrame
-                    df = pd.DataFrame(
-                        map(map_data, data['properties']['timeseries']))
+            # Shift prcp column by 1 (as it refers to the next hour)
+            df["prcp"] = df["prcp"].shift(1)
 
-                    # Set index
-                    df['station'] = station[0]
-                    df = df.set_index(['station', 'time'])
+            # Append data to full DataFrame
+            if df_full is None:
+                df_full = df
+            else:
+                df_full = df_full.append(df)
 
-                    # Shift prcp column by 1 (as it refers to the next hour)
-                    df['prcp'] = df['prcp'].shift(1)
+        except error.HTTPError:
+            pass
 
-                    # Append data to full DataFrame
-                    if df_full is None:
-                        df_full = df
-                    else:
-                        df_full = df_full.append(df)
-
-                except error.HTTPError:
-                    pass
-
-            # Write DataFrame into Meteostat database
-            self.persist(df_full, hourly_model)
-
-
-# Run task
-run(Task)
+    # Write DataFrame into Meteostat database
+    persist(jsp, df_full, hourly_model)
