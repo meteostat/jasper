@@ -46,11 +46,15 @@ date = datetime.date.today() - datetime.timedelta(days=delta)
 
 # Get modification time
 try:
-    modified = jsp.bulk().voidcmd(
-        f"""MDTM /gridded/daily/tavg/{
+    modified = (
+        jsp.bulk()
+        .voidcmd(
+            f"""MDTM /gridded/daily/tavg/{
         date.strftime("%Y-%m-%d")
     }.nc"""
-    )[4:].strip()
+        )[4:]
+        .strip()
+    )
 except BaseException:
     pass
 

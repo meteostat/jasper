@@ -55,10 +55,8 @@ class Jasper:
             + self.config.get("sys_db", "name")
             + "?charset=utf8"
         )
-    
-    def __init__(
-        self, name: str, dev: bool = False
-    ) -> None:
+
+    def __init__(self, name: str, dev: bool = False) -> None:
         """
         Initialize Jasper
         """
@@ -101,7 +99,6 @@ class Jasper:
                 + "?charset=utf8"
             )
         return self._db
-
 
     def set_var(self, name: str, value: str) -> None:
         """

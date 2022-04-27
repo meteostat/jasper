@@ -175,6 +175,6 @@ for station in stations:
 
     except BaseException:
         pass
-    
+
 # Close FTP connection
 jsp.bulk.quit()
