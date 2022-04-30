@@ -16,7 +16,7 @@ from jasper.actions import export_csv
 MODE = argv[1]
 
 # General configuration
-STATIONS_PER_CYCLE = 8 if MODE == "recent" else 1
+STATIONS_PER_CYCLE = 45 if MODE == "recent" else 1
 
 # Create Jasper instance
 jsp = Jasper(f"export.bulk.hourly.{MODE}")
@@ -58,7 +58,11 @@ def write_dump(data: list, station: str, year: int = None) -> None:
 
 
 # Get weather stations
-stations = get_stations(jsp, read_file("hourly_stations.sql"), STATIONS_PER_CYCLE)
+stations = get_stations(
+    jsp,
+    read_file("hourly_stations.sql" if MODE == "all" else "hourly_stations_recent.sql"),
+    STATIONS_PER_CYCLE,
+)
 
 # Start & end year
 now = datetime.now()
