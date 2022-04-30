@@ -17,7 +17,7 @@ from jasper.schema import hourly_national
 STATIONS_PER_CYCLE = 36
 
 # Create Jasper instance
-jsp = Jasper("import.noaa.hourly.national_metar", True)
+jsp = Jasper("import.noaa.hourly.national_metar")
 
 # Get weather stations
 stations = get_stations(
