@@ -1,11 +1,11 @@
-cd ~/.meteor
+cd ~/.jasper
 
-DB_USER=`sed -nr "/^\[database\]/ { :l /^user[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
-DB_PASS=`sed -nr "/^\[database\]/ { :l /^password[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
-DB_NAME=`sed -nr "/^\[database\]/ { :l /^name[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
-FTP_HOST=`sed -nr "/^\[bulk_ftp\]/ { :l /^host[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
-FTP_USER=`sed -nr "/^\[bulk_ftp\]/ { :l /^user[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
-FTP_PASS=`sed -nr "/^\[bulk_ftp\]/ { :l /^password[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
+DB_USER=`sed -nr "/^\[db\]/ { :l /^user[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
+DB_PASS=`sed -nr "/^\[db\]/ { :l /^password[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
+DB_NAME=`sed -nr "/^\[db\]/ { :l /^name[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
+FTP_HOST=`sed -nr "/^\[bulk\]/ { :l /^host[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
+FTP_USER=`sed -nr "/^\[bulk\]/ { :l /^user[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
+FTP_PASS=`sed -nr "/^\[bulk\]/ { :l /^password[ ]*=/ { s/.*=[ ]*//; p; q;}; n; b l;}" ./config.ini`
 
 mysqldump -u$DB_USER -p$DB_PASS $DB_NAME stations > stations.sql
 mysqldump -u$DB_USER -p$DB_PASS $DB_NAME inventory > inventory.sql
