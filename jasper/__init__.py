@@ -11,6 +11,6 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = "jasper"
-__version__ = "0.9.5"
+__version__ = "0.9.6"
 
 from .core import Jasper

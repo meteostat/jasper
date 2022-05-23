@@ -6,6 +6,7 @@ Get hourly model forecasts for weather stations based on geo location
 The code is licensed under the MIT license.
 """
 
+from time import sleep
 from urllib import request, error
 import json
 import pandas as pd
@@ -16,7 +17,8 @@ from jasper.schema import hourly_model
 
 
 # General configuration
-STATIONS_PER_CYCLE = 20
+STATIONS_PER_CYCLE = 2
+SLEEP_TIME = 0.2
 
 # Create Jasper instance
 jsp = Jasper("import.metno.hourly.model")
@@ -109,6 +111,9 @@ if len(stations) > 0:
 
         except error.HTTPError:
             pass
+
+        # Sleep
+        sleep(SLEEP_TIME)
 
     # Write DataFrame into Meteostat database
     persist(jsp, df_full, hourly_model)

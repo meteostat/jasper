@@ -57,9 +57,6 @@ def write_station(data: dict) -> None:
                 "usaf": data["identifiers"]["usaf"]
                 if "usaf" in data["identifiers"]
                 else None,
-                "mosmix": data["identifiers"]["mosmix"]
-                if "mosmix" in data["identifiers"]
-                else None,
                 "lat": data["location"]["latitude"],
                 "lon": data["location"]["longitude"],
                 "elevation": data["location"]["elevation"],

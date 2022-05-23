@@ -8,7 +8,6 @@ WHERE
     `stations`.`latitude` IS NOT NULL AND
     `stations`.`longitude` IS NOT NULL AND
     `stations`.`altitude` IS NOT NULL AND
-    `stations`.`mosmix` IS NULL AND
     `stations`.`id` IN (
         SELECT DISTINCT `station`
         FROM `inventory`
