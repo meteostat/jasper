@@ -17,7 +17,7 @@ from jasper.schema import hourly_model
 
 
 # General configuration
-STATIONS_PER_CYCLE = 2
+STATIONS_PER_CYCLE = 42
 SLEEP_TIME = 0.2
 
 # Create Jasper instance

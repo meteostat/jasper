@@ -16,7 +16,7 @@ from jasper.actions import export_csv
 MODE = argv[1]
 
 # General configuration
-STATIONS_PER_CYCLE = 16 if MODE == "recent" else 1
+STATIONS_PER_CYCLE = 36 if MODE == "recent" else 1
 
 # Create Jasper instance
 jsp = Jasper(f"export.bulk.hourly.{MODE}")
