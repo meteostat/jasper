@@ -19,6 +19,7 @@
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py all
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py all
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py recent
+* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py live
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py recent
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily.py
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily_legacy.py
