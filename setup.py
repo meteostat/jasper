@@ -15,7 +15,7 @@ with open(path.join(here, "README.md")) as f:
 # Setup
 setup(
     name="jasper",
-    version="0.9.7",
+    version="0.9.8",
     author="Meteostat",
     author_email="info@meteostat.net",
     description="Import and export meteorological data using Python.",

@@ -10,7 +10,7 @@ from jasper.actions import export_csv
 
 
 # General configuration
-STATIONS_PER_CYCLE = 1
+STATIONS_PER_CYCLE = 11
 
 # Create Jasper instance
 jsp = Jasper("export.bulk.monthly.legacy")
