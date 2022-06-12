@@ -7,6 +7,7 @@ The code is licensed under the MIT license.
 """
 
 from time import sleep
+from typing import Union
 from urllib import request, error
 import json
 import pandas as pd
@@ -22,6 +23,58 @@ SLEEP_TIME = 0.2
 
 # Create Jasper instance
 jsp = Jasper("import.metno.hourly.model")
+
+def get_condicode(code: str) -> Union[int, None]:
+    """
+    Map Met.no symbol codes to Meteostat condicodes
+
+    https://api.met.no/weatherapi/weathericon/2.0/documentation
+    """
+    condicodes = {
+        "clearsky": 1,
+        "cloudy": 3,
+        "fair": 2,
+        "fog": 5,
+        "heavyrain": 9,
+        "heavyrainandthunder": 26,
+        "heavyrainshowers": 18,
+        "heavyrainshowersandthunder": 26,
+        "heavysleet": 13,
+        "heavysleetandthunder": 26,
+        "heavysleetshowers": 20,
+        "heavysleetshowersandthunder": 26,
+        "heavysnow": 16,
+        "heavysnowandthunder": 26,
+        "heavysnowshowers": 22,
+        "heavysnowshowersandthunder": 26,
+        "lightrain": 7,
+        "lightrainandthunder": 25,
+        "lightrainshowers": 17,
+        "lightrainshowersandthunder": 25,
+        "lightsleet": 12,
+        "lightsleetandthunder": 25,
+        "lightsleetshowers": 19,
+        "lightsnow": 14,
+        "lightsnowandthunder": 25,
+        "lightsnowshowers": 21,
+        "lightssleetshowersandthunder": 25,
+        "lightssnowshowersandthunder": 25,
+        "partlycloudy": 3,
+        "rain": 8,
+        "rainandthunder": 25,
+        "rainshowers": 17,
+        "rainshowersandthunder": 25,
+        "sleet": 12,
+        "sleetandthunder": 25,
+        "sleetshowers": 19,
+        "sleetshowersandthunder": 25,
+        "snow": 15,
+        "snowandthunder": 25,
+        "snowshowers": 21,
+        "snowshowersandthunder": 25,
+    }
+
+    return condicodes.get(str(code), None)
 
 # Get weather stations
 stations = get_stations(
@@ -91,6 +144,13 @@ if len(stations) > 0:
                     if "air_pressure_at_sea_level"
                     in record["data"]["instant"]["details"]
                     else None,
+                    "coco": get_condicode(record["data"]["next_1_hours"]["summary"][
+                        "symbol_code"
+                    ])
+                    if "next_1_hours" in record["data"]
+                    and "symbol_code"
+                    in record["data"]["next_1_hours"]["summary"]
+                    else None,
                 }
 
             # Create DataFrame
@@ -100,8 +160,9 @@ if len(stations) > 0:
             df["station"] = station[0]
             df = df.set_index(["station", "time"])
 
-            # Shift prcp column by 1 (as it refers to the next hour)
+            # Shift prcp and coco columns by 1 (as they refer to the next hour)
             df["prcp"] = df["prcp"].shift(1)
+            df["coco"] = df["coco"].shift(1)
 
             # Append data to full DataFrame
             if df_full is None:
