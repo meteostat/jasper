@@ -24,6 +24,7 @@ SLEEP_TIME = 0.2
 # Create Jasper instance
 jsp = Jasper("import.metno.hourly.model")
 
+
 def get_condicode(code: str) -> Union[int, None]:
     """
     Map Met.no symbol codes to Meteostat condicodes
@@ -74,7 +75,8 @@ def get_condicode(code: str) -> Union[int, None]:
         "snowshowersandthunder": 25,
     }
 
-    return condicodes.get(str(code), None)
+    return condicodes.get(str(code).split("_")[0], None)
+
 
 # Get weather stations
 stations = get_stations(
@@ -144,12 +146,11 @@ if len(stations) > 0:
                     if "air_pressure_at_sea_level"
                     in record["data"]["instant"]["details"]
                     else None,
-                    "coco": get_condicode(record["data"]["next_1_hours"]["summary"][
-                        "symbol_code"
-                    ])
+                    "coco": get_condicode(
+                        record["data"]["next_1_hours"]["summary"]["symbol_code"]
+                    )
                     if "next_1_hours" in record["data"]
-                    and "symbol_code"
-                    in record["data"]["next_1_hours"]["summary"]
+                    and "symbol_code" in record["data"]["next_1_hours"]["summary"]
                     else None,
                 }
 
