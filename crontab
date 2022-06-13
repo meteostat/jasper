@@ -1,6 +1,7 @@
 * * * * * python3 -W ignore ~/jasper/cron/import/metno/hourly/model.py
 25 * * * * python3 -W ignore ~/jasper/cron/import/zamg/hourly/synop.py
 * * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/synop.py
+* * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/model.py
 10 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/metar_cycle.py
 2-59/10 * * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/national.py recent 12
 * * * * * python3 -W ignore ~/jasper/cron/import/eccc/hourly/national.py

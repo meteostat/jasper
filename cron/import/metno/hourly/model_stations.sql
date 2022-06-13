@@ -2,7 +2,8 @@ SELECT
     `stations`.`id` AS `id`,
     `stations`.`latitude` AS `latitude`,
     `stations`.`longitude` AS `longitude`,
-    `stations`.`altitude` AS `altitude`
+    `stations`.`altitude` AS `altitude`,
+    `stations`.`mosmix` AS `mosmix`
 FROM `stations`
 WHERE
     `stations`.`latitude` IS NOT NULL AND

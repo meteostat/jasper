@@ -111,48 +111,60 @@ if len(stations) > 0:
                 """
                 Map JSON data
                 """
-                return {
-                    "time": record["time"],
-                    "temp": record["data"]["instant"]["details"]["air_temperature"]
-                    if "air_temperature" in record["data"]["instant"]["details"]
-                    else None,
-                    "rhum": record["data"]["instant"]["details"]["relative_humidity"]
-                    if "relative_humidity" in record["data"]["instant"]["details"]
-                    else None,
-                    "prcp": record["data"]["next_1_hours"]["details"][
-                        "precipitation_amount"
-                    ]
-                    if "next_1_hours" in record["data"]
-                    and "precipitation_amount"
-                    in record["data"]["next_1_hours"]["details"]
-                    else None,
-                    "wspd": record["data"]["instant"]["details"]["wind_speed"] * 3.6
-                    if "wind_speed" in record["data"]["instant"]["details"]
-                    else None,
-                    "wpgt": record["data"]["instant"]["details"]["wind_speed_of_gust"]
-                    * 3.6
-                    if "wind_speed_of_gust" in record["data"]["instant"]["details"]
-                    else None,
-                    "wdir": int(
-                        round(
-                            record["data"]["instant"]["details"]["wind_from_direction"]
+                if station[4]:
+                    return {
+                        "time": record["time"],
+                        "prcp": record["data"]["next_1_hours"]["details"][
+                            "precipitation_amount"
+                        ]
+                        if "next_1_hours" in record["data"]
+                        and "precipitation_amount"
+                        in record["data"]["next_1_hours"]["details"]
+                        else None,
+                    }
+                else:
+                    return {
+                        "time": record["time"],
+                        "temp": record["data"]["instant"]["details"]["air_temperature"]
+                        if "air_temperature" in record["data"]["instant"]["details"]
+                        else None,
+                        "rhum": record["data"]["instant"]["details"]["relative_humidity"]
+                        if "relative_humidity" in record["data"]["instant"]["details"]
+                        else None,
+                        "prcp": record["data"]["next_1_hours"]["details"][
+                            "precipitation_amount"
+                        ]
+                        if "next_1_hours" in record["data"]
+                        and "precipitation_amount"
+                        in record["data"]["next_1_hours"]["details"]
+                        else None,
+                        "wspd": record["data"]["instant"]["details"]["wind_speed"] * 3.6
+                        if "wind_speed" in record["data"]["instant"]["details"]
+                        else None,
+                        "wpgt": record["data"]["instant"]["details"]["wind_speed_of_gust"]
+                        * 3.6
+                        if "wind_speed_of_gust" in record["data"]["instant"]["details"]
+                        else None,
+                        "wdir": int(
+                            round(
+                                record["data"]["instant"]["details"]["wind_from_direction"]
+                            )
                         )
-                    )
-                    if "wind_from_direction" in record["data"]["instant"]["details"]
-                    else None,
-                    "pres": record["data"]["instant"]["details"][
-                        "air_pressure_at_sea_level"
-                    ]
-                    if "air_pressure_at_sea_level"
-                    in record["data"]["instant"]["details"]
-                    else None,
-                    "coco": get_condicode(
-                        record["data"]["next_1_hours"]["summary"]["symbol_code"]
-                    )
-                    if "next_1_hours" in record["data"]
-                    and "symbol_code" in record["data"]["next_1_hours"]["summary"]
-                    else None,
-                }
+                        if "wind_from_direction" in record["data"]["instant"]["details"]
+                        else None,
+                        "pres": record["data"]["instant"]["details"][
+                            "air_pressure_at_sea_level"
+                        ]
+                        if "air_pressure_at_sea_level"
+                        in record["data"]["instant"]["details"]
+                        else None,
+                        "coco": get_condicode(
+                            record["data"]["next_1_hours"]["summary"]["symbol_code"]
+                        )
+                        if "next_1_hours" in record["data"]
+                        and "symbol_code" in record["data"]["next_1_hours"]["summary"]
+                        else None,
+                    }
 
             # Create DataFrame
             df = pd.DataFrame(map(map_data, data["properties"]["timeseries"]))
@@ -163,7 +175,8 @@ if len(stations) > 0:
 
             # Shift prcp and coco columns by 1 (as they refer to the next hour)
             df["prcp"] = df["prcp"].shift(1)
-            df["coco"] = df["coco"].shift(1)
+            if not station[4]:
+                df["coco"] = df["coco"].shift(1)
 
             # Append data to full DataFrame
             if df_full is None:
