@@ -128,7 +128,9 @@ if len(stations) > 0:
                         "temp": record["data"]["instant"]["details"]["air_temperature"]
                         if "air_temperature" in record["data"]["instant"]["details"]
                         else None,
-                        "rhum": record["data"]["instant"]["details"]["relative_humidity"]
+                        "rhum": record["data"]["instant"]["details"][
+                            "relative_humidity"
+                        ]
                         if "relative_humidity" in record["data"]["instant"]["details"]
                         else None,
                         "prcp": record["data"]["next_1_hours"]["details"][
@@ -141,13 +143,17 @@ if len(stations) > 0:
                         "wspd": record["data"]["instant"]["details"]["wind_speed"] * 3.6
                         if "wind_speed" in record["data"]["instant"]["details"]
                         else None,
-                        "wpgt": record["data"]["instant"]["details"]["wind_speed_of_gust"]
+                        "wpgt": record["data"]["instant"]["details"][
+                            "wind_speed_of_gust"
+                        ]
                         * 3.6
                         if "wind_speed_of_gust" in record["data"]["instant"]["details"]
                         else None,
                         "wdir": int(
                             round(
-                                record["data"]["instant"]["details"]["wind_from_direction"]
+                                record["data"]["instant"]["details"][
+                                    "wind_from_direction"
+                                ]
                             )
                         )
                         if "wind_from_direction" in record["data"]["instant"]["details"]

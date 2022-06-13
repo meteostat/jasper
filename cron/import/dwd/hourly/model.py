@@ -20,7 +20,7 @@ from jasper.actions import persist
 
 
 # General configuration
-STATIONS_PER_CYCLE = 1  # Number of stations per execution
+STATIONS_PER_CYCLE = 6  # Number of stations per execution
 
 # Variables
 df_full: Union[pd.DataFrame, None] = None  # DataFrame which holds all data
@@ -66,6 +66,7 @@ def get_condicode(code: str) -> Union[int, None]:
     }
 
     return condicodes.get(str(code), None)
+
 
 # Get MOSMIX weather stations
 stations = get_stations(
