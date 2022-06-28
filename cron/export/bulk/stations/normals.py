@@ -54,7 +54,7 @@ def get_bulk(station: list) -> pd.DataFrame:
                 # Fetch DataFrame
                 df = df.fetch()
                 # Drop certain columns
-                df = df.drop(["tavg", "snow", "wdir", "wpgt"], axis=1)
+                df = df.drop(["tavg"], axis=1)
                 # Aggregate monthly
                 df = df.groupby(df.index.month).agg("mean")
                 df = df.round(1)
@@ -176,5 +176,5 @@ for station in stations:
     except BaseException:
         pass
 
-# Close FTP connection
-jsp.bulk.quit()
+# Close connections
+jsp.close()
