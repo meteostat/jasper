@@ -163,6 +163,53 @@ def tsun_monthly(value):
     except BaseException:
         return None
 
+def srad_hourly(value):
+    """
+    Validate hourly global solar radiation data
+    """
+    try:
+        if value is None or isnan(value) or value < 0 or value > 600:
+            return None
+        return value
+    except BaseException:
+        return None
+
+
+def srad_daily(value):
+    """
+    Validate daily global solar radiation data
+    """
+    try:
+        if value is None or isnan(value) or value < 0 or value > 5000:
+            return None
+        return value
+    except BaseException:
+        return None
+
+
+def cldc(value):
+    """
+    Validate cloud cover (oktas)
+    """
+    try:
+        if value is None or isnan(value) or value < 0 or value > 8:
+            return None
+        return value
+    except BaseException:
+        return None
+
+
+def vsby(value):
+    """
+    Validate visibility (meters)
+    """
+    try:
+        if value is None or isnan(value) or value < 0 or value > 9999:
+            return None
+        return value
+    except BaseException:
+        return None
+
 
 def coco(value):
     """

@@ -10,22 +10,30 @@ from jasper import validation
 hourly_model = {
     "template": {
         "temp": None,
-        "rhum": None,
         "prcp": None,
         "wspd": None,
         "wpgt": None,
         "wdir": None,
+        "tsun": None,
+        "srad": None,
         "pres": None,
+        "rhum": None,
+        "cldc": None,
+        "vsby": None,
         "coco": None,
     },
     "validation": {
         "temp": validation.temp,
-        "rhum": validation.rhum,
         "prcp": validation.prcp_hourly,
         "wspd": validation.wspd,
         "wpgt": validation.wpgt,
         "wdir": validation.wdir,
+        "tsun": validation.tsun_hourly,
+        "srad": validation.srad_hourly,
         "pres": validation.pres,
+        "rhum": validation.rhum,
+        "cldc": validation.cldc,
+        "vsby": validation.vsby,
         "coco": validation.coco,
     },
     "import_query": """
@@ -34,21 +42,29 @@ hourly_model = {
             `station` = :station,
             `time` = :time,
             `temp` = :temp,
-            `rhum` = :rhum,
             `prcp` = :prcp,
             `wspd` = :wspd,
             `wpgt` = :wpgt,
             `wdir` = :wdir,
+            `tsun` = :tsun,
+            `srad` = :srad,
             `pres` = :pres,
+            `rhum` = :rhum,
+            `cldc` = :cldc,
+            `vsby` = :vsby,
             `coco` = :coco
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
-            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `srad` = COALESCE(VALUES(`srad`),`srad`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
+            `vsby` = COALESCE(VALUES(`vsby`),`vsby`),
             `coco` = COALESCE(VALUES(`coco`),`coco`)
     """,
 }
@@ -56,26 +72,32 @@ hourly_model = {
 hourly_synop = {
     "template": {
         "temp": None,
-        "rhum": None,
         "prcp": None,
+        "snow": None,
         "wspd": None,
         "wpgt": None,
         "wdir": None,
-        "pres": None,
-        "snow": None,
         "tsun": None,
+        "srad": None,
+        "pres": None,
+        "rhum": None,
+        "cldc": None,
+        "vsby": None,
         "coco": None,
     },
     "validation": {
         "temp": validation.temp,
-        "rhum": validation.rhum,
         "prcp": validation.prcp_hourly,
+        "snow": validation.snow,
         "wspd": validation.wspd,
         "wpgt": validation.wpgt,
         "wdir": validation.wdir,
-        "pres": validation.pres,
-        "snow": validation.snow,
         "tsun": validation.tsun_hourly,
+        "srad": validation.srad_hourly,
+        "pres": validation.pres,
+        "rhum": validation.rhum,
+        "cldc": validation.cldc,
+        "vsby": validation.vsby,
         "coco": validation.coco,
     },
     "import_query": """
@@ -84,25 +106,31 @@ hourly_synop = {
             `station` = :station,
             `time` = :time,
             `temp` = :temp,
-            `rhum` = :rhum,
             `prcp` = :prcp,
+            `snow` = :snow,
             `wspd` = :wspd,
             `wpgt` = :wpgt,
             `wdir` = :wdir,
-            `pres` = :pres,
-            `snow` = :snow,
             `tsun` = :tsun,
+            `srad` = :srad,
+            `pres` = :pres,
+            `rhum` = :rhum,
+            `cldc` = :cldc,
+            `vsby` = :vsby,
             `coco` = :coco
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
-            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `snow` = COALESCE(VALUES(`snow`),`snow`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
-            `pres` = COALESCE(VALUES(`pres`),`pres`),
-            `snow` = COALESCE(VALUES(`snow`),`snow`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `srad` = COALESCE(VALUES(`srad`),`srad`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
+            `vsby` = COALESCE(VALUES(`vsby`),`vsby`),
             `coco` = COALESCE(VALUES(`coco`),`coco`)
     """,
 }
@@ -110,21 +138,29 @@ hourly_synop = {
 hourly_national = {
     "template": {
         "temp": None,
-        "rhum": None,
         "prcp": None,
         "wspd": None,
         "wdir": None,
-        "pres": None,
         "tsun": None,
+        "srad": None,
+        "pres": None,
+        "rhum": None,
+        "cldc": None,
+        "vsby": None,
+        "coco": None,
     },
     "validation": {
         "temp": validation.temp,
-        "rhum": validation.rhum,
         "prcp": validation.prcp_hourly,
         "wspd": validation.wspd,
         "wdir": validation.wdir,
-        "pres": validation.pres,
         "tsun": validation.tsun_hourly,
+        "srad": validation.srad_hourly,
+        "pres": validation.pres,
+        "rhum": validation.rhum,
+        "cldc": validation.cldc,
+        "vsby": validation.vsby,
+        "coco": validation.coco,
     },
     "import_query": """
         INSERT INTO `hourly_national`
@@ -132,39 +168,49 @@ hourly_national = {
             `station` = :station,
             `time` = :time,
             `temp` = :temp,
-            `rhum` = :rhum,
             `prcp` = :prcp,
             `wspd` = :wspd,
             `wdir` = :wdir,
+            `tsun` = :tsun,
+            `srad` = :srad,
             `pres` = :pres,
-            `tsun` = :tsun
+            `rhum` = :rhum,
+            `cldc` = :cldc,
+            `vsby` = :vsby,
+            `coco` = :coco
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
-            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `srad` = COALESCE(VALUES(`srad`),`srad`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
-            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
+            `vsby` = COALESCE(VALUES(`vsby`),`vsby`),
+            `coco` = COALESCE(VALUES(`coco`),`coco`)
     """,
 }
 
 hourly_global = {
     "template": {
         "temp": None,
-        "rhum": None,
         "prcp": None,
         "wspd": None,
         "wdir": None,
         "pres": None,
+        "rhum": None,
+        "cldc": None,
     },
     "validation": {
         "temp": validation.temp,
-        "rhum": validation.rhum,
         "prcp": validation.prcp_hourly,
         "wspd": validation.wspd,
         "wdir": validation.wdir,
         "pres": validation.pres,
+        "rhum": validation.rhum,
+        "cldc": validation.cldc
     },
     "import_query": """
         INSERT INTO `hourly_isd`
@@ -172,36 +218,42 @@ hourly_global = {
             `station` = :station,
             `time` = :time,
             `temp` = :temp,
-            `rhum` = :rhum,
             `prcp` = :prcp,
             `wspd` = :wspd,
             `wdir` = :wdir,
-            `pres` = :pres
+            `pres` = :pres,
+            `rhum` = :rhum,
+            `cldc` = :cldc
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
-            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
-            `pres` = COALESCE(VALUES(`pres`),`pres`)
+            `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`)
     """,
 }
 
 hourly_metar = {
     "template": {
         "temp": None,
-        "rhum": None,
         "wspd": None,
         "wdir": None,
         "pres": None,
+        "rhum": None,
+        "cldc": None,
+        "vsby": None,
         "coco": None,
     },
     "validation": {
         "temp": validation.temp,
-        "rhum": validation.rhum,
         "wspd": validation.wspd,
         "wdir": validation.wdir,
         "pres": validation.pres,
+        "rhum": validation.rhum,
+        "cldc": validation.cldc,
+        "vsby": validation.vsby,
         "coco": validation.coco,
     },
     "import_query": """
@@ -210,17 +262,21 @@ hourly_metar = {
             `station` = :station,
             `time` = :time,
             `temp` = :temp,
-            `rhum` = :rhum,
             `wspd` = :wspd,
             `wdir` = :wdir,
             `pres` = :pres,
+            `rhum` = :rhum,
+            `cldc` = :cldc,
+            `vsby` = :vsby,
             `coco` = :coco
         ON DUPLICATE KEY UPDATE
             `temp` = COALESCE(VALUES(`temp`),`temp`),
-            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
+            `vsby` = COALESCE(VALUES(`vsby`),`vsby`),
             `coco` = COALESCE(VALUES(`coco`),`coco`)
     """,
 }
@@ -230,25 +286,29 @@ daily_national = {
         "tavg": None,
         "tmin": None,
         "tmax": None,
-        "rhum": None,
         "prcp": None,
+        "snow": None,
         "wspd": None,
         "wpgt": None,
-        "pres": None,
-        "snow": None,
         "tsun": None,
+        "srad": None,
+        "pres": None,
+        "rhum": None,
+        "cldc": None
     },
     "validation": {
         "tavg": validation.temp,
         "tmin": validation.temp,
         "tmax": validation.temp,
         "prcp": validation.prcp_daily,
-        "rhum": validation.rhum,
+        "snow": validation.snow,
         "wspd": validation.wspd,
         "wpgt": validation.wpgt,
-        "pres": validation.pres,
-        "snow": validation.snow,
         "tsun": validation.tsun_daily,
+        "srad": validation.srad_daily,
+        "pres": validation.pres,
+        "rhum": validation.rhum,
+        "cldc": validation.cldc
     },
     "import_query": """
         INSERT INTO `daily_national`
@@ -258,24 +318,28 @@ daily_national = {
             `tavg` = :tavg,
             `tmin` = :tmin,
             `tmax` = :tmax,
-            `rhum` = :rhum,
             `prcp` = :prcp,
+            `snow` = :snow,
             `wspd` = :wspd,
             `wpgt` = :wpgt,
+            `tsun` = :tsun,
+            `srad` = :srad,
             `pres` = :pres,
-            `snow` = :snow,
-            `tsun` = :tsun
+            `rhum` = :rhum,
+            `cldc` = :cldc
         ON DUPLICATE KEY UPDATE
             `tavg` = COALESCE(VALUES(`tavg`),`tavg`),
             `tmin` = COALESCE(VALUES(`tmin`),`tmin`),
             `tmax` = COALESCE(VALUES(`tmax`),`tmax`),
-            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `snow` = COALESCE(VALUES(`snow`),`snow`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `srad` = COALESCE(VALUES(`srad`),`srad`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
-            `snow` = COALESCE(VALUES(`snow`),`snow`),
-            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+            `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
     """,
 }
 
@@ -285,22 +349,24 @@ daily_global = {
         "tmin": None,
         "tmax": None,
         "prcp": None,
+        "snow": None,
         "wspd": None,
         "wpgt": None,
         "wdir": None,
-        "snow": None,
         "tsun": None,
+        "cldc": None
     },
     "validation": {
         "tavg": validation.temp,
         "tmin": validation.temp,
         "tmax": validation.temp,
         "prcp": validation.prcp_daily,
+        "snow": validation.snow,
         "wspd": validation.wspd,
         "wpgt": validation.wpgt,
         "wdir": validation.wdir,
-        "snow": validation.snow,
         "tsun": validation.tsun_daily,
+        "cldc": validation.cldc
     },
     "import_query": """
         INSERT INTO `daily_ghcn`
@@ -311,21 +377,23 @@ daily_global = {
             `tmin` = :tmin,
             `tmax` = :tmax,
             `prcp` = :prcp,
+            `snow` = :snow,
             `wspd` = :wspd,
             `wpgt` = :wpgt,
             `wdir` = :wdir,
-            `snow` = :snow,
-            `tsun` = :tsun
+            `tsun` = :tsun,
+            `cldc` = :cldc
         ON DUPLICATE KEY UPDATE
             `tavg` = COALESCE(VALUES(`tavg`),`tavg`),
             `tmin` = COALESCE(VALUES(`tmin`),`tmin`),
             `tmax` = COALESCE(VALUES(`tmax`),`tmax`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
+            `snow` = COALESCE(VALUES(`snow`),`snow`),
             `wspd` = COALESCE(VALUES(`wspd`),`wspd`),
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
-            `snow` = COALESCE(VALUES(`snow`),`snow`),
-            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
     """,
 }
 
@@ -374,16 +442,16 @@ normals_global = {
         "tmin": None,
         "tmax": None,
         "prcp": None,
-        "pres": None,
         "tsun": None,
+        "pres": None
     },
     "validation": {
         "tavg": validation.temp,
         "tmin": validation.temp,
         "tmax": validation.temp,
         "prcp": validation.prcp_monthly,
-        "pres": validation.pres,
         "tsun": validation.tsun_monthly,
+        "pres": validation.pres
     },
     "import_query": """
         INSERT IGNORE INTO
@@ -397,14 +465,14 @@ normals_global = {
             `tmin` = :tmin,
             `tmax` = :tmax,
             `prcp` = :prcp,
-            `pres` = :pres,
-            `tsun` = :tsun
+            `tsun` = :tsun,
+            `pres` = :pres
         ON DUPLICATE KEY UPDATE
             `tavg` = COALESCE(VALUES(`tavg`),`tavg`),
             `tmin` = COALESCE(VALUES(`tmin`),`tmin`),
             `tmax` = COALESCE(VALUES(`tmax`),`tmax`),
             `prcp` = COALESCE(VALUES(`prcp`),`prcp`),
-            `pres` = COALESCE(VALUES(`pres`),`pres`),
-            `tsun` = COALESCE(VALUES(`tsun`),`tsun`)
+            `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
+            `pres` = COALESCE(VALUES(`pres`),`pres`)
     """,
 }
