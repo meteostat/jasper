@@ -339,7 +339,7 @@ daily_national = {
             `srad` = COALESCE(VALUES(`srad`),`srad`),
             `pres` = COALESCE(VALUES(`pres`),`pres`),
             `rhum` = COALESCE(VALUES(`rhum`),`rhum`),
-            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`)
     """,
 }
 
@@ -393,7 +393,7 @@ daily_global = {
             `wpgt` = COALESCE(VALUES(`wpgt`),`wpgt`),
             `wdir` = COALESCE(VALUES(`wdir`),`wdir`),
             `tsun` = COALESCE(VALUES(`tsun`),`tsun`),
-            `cldc` = COALESCE(VALUES(`cldc`),`cldc`),
+            `cldc` = COALESCE(VALUES(`cldc`),`cldc`)
     """,
 }
 
