@@ -108,6 +108,7 @@ for line in file:
                     if (obs.wind_speed is not None and obs.wind_speed.value("KMH") > 0)
                     else None,
                     "pres": obs.press.value("HPA") if obs.press is not None else None,
+                    "vsby": obs.vis.value("M") if obs.vis is not None else None,
                     "coco": get_condicode(obs.weather)
                     if obs.weather is not None
                     else None,

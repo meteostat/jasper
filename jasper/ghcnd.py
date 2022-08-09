@@ -106,6 +106,7 @@ def dly_to_df(ftp, station_id):
         "AWND",
         "TSUN",
         "WSFG",
+        "ACMC",
     ]
 
     # Read through entire StringIO stream (the .dly file)

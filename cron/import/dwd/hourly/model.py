@@ -13,7 +13,13 @@ from zipfile import ZipFile
 from lxml import etree
 import pandas as pd
 from jasper import Jasper
-from jasper.convert import kelvin_to_celsius, ms_to_kmh, temp_dwpt_to_rhum
+from jasper.convert import (
+    jcm2_to_wm2,
+    kelvin_to_celsius,
+    ms_to_kmh,
+    percentage_to_okta,
+    temp_dwpt_to_rhum,
+)
 from jasper.helpers import get_stations, read_file
 from jasper.schema import hourly_model
 from jasper.actions import persist
@@ -123,14 +129,18 @@ for station in stations:
         # Each parameter is processed individually
         data = {
             "time": timesteps,
-            "pres": [],
             "temp": [],
             "dwpt": [],
+            "prcp": [],
             "wdir": [],
             "wspd": [],
             "wpgt": [],
+            "tsun": [],
+            "srad": [],
+            "pres": [],
+            "cldc": [],
+            "vsby": [],
             "coco": [],
-            "prcp": [],
         }
         placemark = tree.xpath(
             "//kml:kml/kml:Document/kml:Placemark", namespaces=tree.nsmap
@@ -293,11 +303,90 @@ for station in stations:
                 None
             )
 
+        # Sunshine Duration
+        for value in (
+            re.sub(
+                r"/\s+/",
+                " ",
+                placemark.xpath(
+                    'kml:ExtendedData/dwd:Forecast[@dwd:elementName="SunD1"]/dwd:value',
+                    namespaces=tree.nsmap,
+                )[0].text,
+            )
+            .strip()
+            .split()
+        ):
+            data["tsun"].append(
+                float(value) / 60
+                if value.lstrip("-").replace(".", "", 1).isdigit()
+                else None
+            )
+
+        # Solar Radiation
+        for value in (
+            re.sub(
+                r"/\s+/",
+                " ",
+                placemark.xpath(
+                    'kml:ExtendedData/dwd:Forecast[@dwd:elementName="Rad1h"]/dwd:value',
+                    namespaces=tree.nsmap,
+                )[0].text,
+            )
+            .strip()
+            .split()
+        ):
+            data["srad"].append(
+                float(value) / 10
+                if value.lstrip("-").replace(".", "", 1).isdigit()
+                else None
+            )
+
+        # Cloud Cover
+        for value in (
+            re.sub(
+                r"/\s+/",
+                " ",
+                placemark.xpath(
+                    'kml:ExtendedData/dwd:Forecast[@dwd:elementName="N"]/dwd:value',
+                    namespaces=tree.nsmap,
+                )[0].text,
+            )
+            .strip()
+            .split()
+        ):
+            data["cldc"].append(
+                percentage_to_okta(float(value))
+                if value.lstrip("-").replace(".", "", 1).isdigit()
+                else None
+            )
+
+        # Visibility
+        for value in (
+            re.sub(
+                r"/\s+/",
+                " ",
+                placemark.xpath(
+                    'kml:ExtendedData/dwd:Forecast[@dwd:elementName="VV"]/dwd:value',
+                    namespaces=tree.nsmap,
+                )[0].text,
+            )
+            .strip()
+            .split()
+        ):
+            data["vsby"].append(
+                float(value)
+                if value.lstrip("-").replace(".", "", 1).isdigit()
+                else None
+            )
+
         # Convert data dict to DataFrame
         df = pd.DataFrame.from_dict(data)
 
         # Convert time strings to datetime
         df["time"] = pd.to_datetime(df["time"])
+
+        # Convert SRAD to W/M^2
+        df["srad"] = df["srad"].apply(jcm2_to_wm2)
 
         # Calculate humidity data
         # pylint: disable=unnecessary-lambda

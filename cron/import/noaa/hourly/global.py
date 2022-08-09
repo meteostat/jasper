@@ -13,6 +13,7 @@ from datetime import datetime
 from io import BytesIO
 from ftplib import FTP
 import gzip
+from numpy import isnan
 import pandas as pd
 from jasper import Jasper
 from jasper.actions import persist
@@ -39,10 +40,19 @@ COLSPECS = [
     (25, 31),
     (31, 37),
     (37, 43),
+    (43, 49),
     (49, 55),
 ]
 # Column names
-NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "prcp"]
+NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "cldc", "prcp"]
+
+
+def map_sky_code(code: Union[int, str]) -> Union[int, None]:
+    """
+    Only accept okta
+    """
+    return int(code) if not isnan(code) and int(code) >= 0 and int(code) <= 8 else None
+
 
 # Create Jasper instance
 jsp = Jasper(f"import.noaa.hourly.global.{MODE}")
@@ -130,6 +140,7 @@ for station in stations.to_dict(orient="records"):
                 df["dwpt"] = df["dwpt"].div(10)
                 df["pres"] = df["pres"].div(10)
                 df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
+                df["cldc"] = df["cldc"].apply(map_sky_code)
                 df["prcp"] = df["prcp"].div(10)
 
                 # Calculate humidity data

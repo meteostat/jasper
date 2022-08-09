@@ -13,6 +13,7 @@ from datetime import datetime
 import pandas as pd
 from jasper import Jasper
 from jasper.actions import persist
+from jasper.convert import percentage_to_okta
 from jasper.schema import hourly_synop
 
 
@@ -24,11 +25,14 @@ POI_PATH = (
     + "/poi.csv"
 )
 # Column which should be imported
-USECOLS = [0, 1, 9, 21, 22, 23, 33, 35, 36, 37, 40, 41]
+USECOLS = [0, 1, 2, 9, 11, 14, 21, 22, 23, 33, 35, 36, 37, 40, 41]
 PARSE_DATES = {"time": [0, 1]}  # Columns which should be parsed as dates
 # Column names
 NAMES = {
+    "Wolkenbedeckung": "cldc",
     "Temperatur (2m)": "temp",
+    "Globalstrahlung (letzte Stunde)": "srad",
+    "Sichtweite": "vsby",
     "Windgeschwindigkeit": "wspd",
     "Windboen (letzte Stunde)": "wpgt",
     "Niederschlag (letzte Stunde)": "prcp",
@@ -127,7 +131,7 @@ df_full = None
 for station in stations.to_dict(orient="records"):
     try:
         # Read CSV data from DWD server
-        url = f"http://opendata.dwd.de/weather/weather_reports/poi/{station['id']}-BEOB.csv"
+        url = f"https://opendata.dwd.de/weather/weather_reports/poi/{station['id']}-BEOB.csv"
         df = pd.read_csv(
             url,
             sep=";",
@@ -144,9 +148,11 @@ for station in stations.to_dict(orient="records"):
 
         # Snow cm -> mm
         df["snow"] = df["snow"].multiply(10)
+        df["vsby"] = df["vsby"].multiply(1000)
 
         # Change coco
         df["coco"] = df["coco"].apply(get_condicode)
+        df["cldc"] = df["cldc"].apply(percentage_to_okta)
 
         # Add station column
         df["station"] = station["id"]

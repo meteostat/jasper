@@ -13,7 +13,7 @@ import pandas as pd
 from numpy import nan
 from jasper import Jasper, ghcnd
 from jasper.actions import persist
-from jasper.convert import ms_to_kmh
+from jasper.convert import ms_to_kmh, percentage_to_okta
 from jasper.schema import daily_global
 
 
@@ -34,6 +34,7 @@ NAMES = {
     "AWND": "wspd",
     "TSUN": "tsun",
     "WSFG": "wpgt",
+    "ACMC": "cldc",
 }
 
 # Create Jasper instance
@@ -87,6 +88,7 @@ for station in stations.to_dict(orient="records"):
             "AWND",
             "TSUN",
             "WSFG",
+            "ACMC",
         ]
         df = df.drop(columns=[col for col in df if col not in required_columns])
 
@@ -105,6 +107,7 @@ for station in stations.to_dict(orient="records"):
         df["prcp"] = df["prcp"].div(10)
         df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
         df["wpgt"] = df["wpgt"].div(10).apply(ms_to_kmh)
+        df["cldc"] = df["cldc"].apply(percentage_to_okta)
 
         # Add station column
         df["station"] = station["id"]

@@ -13,14 +13,14 @@ def kelvin_to_celsius(value):
     """
     Convert Kelvin to Celsius
     """
-    return value - 273.15 if value is not None else None
+    return value - 273.15 if value is not None and not isnan(value) else None
 
 
 def ms_to_kmh(value):
     """
     # Convert m/s to km/h
     """
-    return value * 3.6 if value is not None else None
+    return value * 3.6 if value is not None and not isnan(value) else None
 
 
 def temp_dwpt_to_rhum(row: dict):
@@ -69,3 +69,17 @@ def pres_to_msl(row: dict, altitude: int = None, temp: str = "tavg"):
         )
     except BaseException:
         return None
+
+
+def percentage_to_okta(value):
+    """
+    Convert cloud cover percentage to oktas
+    """
+    return round(value / 12.5) if value is not None and not isnan(value) else None
+
+
+def jcm2_to_wm2(value):
+    """
+    Convert Joule/CM^2 to Watt/M^2
+    """
+    return round(value * 2.78) if value is not None and not isnan(value) else None

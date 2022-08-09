@@ -29,7 +29,7 @@ hourly_model = {
         "wpgt": validation.wpgt,
         "wdir": validation.wdir,
         "tsun": validation.tsun_hourly,
-        "srad": validation.srad_hourly,
+        "srad": validation.srad,
         "pres": validation.pres,
         "rhum": validation.rhum,
         "cldc": validation.cldc,
@@ -93,7 +93,7 @@ hourly_synop = {
         "wpgt": validation.wpgt,
         "wdir": validation.wdir,
         "tsun": validation.tsun_hourly,
-        "srad": validation.srad_hourly,
+        "srad": validation.srad,
         "pres": validation.pres,
         "rhum": validation.rhum,
         "cldc": validation.cldc,
@@ -155,7 +155,7 @@ hourly_national = {
         "wspd": validation.wspd,
         "wdir": validation.wdir,
         "tsun": validation.tsun_hourly,
-        "srad": validation.srad_hourly,
+        "srad": validation.srad,
         "pres": validation.pres,
         "rhum": validation.rhum,
         "cldc": validation.cldc,
@@ -210,7 +210,7 @@ hourly_global = {
         "wdir": validation.wdir,
         "pres": validation.pres,
         "rhum": validation.rhum,
-        "cldc": validation.cldc
+        "cldc": validation.cldc,
     },
     "import_query": """
         INSERT INTO `hourly_isd`
@@ -294,7 +294,7 @@ daily_national = {
         "srad": None,
         "pres": None,
         "rhum": None,
-        "cldc": None
+        "cldc": None,
     },
     "validation": {
         "tavg": validation.temp,
@@ -305,10 +305,10 @@ daily_national = {
         "wspd": validation.wspd,
         "wpgt": validation.wpgt,
         "tsun": validation.tsun_daily,
-        "srad": validation.srad_daily,
+        "srad": validation.srad,
         "pres": validation.pres,
         "rhum": validation.rhum,
-        "cldc": validation.cldc
+        "cldc": validation.cldc,
     },
     "import_query": """
         INSERT INTO `daily_national`
@@ -354,7 +354,7 @@ daily_global = {
         "wpgt": None,
         "wdir": None,
         "tsun": None,
-        "cldc": None
+        "cldc": None,
     },
     "validation": {
         "tavg": validation.temp,
@@ -366,7 +366,7 @@ daily_global = {
         "wpgt": validation.wpgt,
         "wdir": validation.wdir,
         "tsun": validation.tsun_daily,
-        "cldc": validation.cldc
+        "cldc": validation.cldc,
     },
     "import_query": """
         INSERT INTO `daily_ghcn`
@@ -443,7 +443,7 @@ normals_global = {
         "tmax": None,
         "prcp": None,
         "tsun": None,
-        "pres": None
+        "pres": None,
     },
     "validation": {
         "tavg": validation.temp,
@@ -451,7 +451,7 @@ normals_global = {
         "tmax": validation.temp,
         "prcp": validation.prcp_monthly,
         "tsun": validation.tsun_monthly,
-        "pres": validation.pres
+        "pres": validation.pres,
     },
     "import_query": """
         INSERT IGNORE INTO

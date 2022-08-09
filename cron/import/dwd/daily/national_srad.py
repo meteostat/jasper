@@ -1,7 +1,5 @@
 """
-DWD national daily data import task
-
-Get daily data for weather stations in Germany.
+DWD daily solar radiation data
 
 The code is licensed under the MIT license.
 """
@@ -15,30 +13,17 @@ from datetime import datetime
 import hashlib
 import pandas as pd
 from jasper import Jasper
-from jasper.convert import pres_to_msl, ms_to_kmh
+from jasper.convert import jcm2_to_wm2
 from jasper.schema import daily_national
 from jasper.actions import persist
 
 
 # General configuration
-MODE = sys.argv[1]  # 'recent' or 'historical'
 DWD_FTP_SERVER = "opendata.dwd.de"  # DWD open data server
-STATIONS_PER_CYCLE = int(sys.argv[2])  # Number of stations per execution
-USECOLS = [1, 3, 4, 6, 8, 9, 10, 12, 13, 14, 15, 16]  # CSV cols which should be read
+STATIONS_PER_CYCLE = int(sys.argv[1])  # Number of stations per execution
+USECOLS = [1, 5]  # CSV cols which should be read
 PARSE_DATES = {"time": [0]}  # Which columns should be parsed as dates?
-NAMES = {
-    "FX": "wpgt",
-    "FM": "wspd",
-    "RSK": "prcp",
-    "SDK": "tsun",
-    "SHK_TAG": "snow",
-    "NM": "cldc",
-    "PM": "pres",
-    "TMK": "tavg",
-    "UPM": "rhum",
-    "TXK": "tmax",
-    "TNK": "tmin",
-}
+NAMES = {"FG_STRAHL": "srad"}
 
 # Variables
 counter = 0  # The task's counter
@@ -48,7 +33,7 @@ files = []  # List of remote files
 df_full: pd.DataFrame = None  # DataFrame which holds all data
 
 # Create Jasper instance
-jsp = Jasper(f"import.dwd.daily.national.{MODE}")
+jsp = Jasper(f"import.dwd.daily.national_srad")
 
 
 def dateparser(value):
@@ -61,11 +46,11 @@ def dateparser(value):
 # Connect to DWD FTP server
 ftp = FTP(DWD_FTP_SERVER)
 ftp.login()
-ftp.cwd("/climate_environment/CDC/observations_germany/climate/daily/kl/" + MODE)
+ftp.cwd("/climate_environment/CDC/observations_germany/climate/daily/solar/")
 
 # Get counter value
 counter = jsp.get_var("station_counter", 0, int)
-skip = 3 if counter == 0 else 3 + counter
+skip = skip if counter == 0 else skip + counter
 
 # Get all files in directory
 try:
@@ -85,15 +70,12 @@ else:
 for remote_file in files:
     try:
         # Get meta info for weather station
-        national_id = (
-            str(remote_file[-13:-8]) if MODE == "recent" else str(remote_file[-32:-27])
-        )
+        national_id = str(remote_file[-13:-8])
         station_df = pd.read_sql(
-            f"SELECT `id`, `altitude` FROM `stations` WHERE `national_id` LIKE '{national_id}'",
+            f"SELECT `id` FROM `stations` WHERE `national_id` LIKE '{national_id}'",
             jsp.db(),
         )
         station = station_df.iloc[0][0]
-        altitude = station_df.iloc[0][1]
 
         # Get remote file
         file_hash = hashlib.md5(remote_file.encode("utf-8")).hexdigest()
@@ -126,12 +108,8 @@ for remote_file in files:
         df = df.rename(columns=lambda x: x.strip())
         df = df.rename(columns=NAMES)
 
-        # Convert data
-        df["snow"] = df["snow"] * 10
-        df["wpgt"] = df["wpgt"].apply(ms_to_kmh)
-        df["wspd"] = df["wspd"].apply(ms_to_kmh)
-        df["tsun"] = df["tsun"] * 60
-        df["pres"] = df.apply(lambda row, alt=altitude: pres_to_msl(row, alt), axis=1)
+        # Convert to W/M^2
+        df["srad"] = df["srad"].divide(24).apply(jcm2_to_wm2)
 
         # Add weather station ID
         df["station"] = station

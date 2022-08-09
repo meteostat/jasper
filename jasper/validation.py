@@ -163,24 +163,13 @@ def tsun_monthly(value):
     except BaseException:
         return None
 
-def srad_hourly(value):
+
+def srad(value):
     """
-    Validate hourly global solar radiation data
+    Validate solar radiation data (W/M^2)
     """
     try:
-        if value is None or isnan(value) or value < 0 or value > 600:
-            return None
-        return value
-    except BaseException:
-        return None
-
-
-def srad_daily(value):
-    """
-    Validate daily global solar radiation data
-    """
-    try:
-        if value is None or isnan(value) or value < 0 or value > 5000:
+        if value is None or isnan(value) or value < 0 or value > 1368:
             return None
         return value
     except BaseException:
@@ -204,8 +193,10 @@ def vsby(value):
     Validate visibility (meters)
     """
     try:
-        if value is None or isnan(value) or value < 0 or value > 9999:
+        if value is None or isnan(value) or value < 0:
             return None
+        elif value > 9999:
+            return 9999
         return value
     except BaseException:
         return None

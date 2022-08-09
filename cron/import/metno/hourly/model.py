@@ -13,6 +13,7 @@ import json
 import pandas as pd
 from jasper import Jasper
 from jasper.actions import persist
+from jasper.convert import percentage_to_okta
 from jasper.helpers import get_stations, read_file
 from jasper.schema import hourly_model
 
@@ -127,6 +128,11 @@ if len(stations) > 0:
                         "time": record["time"],
                         "temp": record["data"]["instant"]["details"]["air_temperature"]
                         if "air_temperature" in record["data"]["instant"]["details"]
+                        else None,
+                        "cldc": percentage_to_okta(
+                            record["data"]["instant"]["details"]["cloud_area_fraction"]
+                        )
+                        if "cloud_area_fraction" in record["data"]["instant"]["details"]
                         else None,
                         "rhum": record["data"]["instant"]["details"][
                             "relative_humidity"

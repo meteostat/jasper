@@ -33,6 +33,7 @@ PARAMETERS = {
     "Precip. Amount (mm)": "prcp",
     "Wind Dir (10s deg)": "wdir",
     "Wind Spd (km/h)": "wspd",
+    "Visibility (km)": "vsby",
     "Stn Press (kPa)": "pres",
 }
 
@@ -61,6 +62,10 @@ def load(station: str, year: int, month: int) -> pd.DataFrame():
 
         # Wind direction to degrees
         df["wdir"] = df["wdir"] * 10
+
+        # Visibility to meters
+        df["vsby"] = df["vsby"] * 1000
+
         # Convert PRES to MSL
         df["pres"] = df["pres"] * 10
         df["pres"] = df.apply(
