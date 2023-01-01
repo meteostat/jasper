@@ -17,3 +17,4 @@ numba
 pykdtree
 verde==1.6.1
 meteostat==1.5.8
+pulire==0.0.3

@@ -4,6 +4,7 @@ Meteostat database schemas
 The code is licensed under the MIT license.
 """
 
+from pulire import Schema, Column, validators
 from jasper import validation
 
 
@@ -22,6 +23,21 @@ hourly_model = {
         "vsby": None,
         "coco": None,
     },
+    "schema": Schema(columns=[
+        Column("temp", float, [validators.minimum(-100), validators.maximum(65)]),
+        Column("prcp", float, [validators.minimum(0), validators.maximum(350)]),
+        Column("snow", float, [validators.minimum(0), validators.maximum(11000)]),
+        Column("wdir", float, [validators.minimum(0), validators.maximum(360)]),
+        Column("wspd", float, [validators.minimum(0), validators.maximum(250)]),
+        Column("wpgt", float, [validators.minimum(0), validators.maximum(500), validators.greater("wspd")]),
+        Column("tsun", int, [validators.minimum(0), validators.maximum(60)]),
+        Column("srad", int, [validators.minimum(0), validators.maximum(1368)]),
+        Column("pres", float, [validators.minimum(850), validators.maximum(1090)]),
+        Column("rhum", int, [validators.minimum(0), validators.maximum(100)]),
+        Column("cldc", int, [validators.minimum(0), validators.maximum(100)]),
+        Column("vsby", int, [validators.minimum(0), validators.maximum(9999)]),
+        Column("coco", int, [validators.minimum(1), validators.maximum(27)])
+    ]),
     "validation": {
         "temp": validation.temp,
         "prcp": validation.prcp_hourly,

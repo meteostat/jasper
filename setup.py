@@ -36,6 +36,7 @@ setup(
         "lxml",
         "metar>=1.8",
         "meteostat==1.6.1",
+        "pulire==0.0.3"
     ],
     extras_require={
         "spatial": [
