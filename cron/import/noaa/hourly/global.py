@@ -10,9 +10,6 @@ import os
 import sys
 from typing import Union
 from datetime import datetime
-from io import BytesIO
-from ftplib import FTP
-import gzip
 from numpy import isnan
 import pandas as pd
 from jasper import Jasper
@@ -22,6 +19,7 @@ from jasper.schema import hourly_global
 
 
 # General configuratiob
+NOAA_ISD_LITE_ENDPOINT = 'https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/'
 MODE = sys.argv[1]
 STATIONS_PER_CYCLE = 1 if MODE == "recent" else 4
 USAF_WBAN_PATH = (
@@ -93,10 +91,6 @@ if stations is None or len(stations.index) < STATIONS_PER_CYCLE:
 else:
     jsp.set_var("station_counter", skip + STATIONS_PER_CYCLE)
 
-# Connect to NOAA FTP Server
-ftp = FTP("ftp.ncdc.noaa.gov")
-ftp.login()
-
 # Get list of years
 if MODE == "recent":
     years = range(CURRENT_YEAR - 1, CURRENT_YEAR + 1)
@@ -106,68 +100,51 @@ else:
 for station in stations.to_dict(orient="records"):
     for year in years:
         try:
-            ftp.cwd("/pub/data/noaa/isd-lite/" + str(year))
 
             filename = station["usaf"] + "-" + station["wban"] + "-" + str(year) + ".gz"
 
-            if filename in ftp.nlst():
-                # Download file
-                local_file = os.path.dirname(__file__) + os.sep + filename
-                with open(local_file, "wb") as f:
-                    ftp.retrbinary("RETR " + filename, f.write)
+            df = pd.read_fwf(
+                f'{NOAA_ISD_LITE_ENDPOINT}/{year}/{filename}',
+                parse_dates={"time": [0, 1, 2, 3]},
+                na_values=["-9999", -9999],
+                header=None,
+                colspecs=COLSPECS,
+                compression='gzip'
+            )
 
-                # Unzip file
-                file = gzip.open(local_file, "rb")
-                raw = file.read()
-                file.close()
+            # Rename columns
+            df.columns = NAMES
 
-                # Remove .gz file
-                os.remove(local_file)
+            # Adapt columns
+            df["temp"] = df["temp"].div(10)
+            df["dwpt"] = df["dwpt"].div(10)
+            df["pres"] = df["pres"].div(10)
+            df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
+            df["cldc"] = df["cldc"].apply(map_sky_code)
+            df["prcp"] = df["prcp"].div(10)
 
-                df = pd.read_fwf(
-                    BytesIO(raw),
-                    parse_dates={"time": [0, 1, 2, 3]},
-                    na_values=["-9999", -9999],
-                    header=None,
-                    colspecs=COLSPECS,
-                )
+            # Calculate humidity data
+            # pylint: disable=unnecessary-lambda
+            df["rhum"] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
 
-                # Rename columns
-                df.columns = NAMES
+            # Drop dew point column
+            # pylint: disable=no-member
+            df = df.drop("dwpt", axis=1)
 
-                # Adapt columns
-                df["temp"] = df["temp"].div(10)
-                df["dwpt"] = df["dwpt"].div(10)
-                df["pres"] = df["pres"].div(10)
-                df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
-                df["cldc"] = df["cldc"].apply(map_sky_code)
-                df["prcp"] = df["prcp"].div(10)
+            # Add station column
+            df["station"] = station["id"]
 
-                # Calculate humidity data
-                # pylint: disable=unnecessary-lambda
-                df["rhum"] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
+            # Set index
+            df = df.set_index(["station", "time"])
 
-                # Drop dew point column
-                # pylint: disable=no-member
-                df = df.drop("dwpt", axis=1)
+            # Round decimals
+            df = df.round(1)
 
-                # Add station column
-                df["station"] = station["id"]
-
-                # Set index
-                df = df.set_index(["station", "time"])
-
-                # Round decimals
-                df = df.round(1)
-
-                # Write data into Meteostat database
-                persist(jsp, df, hourly_global)
+            # Write data into Meteostat database
+            persist(jsp, df, hourly_global)
 
         except BaseException:
             pass
-
-# Quit FTP connection
-ftp.quit()
 
 # Close Jasper instance
 jsp.close()
