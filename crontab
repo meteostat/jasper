@@ -13,8 +13,8 @@
 # Temporary solution based on ECCC request
 22 6 5,15,25 * * python3 -W ignore ~/jasper/cron/import/eccc/daily/national.py
 * * * * * python3 -W ignore ~/jasper/cron/import/noaa/daily/global.py
-7-59/10 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/global.py recent
-3-59/3 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/global.py historical
+# 7-59/10 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/global.py recent
+# 3-59/3 * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/global.py historical
 * * * * * python3 -W ignore ~/jasper/cron/import/noaa/hourly/national_metar.py
 28 * * * * python3 -W ignore ~/jasper/cron/import/dwd/monthly/global.py recent 5
 42 * * * * python3 -W ignore ~/jasper/cron/import/dwd/monthly/global.py historical 3
