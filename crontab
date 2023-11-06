@@ -9,7 +9,7 @@
 4 0-23/4 * * * python3 -W ignore ~/jasper/cron/import/dwd/hourly/national.py historical 1
 6-59/15 * * * * python3 -W ignore ~/jasper/cron/import/dwd/daily/national.py recent 10
 8 0-23/4 * * * python3 -W ignore ~/jasper/cron/import/dwd/daily/national.py historical 1
-10 * * * * python3 -W ignore ~/jasper/cron/import/dwd/daily/national_srad.py 1
+# 10 * * * * python3 -W ignore ~/jasper/cron/import/dwd/daily/national_srad.py 1
 # Temporary solution based on ECCC request
 22 6 5,15,25 * * python3 -W ignore ~/jasper/cron/import/eccc/daily/national.py
 * * * * * python3 -W ignore ~/jasper/cron/import/noaa/daily/global.py
@@ -20,16 +20,19 @@
 42 * * * * python3 -W ignore ~/jasper/cron/import/dwd/monthly/global.py historical 3
 # 50 * * * * python3 -W ignore ~/jasper/cron/import/dwd/normals/global.py
 0 0 * * * python3 -W ignore ~/jasper/cron/import/internal/github/stations.py
+5,25,45 * * * * python3 -W ignore ~/jasper/cron/export/bulk/raw/synop.py
+*/2 * * * * python3 -W ignore ~/jasper/cron/export/bulk/raw/metar.py
+*/6 * * * * python3 -W ignore ~/jasper/cron/export/bulk/raw/mosmix.py
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py all
-* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py all
+18 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py all
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py recent
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py live
-* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py recent
+# * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py recent
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily.py
-* * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily_legacy.py
+22 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/daily_legacy.py
 36 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly.py
-39 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly_legacy_obs.py
-44 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly_legacy_full.py
+39 3 * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly_legacy_obs.py
+44 4 * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/monthly_legacy_full.py
 53 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/normals.py
 12 5 * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/meta.py
 5 5-23/3 * * * python3 -W ignore ~/jasper/cron/export/bulk/gridded/daily.py recent 1
