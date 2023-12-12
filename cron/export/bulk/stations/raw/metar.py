@@ -38,7 +38,7 @@ for station in stations:
             if len(d) > 0:
                 # Export data dump
                 export_csv(
-                    jsp, result.keys() + d, f"/raw/metar/{year}/{station[0]}.csv.gz"
+                    jsp, list(result.keys()) + d, f"/raw/metar/{year}/{station[0]}.csv.gz"
                 )
 
 # Close Jasper instance
