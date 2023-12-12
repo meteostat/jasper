@@ -20,26 +20,32 @@ stations = get_stations(jsp, read_file("metar_stations.sql"), STATIONS_PER_CYCLE
 
 # Export data for each weather station
 for station in stations:
-    result = jsp.query(
-        read_file("metar.sql"), {"station": station[0]}
-    )
+    try:
+        result = jsp.query(
+            read_file("metar.sql"), {"station": station[0]}
+        )
 
-    if result.rowcount > 0:
-        # Fetch data
-        data = result.fetchall()
+        if result.rowcount > 0:
+            # Fetch data
+            data = result.fetchall()
 
-        # Write annually
-        first_year = int(data[0][0].year)
-        last_year = int(data[-1][0].year)
+            # Write annually
+            first_year = int(data[0][0].year)
+            last_year = int(data[-1][0].year)
 
-        for year in range(first_year, last_year + 1):
-            d = list(filter(lambda row: int(row[0].year) == year, data))
+            for year in range(first_year, last_year + 1):
+                try:
+                    d = list(filter(lambda row: int(row[0].year) == year, data))
 
-            if len(d) > 0:
-                # Export data dump
-                export_csv(
-                    jsp, list(result.keys()) + d, f"/raw/metar/{year}/{station[0]}.csv.gz"
-                )
+                    if len(d) > 0:
+                        # Export data dump
+                        export_csv(
+                            jsp, [list(result.keys())] + d, f"/raw/metar/{year}/{station[0]}.csv.gz"
+                        )
+                except:
+                    pass
+    except:
+        pass
 
 # Close Jasper instance
 jsp.close()
