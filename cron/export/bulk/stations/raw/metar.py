@@ -28,10 +28,18 @@ for station in stations:
         # Fetch data
         data = result.fetchall()
 
-        # Export data dump
-        export_csv(
-            jsp, list(map(lambda d: d[:11], data)), f"/raw/metar/{station[0]}.csv.gz"
-        )
+        # Write annually
+        first_year = int(data[0][0].year)
+        last_year = int(data[-1][0].year)
+
+        for year in range(first_year, last_year + 1):
+            d = list(filter(lambda row: int(row[0].year) == year, data))
+
+            if len(d) > 0:
+                # Export data dump
+                export_csv(
+                    jsp, result.keys() + d, f"/raw/metar/{year}/{station[0]}.csv.gz"
+                )
 
 # Close Jasper instance
 jsp.close()
