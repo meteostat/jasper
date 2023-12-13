@@ -8,9 +8,6 @@ SELECT date(min(`time`)) as `date`,
         `wpgt`,
         `pres`,
         `tsun`,
-        `srad` AS `sghi`,
-        `cldc`,
-        `vsby`,
         `coco`
 FROM   `hourly_model`
 WHERE  `station` = :station
