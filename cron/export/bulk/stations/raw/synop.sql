@@ -1,6 +1,6 @@
 SELECT date_format(min(`time`), '%Y') as `year`,
        date_format(min(`time`), '%c') as `month`,
-       date_format(min(`time`), '%d') as `day`,
+       date_format(min(`time`), '%e') as `day`,
        date_format(min(`time`), '%k') as `hour`,
         `temp`,
         `rhum`,
