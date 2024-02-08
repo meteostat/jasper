@@ -22,7 +22,7 @@
 0 0 * * * python3 -W ignore ~/jasper/cron/import/internal/github/stations.py
 5,25,45 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/raw/synop.py
 */2 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/raw/metar.py
-*/6 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/raw/mosmix.py
+*/6 * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/raw/model.py
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py all
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly_legacy.py all
 * * * * * python3 -W ignore ~/jasper/cron/export/bulk/stations/hourly.py recent

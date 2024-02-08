@@ -1,0 +1,1 @@
+SELECT DISTINCT `station` AS `id` FROM `hourly_model`
