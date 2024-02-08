@@ -7,6 +7,7 @@ SELECT date_format(min(`time`), '%Y') as `year`,
         `wdir`,
         `wspd`,
         `pres`,
+        `cldc`,
         `coco`
 FROM   `hourly_metar`
 WHERE  `station` = :station

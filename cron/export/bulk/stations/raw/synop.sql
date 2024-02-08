@@ -11,6 +11,7 @@ SELECT date_format(min(`time`), '%Y') as `year`,
         `wpgt`,
         `pres`,
         `tsun`,
+        `cldc`,
         `coco`
 FROM   `hourly_synop`
 WHERE  `station` = :station
