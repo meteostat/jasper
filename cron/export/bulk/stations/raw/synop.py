@@ -30,12 +30,12 @@ for station in stations:
             data = result.fetchall()
 
             # Write annually
-            first_year = int(data[0][0].year)
-            last_year = int(data[-1][0].year)
+            first_year = int(data[0][0])
+            last_year = int(data[-1][0])
 
             for year in range(first_year, last_year + 1):
                 try:
-                    d = list(filter(lambda row: int(row[0].year) == year, data))
+                    d = list(filter(lambda row: int(row[0]) == year, data))
 
                     if len(d) > 0:
                         # Export data dump

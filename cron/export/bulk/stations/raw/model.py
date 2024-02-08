@@ -35,7 +35,7 @@ for station in stations:
 
             for year in range(first_year, last_year + 1):
                 try:
-                    d = list(filter(lambda row: int(row[0].year) == year, data))
+                    d = list(filter(lambda row: int(row[0]) == year, data))
 
                     if len(d) > 0:
                         # Export data dump
